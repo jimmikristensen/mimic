@@ -1,37 +1,40 @@
 package mimic.mountebank.fragment;
 
-import java.util.HashMap;
+import mimic.mountebank.ConsumerImposterBuilder;
+import mimic.mountebank.imposter.ImposterPredicate;
 
 public class PredicateEquals {
 
-    private String method;
-    private String path;
-    private String query;
-    private HashMap<String, String> queries = new HashMap<>();
-    private HashMap<String, String> headers = new HashMap<>();
+    private ConsumerImposterBuilder cib;
+    private ImposterPredicate imposterPredicate;
+
+    public PredicateEquals(ConsumerImposterBuilder cib, ImposterPredicate imposterPredicate) {
+        this.cib = cib;
+        this.imposterPredicate = imposterPredicate;
+    }
 
     public PredicateEquals method(String method) {
-        this.method = method;
+        imposterPredicate.method = method;
         return this;
     }
 
     public PredicateEquals path(String path) {
-        this.path = path;
+        imposterPredicate.path = path;
         return this;
     }
 
     public PredicateEquals query(String key, String value) {
-        queries.put(key, value);
+        imposterPredicate.queries.put(key, value);
         return this;
     }
 
     public PredicateEquals header(String key, String value) {
-        headers.put(key, value);
+        imposterPredicate.headers.put(key, value);
         return this;
     }
 
     public Response respondsWith() {
-        return new Response();
+        return new Response(cib);
     }
 
 }
