@@ -1,0 +1,4 @@
+- Start up mountebank using test containers
+-- or use an existing installation
+- Imposter builder to create imposter files
+- Possibility to verify imposter contracts against origin
