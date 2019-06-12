@@ -2,7 +2,7 @@ package mimic.mountebank;
 
 import mimic.mountebank.fragment.PredicateEquals;
 import mimic.mountebank.imposter.Imposter;
-import mimic.mountebank.imposter.ImposterPredicate;
+import mimic.mountebank.imposter.ImposterPredicateEquals;
 import mimic.mountebank.imposter.Stub;
 
 public class ConsumerImposterBuilder {
@@ -17,11 +17,11 @@ public class ConsumerImposterBuilder {
 
     public PredicateEquals requestEquals() {
         Stub stub = new Stub();
-        ImposterPredicate imposterPredicate = new ImposterPredicate();
-        stub.predicates.add(imposterPredicate);
+        ImposterPredicateEquals ipe = new ImposterPredicateEquals();
+        stub.predicates.add(ipe);
         imposter.stubs.add(stub);
 
-        return new PredicateEquals(this, imposterPredicate);
+        return new PredicateEquals(this, ipe);
     }
 
     public Imposter getImposter() {

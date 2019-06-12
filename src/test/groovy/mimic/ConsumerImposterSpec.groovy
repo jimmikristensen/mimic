@@ -44,10 +44,10 @@ class ConsumerImposterSpec extends Specification {
         imp.protocol == "HTTP"
         imp.port == 4321
         imp.stubs.get(0).predicates.size() == 1
-        imp.stubs.get(0).predicates.get(0).method == "POST"
-        imp.stubs.get(0).predicates.get(0).path == "/test"
-        imp.stubs.get(0).predicates.get(0).headers == ["Some-Header":"Header-Data"]
-        imp.stubs.get(0).predicates.get(0).queries == ["q":"some query"]
+        imp.stubs.get(0).predicates.get(0).equals.method == "POST"
+        imp.stubs.get(0).predicates.get(0).equals.path == "/test"
+        imp.stubs.get(0).predicates.get(0).equals.headers == ["Some-Header":"Header-Data"]
+        imp.stubs.get(0).predicates.get(0).equals.queries == ["q":"some query"]
 
         and:
         ObjectMapper mapper = new ObjectMapper()

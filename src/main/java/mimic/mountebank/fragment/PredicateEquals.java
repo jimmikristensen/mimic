@@ -2,34 +2,37 @@ package mimic.mountebank.fragment;
 
 import mimic.mountebank.ConsumerImposterBuilder;
 import mimic.mountebank.imposter.ImposterPredicate;
+import mimic.mountebank.imposter.ImposterPredicateEquals;
+
+import java.util.HashMap;
 
 public class PredicateEquals {
 
     private ConsumerImposterBuilder cib;
-    private ImposterPredicate imposterPredicate;
+    private ImposterPredicateEquals imposterPredicateEquals;
 
-    public PredicateEquals(ConsumerImposterBuilder cib, ImposterPredicate imposterPredicate) {
+    public PredicateEquals(ConsumerImposterBuilder cib, ImposterPredicateEquals imposterPredicateEquals) {
         this.cib = cib;
-        this.imposterPredicate = imposterPredicate;
+        this.imposterPredicateEquals = imposterPredicateEquals;
     }
 
     public PredicateEquals method(String method) {
-        imposterPredicate.method = method;
+        this.imposterPredicateEquals.setMethod(method);
         return this;
     }
 
     public PredicateEquals path(String path) {
-        imposterPredicate.path = path;
+        this.imposterPredicateEquals.setPath(path);
         return this;
     }
 
     public PredicateEquals query(String key, String value) {
-        imposterPredicate.queries.put(key, value);
+        this.imposterPredicateEquals.setQueries(key, value);
         return this;
     }
 
     public PredicateEquals header(String key, String value) {
-        imposterPredicate.headers.put(key, value);
+        this.imposterPredicateEquals.setHeaders(key, value);
         return this;
     }
 
