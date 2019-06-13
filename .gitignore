@@ -6,4 +6,4 @@ build
 
 # Ignore intellij
 .idea
-.out
+out
