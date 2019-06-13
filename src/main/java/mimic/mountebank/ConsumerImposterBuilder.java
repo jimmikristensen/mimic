@@ -17,7 +17,7 @@ public class ConsumerImposterBuilder {
     public ConsumerImposterBuilder(int port, String protocol) {
         imposter = new Imposter();
         imposter.setPort(port);
-        imposter.setProtocol(protocol);
+        imposter.setProtocol(protocol.toLowerCase());
     }
 
     public PredicateBuilder givenRequest() {

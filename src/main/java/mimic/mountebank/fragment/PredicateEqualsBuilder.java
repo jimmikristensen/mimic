@@ -6,10 +6,12 @@ public class PredicateEqualsBuilder {
 
     private EqualsParams equals;
     private PredicateBuilder predicateBuilder;
+    private ResponseBuilder responseBuilder;
 
-    public PredicateEqualsBuilder(EqualsParams equals, PredicateBuilder predicateBuilder) {
+    public PredicateEqualsBuilder(EqualsParams equals, PredicateBuilder predicateBuilder, ResponseBuilder responseBuilder) {
         this.equals = equals;
         this.predicateBuilder = predicateBuilder;
+        this.responseBuilder = responseBuilder;
     }
 
     public PredicateEqualsBuilder method(String method) {
@@ -32,8 +34,8 @@ public class PredicateEqualsBuilder {
         return this;
     }
 
-    public void respondsWith() {
-
+    public ResponseBuilder respondsWith() {
+        return responseBuilder;
     }
 
     public PredicateBuilder and() {

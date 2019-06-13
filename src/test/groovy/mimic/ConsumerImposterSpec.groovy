@@ -26,11 +26,13 @@ class ConsumerImposterSpec extends Specification {
                 .path("/test")
                 .query("q", "some query")
                 .header("Some-Header", "Header-Data")
+                .respondsWith()
+                .status(200)
 
         then:
         Imposter imp = cib.getImposter()
         imp.getStubs().size() == 1
-        imp.getProtocol() == "HTTP"
+        imp.getProtocol() == "http"
         imp.getPort() == 4321
         imp.getStubs().get(0).getPredicates().size() == 1
         imp.getStubs().get(0).getPredicates().get(0).getEqulasParams().getMethod() == "POST"
