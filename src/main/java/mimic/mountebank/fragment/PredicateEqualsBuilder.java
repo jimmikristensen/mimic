@@ -32,6 +32,10 @@ public class PredicateEqualsBuilder {
         return this;
     }
 
+    public void respondsWith() {
+
+    }
+
     public PredicateBuilder and() {
         return predicateBuilder;
     }
