@@ -5,9 +5,11 @@ import mimic.mountebank.imposter.EqualsParams;
 public class PredicateEqualsBuilder {
 
     private EqualsParams equals;
+    private PredicateBuilder predicateBuilder;
 
-    public PredicateEqualsBuilder(EqualsParams equals) {
+    public PredicateEqualsBuilder(EqualsParams equals, PredicateBuilder predicateBuilder) {
         this.equals = equals;
+        this.predicateBuilder = predicateBuilder;
     }
 
     public PredicateEqualsBuilder method(String method) {
@@ -28,5 +30,9 @@ public class PredicateEqualsBuilder {
     public PredicateEqualsBuilder header(String key, String value) {
         equals.addHeader(key, value);
         return this;
+    }
+
+    public PredicateBuilder and() {
+        return predicateBuilder;
     }
 }

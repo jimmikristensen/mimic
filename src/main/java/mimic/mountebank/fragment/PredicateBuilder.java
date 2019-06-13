@@ -17,6 +17,6 @@ public class PredicateBuilder {
         EqualsParams equalsParams = new EqualsParams();
         equals.setEqulasParams(equalsParams);
         stub.addPredicate(equals);
-        return new PredicateEqualsBuilder(equalsParams);
+        return new PredicateEqualsBuilder(equalsParams, this);
     }
 }
