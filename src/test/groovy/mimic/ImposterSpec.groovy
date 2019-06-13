@@ -9,13 +9,6 @@ import spock.lang.Specification
 
 class ImposterSpec extends Specification {
 
-    def "converting single stub with one imposter and one response to json succeeds"() {
-        given:
-        def imposter = new Imposter(port: 1234, protocol: "HTTP", stubs: [new Stub(predicates: [new EqualsParams(name: "This is a equals")])])
 
-        expect:
-        ObjectMapper mapper = new ObjectMapper()
-        mapper.writerWithDefaultPrettyPrinter().writeValue(System.out, imposter)
-    }
 
 }
