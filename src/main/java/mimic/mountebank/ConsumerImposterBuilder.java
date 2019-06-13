@@ -1,8 +1,7 @@
 package mimic.mountebank;
 
-import mimic.mountebank.fragment.PredicateEquals;
+import mimic.mountebank.fragment.PredicateBuilder;
 import mimic.mountebank.imposter.Imposter;
-import mimic.mountebank.imposter.ImposterPredicateEquals;
 import mimic.mountebank.imposter.Stub;
 
 public class ConsumerImposterBuilder {
@@ -11,17 +10,18 @@ public class ConsumerImposterBuilder {
 
     public ConsumerImposterBuilder(int port, String protocol) {
         imposter = new Imposter();
-        imposter.port = port;
-        imposter.protocol = protocol;
+        imposter.setPort(port);
+        imposter.setProtocol(protocol);
     }
 
-    public PredicateEquals requestEquals() {
+    public PredicateBuilder givenRequest() {
         Stub stub = new Stub();
-        ImposterPredicateEquals ipe = new ImposterPredicateEquals();
-        stub.predicates.add(ipe);
-        imposter.stubs.add(stub);
+        imposter.addStubs(stub);
+//        ImposterPredicateEquals ipe = new ImposterPredicateEquals();
+//        stub.addPredicate(ipe);
+//        imposter.stubs.add(stub);
 
-        return new PredicateEquals(this, ipe);
+        return new PredicateBuilder(stub);
     }
 
     public Imposter getImposter() {
