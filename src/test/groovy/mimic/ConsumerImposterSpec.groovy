@@ -5,6 +5,7 @@ import mimic.mountebank.ConsumerImposterBuilder
 import mimic.mountebank.MountebankClient
 import mimic.mountebank.MountebankContainerBuilder
 import mimic.mountebank.imposter.Imposter
+import org.testcontainers.shaded.okhttp3.MediaType
 import spock.lang.Shared
 import spock.lang.Specification
 
@@ -14,7 +15,7 @@ class ConsumerImposterSpec extends Specification {
     def mountebankContainer = new MountebankContainerBuilder().managementPort(2525).build()
 
 
-    def "imposter containers a stub with one predicate after populating"() {
+    def "posting simple imposter to mountebank is successful"() {
         given:
         def cib = new ConsumerImposterBuilder(4321, "http")
 
@@ -41,8 +42,8 @@ class ConsumerImposterSpec extends Specification {
         imp.getStubs().get(0).getPredicates().get(0).getEqulasParams().getQueries() == ["q":"some query"]
 
         and:
-        println "http://localhost:${mountebankContainer.getMappedPort(2525)}"
-        new MountebankClient().writeImposter(cib.getImposterAsJsonString(), "http://localhost:${mountebankContainer.getMappedPort(2525)}/imposters")
+        boolean isPosted = new MountebankClient().postImposter(cib.getImposterAsJsonString(), "http://localhost:${mountebankContainer.getMappedPort(2525)}/imposters")
+        isPosted == true
         println cib.getImposterAsJsonString()
     }
 

@@ -10,7 +10,7 @@ public class MountebankClient {
 
     }
 
-    public void writeImposter(String imposter, String url) {
+    public boolean postImposter(String imposter, String url) throws IOException {
         OkHttpClient client = new OkHttpClient();
 
         RequestBody body = RequestBody.create(
@@ -23,11 +23,8 @@ public class MountebankClient {
                 .post(body)
                 .build();
 
-        try (Response response = client.newCall(request).execute()) {
-            System.out.println(response.code());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        Response response = client.newCall(request).execute();
+        return response.isSuccessful();
     }
 
 
