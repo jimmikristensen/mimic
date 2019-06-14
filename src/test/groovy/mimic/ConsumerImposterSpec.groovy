@@ -44,7 +44,6 @@ class ConsumerImposterSpec extends Specification {
         println "http://localhost:${mountebankContainer.getMappedPort(2525)}"
         new MountebankClient().writeImposter(cib.getImposterAsJsonString(), "http://localhost:${mountebankContainer.getMappedPort(2525)}/imposters")
         println cib.getImposterAsJsonString()
-        Thread.sleep(60000)
     }
 
     def "imposter contains a stub with two equals predicates"() {

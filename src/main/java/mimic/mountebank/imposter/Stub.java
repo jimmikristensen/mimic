@@ -7,14 +7,14 @@ import java.util.List;
 public class Stub {
 
     private List<Equals> predicates = new ArrayList<>();
-    private List<Response> responses = new ArrayList<>();
+    private List<Responses> responses = new ArrayList<>();
 
-    public List<Response> getResponses() {
+    public List<Responses> getResponses() {
         return responses;
     }
 
-    public void addResponse(Response response) {
-        this.responses.add(response);
+    public void addResponse(Responses responses) {
+        this.responses.add(responses);
     }
 
     public List<Equals> getPredicates() {
