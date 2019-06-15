@@ -23,6 +23,10 @@ public class Imposter {
         return Protocol.valueOf(protocol.toUpperCase());
     }
 
+    public void setProtocol(String protocolString) {
+        this.protocol = protocolString;
+    }
+
     public void setProtocol(Protocol protocol) {
         this.protocol = protocol.getProtocol();
     }

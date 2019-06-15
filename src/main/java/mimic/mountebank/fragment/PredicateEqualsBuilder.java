@@ -1,6 +1,7 @@
 package mimic.mountebank.fragment;
 
 import mimic.mountebank.imposter.EqualsParams;
+import mimic.mountebank.net.http.HttpMethod;
 
 public class PredicateEqualsBuilder {
 
@@ -15,6 +16,11 @@ public class PredicateEqualsBuilder {
     }
 
     public PredicateEqualsBuilder method(String method) {
+        equals.setMethod(method);
+        return this;
+    }
+
+    public PredicateEqualsBuilder method(HttpMethod method) {
         equals.setMethod(method);
         return this;
     }

@@ -3,6 +3,7 @@ package mimic
 
 import mimic.mountebank.ConsumerImposterBuilder
 import mimic.mountebank.net.Protocol
+import mimic.mountebank.net.http.HttpMethod
 import mimic.mountebank.net.http.MountebankClient
 import mimic.mountebank.MountebankContainerBuilder
 import mimic.mountebank.imposter.Imposter
@@ -23,7 +24,7 @@ class ConsumerImposterSpec extends Specification {
         def predicate = cib
                 .givenRequest()
                 .equals()
-                .method("POST")
+                .method(HttpMethod.POST)
                 .path("/test")
                 .query("q", "some query")
                 .header("Some-Header", "Header-Data")
@@ -32,12 +33,11 @@ class ConsumerImposterSpec extends Specification {
 
         then:
         Imposter imp = cib.getImposter()
-        println imp.getProtocol()
         imp.getStubs().size() == 1
         imp.getProtocol() == Protocol.HTTP
         imp.getPort() == 4321
         imp.getStub(0).getPredicates().size() == 1
-        imp.getStub(0).getPredicate(0).getEqulasParams().getMethod() == "POST"
+        imp.getStub(0).getPredicate(0).getEqulasParams().getMethod() == HttpMethod.POST
         imp.getStub(0).getPredicate(0).getEqulasParams().getPath() == "/test"
         imp.getStub(0).getPredicate(0).getEqulasParams().getHeaders() == ["Some-Header":"Header-Data"]
         imp.getStub(0).getPredicate(0).getEqulasParams().getQueries() == ["q":"some query"]
