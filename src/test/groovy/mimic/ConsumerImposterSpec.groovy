@@ -15,6 +15,9 @@ class ConsumerImposterSpec extends Specification {
     @Shared
     def mountebankContainer = new MountebankContainerBuilder().managementPort(2525).build()
 
+    def setup() {
+
+    }
 
     def "posting simple imposter to mountebank is successful"() {
         given:
@@ -23,13 +26,13 @@ class ConsumerImposterSpec extends Specification {
         when:
         def predicate = cib
                 .givenRequest()
-                .equals()
-                .method(HttpMethod.POST)
-                .path("/test")
-                .query("q", "some query")
-                .header("Some-Header", "Header-Data")
+                    .equals()
+                    .method(HttpMethod.POST)
+                    .path("/test")
+                    .query("q", "some query")
+                    .header("Some-Header", "Header-Data")
                 .respondsWith()
-                .status(200)
+                    .status(200)
 
         then:
         Imposter imp = cib.getImposter()
@@ -48,23 +51,55 @@ class ConsumerImposterSpec extends Specification {
         println cib.getImposterAsJsonString()
     }
 
-    def "imposter contains a stub with two equals predicates"() {
+    def "imposter stub with multiple queries succeeds"() {
         given:
-        def cib = new ConsumerImposterBuilder(4321, "HTTP")
+        def cib = new ConsumerImposterBuilder(4321)
 
         when:
         def predicate = cib
                 .givenRequest()
-                .equals()
-                .method("POST")
-                .path("/test")
-                .query("q", "some query")
-                .header("Some-Header", "Header-Data")
-                .and()
-                .equals()
-                .header("Some-Other-Header", "Header-Data2")
-
+                    .equals()
+                    .method("POST")
+                    .path("/test")
+                    .query("q", "some query")
+                    .query("p2", "some other query")
+                    .query("p3", "some third query")
+                    .header("Some-Header", "Header-Data")
+                .respondsWith()
+                    .status(200)
         then:
+        Imposter imp = cib.getImposter()
+        imp.getStub(0).getPredicate(0).getEqulasParams().getQueries() == ["q":"some query", "p2":"some other query", "p3":"some third query"]
+
+        and:
+        boolean isPosted = new MountebankClient().postImposter(cib.getImposterAsJsonString(), "http://localhost:${mountebankContainer.getMappedPort(2525)}/imposters")
+        isPosted == true
+        println cib.getImposterAsJsonString()
+    }
+
+    def "imposter stub with multiple headers succeeds"() {
+        given:
+        def cib = new ConsumerImposterBuilder(4321)
+
+        when:
+        def predicate = cib
+                .givenRequest()
+                    .equals()
+                    .method("POST")
+                    .path("/test")
+                    .query("q", "some query")
+                    .header("Some-Header", "Header-Data")
+                    .header("Some-Other-Header", "Header-Data2")
+                    .header("Some-Third-Header", "Header-Data3")
+                .respondsWith()
+                    .status(200)
+        then:
+        Imposter imp = cib.getImposter()
+        imp.getStub(0).getPredicate(0).getEqulasParams().getHeaders() == ["Some-Header":"Header-Data", "Some-Other-Header":"Header-Data2", "Some-Third-Header":"Header-Data3"]
+
+        and:
+        boolean isPosted = new MountebankClient().postImposter(cib.getImposterAsJsonString(), "http://localhost:${mountebankContainer.getMappedPort(2525)}/imposters")
+        isPosted == true
         println cib.getImposterAsJsonString()
     }
 }
