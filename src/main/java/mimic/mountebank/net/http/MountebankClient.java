@@ -1,4 +1,4 @@
-package mimic.mountebank;
+package mimic.mountebank.net.http;
 
 import okhttp3.*;
 

@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import mimic.mountebank.fragment.PredicateBuilder;
 import mimic.mountebank.imposter.Imposter;
 import mimic.mountebank.imposter.Stub;
+import mimic.mountebank.net.Protocol;
 
 import java.io.IOException;
 
@@ -14,10 +15,14 @@ public class ConsumerImposterBuilder {
 
     private Imposter imposter;
 
-    public ConsumerImposterBuilder(int port, String protocol) {
+    public ConsumerImposterBuilder(int port) {
+        this(port, Protocol.HTTP);
+    }
+
+    public ConsumerImposterBuilder(int port, Protocol protocol) {
         imposter = new Imposter();
         imposter.setPort(port);
-        imposter.setProtocol(protocol.toLowerCase());
+        imposter.setProtocol(protocol);
     }
 
     public PredicateBuilder givenRequest() {

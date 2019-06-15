@@ -2,10 +2,10 @@ package mimic
 
 
 import mimic.mountebank.ConsumerImposterBuilder
-import mimic.mountebank.MountebankClient
+import mimic.mountebank.net.Protocol
+import mimic.mountebank.net.http.MountebankClient
 import mimic.mountebank.MountebankContainerBuilder
 import mimic.mountebank.imposter.Imposter
-import org.testcontainers.shaded.okhttp3.MediaType
 import spock.lang.Shared
 import spock.lang.Specification
 
@@ -17,7 +17,7 @@ class ConsumerImposterSpec extends Specification {
 
     def "posting simple imposter to mountebank is successful"() {
         given:
-        def cib = new ConsumerImposterBuilder(4321, "http")
+        def cib = new ConsumerImposterBuilder(4321, Protocol.HTTP)
 
         when:
         def predicate = cib
@@ -32,14 +32,15 @@ class ConsumerImposterSpec extends Specification {
 
         then:
         Imposter imp = cib.getImposter()
+        println imp.getProtocol()
         imp.getStubs().size() == 1
-        imp.getProtocol() == "http"
+        imp.getProtocol() == Protocol.HTTP
         imp.getPort() == 4321
-        imp.getStubs().get(0).getPredicates().size() == 1
-        imp.getStubs().get(0).getPredicates().get(0).getEqulasParams().getMethod() == "POST"
-        imp.getStubs().get(0).getPredicates().get(0).getEqulasParams().getPath() == "/test"
-        imp.getStubs().get(0).getPredicates().get(0).getEqulasParams().getHeaders() == ["Some-Header":"Header-Data"]
-        imp.getStubs().get(0).getPredicates().get(0).getEqulasParams().getQueries() == ["q":"some query"]
+        imp.getStub(0).getPredicates().size() == 1
+        imp.getStub(0).getPredicate(0).getEqulasParams().getMethod() == "POST"
+        imp.getStub(0).getPredicate(0).getEqulasParams().getPath() == "/test"
+        imp.getStub(0).getPredicate(0).getEqulasParams().getHeaders() == ["Some-Header":"Header-Data"]
+        imp.getStub(0).getPredicate(0).getEqulasParams().getQueries() == ["q":"some query"]
 
         and:
         boolean isPosted = new MountebankClient().postImposter(cib.getImposterAsJsonString(), "http://localhost:${mountebankContainer.getMappedPort(2525)}/imposters")

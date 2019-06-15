@@ -21,6 +21,9 @@ public class Stub {
         return predicates;
     }
 
+    public Equals getPredicate(int index) {
+        return predicates.get(index);
+    }
 
     public void addPredicate(Equals predicate) {
         this.predicates.add(predicate);

@@ -1,5 +1,7 @@
 package mimic.mountebank.imposter;
 
+import mimic.mountebank.net.Protocol;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,16 +19,20 @@ public class Imposter {
         this.port = port;
     }
 
-    public String getProtocol() {
-        return protocol;
+    public Protocol getProtocol() {
+        return Protocol.valueOf(protocol.toUpperCase());
     }
 
-    public void setProtocol(String protocol) {
-        this.protocol = protocol;
+    public void setProtocol(Protocol protocol) {
+        this.protocol = protocol.getProtocol();
     }
 
     public List<Stub> getStubs() {
         return stubs;
+    }
+
+    public Stub getStub(int index) {
+        return stubs.get(index);
     }
 
     public void addStubs(Stub stub) {
