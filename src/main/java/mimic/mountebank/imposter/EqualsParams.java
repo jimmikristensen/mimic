@@ -47,6 +47,10 @@ public class EqualsParams {
         return headers;
     }
 
+    public String getHeader(String key) {
+        return headers.get(key);
+    }
+
     public void addHeader(String key, String value) {
         this.headers.put(key, value);
     }

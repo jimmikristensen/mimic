@@ -23,9 +23,22 @@ public class MountebankClient {
                 .post(body)
                 .build();
 
-        Response response = client.newCall(request).execute();
-        return response.isSuccessful();
+        try (Response response = client.newCall(request).execute()) {
+            return response.isSuccessful();
+        }
     }
 
+    public boolean deleteAllImposters(String url) throws IOException {
+        OkHttpClient client = new OkHttpClient();
+
+        Request request = new Request.Builder()
+                .url(url)
+                .delete()
+                .build();
+
+        try (Response response = client.newCall(request).execute()) {
+            return response.isSuccessful();
+        }
+    }
 
 }

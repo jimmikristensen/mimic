@@ -1,17 +1,14 @@
 package mimic.mountebank.imposter;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class Responses {
 
-    private List<Response> is = new ArrayList<>();
+    private Response is = new Response();
 
-    public List<Response> getIs() {
+    public Response getResponse() {
         return is;
     }
 
-    public void addResponse(Response is) {
-        this.is.add(is);
+    public void setResponse(Response response) {
+        this.is = response;
     }
 }
