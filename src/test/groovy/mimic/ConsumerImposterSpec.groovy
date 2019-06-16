@@ -9,7 +9,6 @@ import mimic.mountebank.net.http.HttpMethod
 import mimic.mountebank.net.http.MountebankClient
 import mimic.mountebank.MountebankContainerBuilder
 import mimic.mountebank.imposter.Imposter
-import okhttp3.internal.http.HttpHeaders
 import spock.lang.Shared
 import spock.lang.Specification
 
@@ -49,18 +48,18 @@ class ConsumerImposterSpec extends Specification {
 
         then:
         Imposter imp = cib.getImposter()
-//        imp.getStubs().size() == 1
-//        imp.getProtocol() == Protocol.HTTP
-//        imp.getPort() == 4321
-//        imp.getStub(0).getPredicates().size() == 1
-//        imp.getStub(0).getPredicate(0).getEqulasParams().getMethod() == HttpMethod.POST
-//        imp.getStub(0).getPredicate(0).getEqulasParams().getPath() == "/test"
-//        imp.getStub(0).getPredicate(0).getEqulasParams().getHeaders() == ["Some-Header":"Header-Data"]
-//        imp.getStub(0).getPredicate(0).getEqulasParams().getQueries() == ["q":"some query"]
+        imp.getStubs().size() == 1
+        imp.getProtocol() == Protocol.HTTP
+        imp.getPort() == 4321
+        imp.getStub(0).getPredicates().size() == 1
+        imp.getStub(0).getPredicate(0).getEquals().getMethod() == HttpMethod.POST
+        imp.getStub(0).getPredicate(0).getEquals().getPath() == "/test"
+        imp.getStub(0).getPredicate(0).getEquals().getHeaders() == ["Some-Header":"Header-Data"]
+        imp.getStub(0).getPredicate(0).getEquals().getQueries() == ["q":"some query"]
 
         and:
-//        boolean isPosted = new MountebankClient().postImposter(cib.getImposterAsJsonString(), impostersUrl)
-//        isPosted == true
+        boolean isPosted = new MountebankClient().postImposter(cib.getImposterAsJsonString(), impostersUrl)
+        isPosted == true
         println cib.getImposterAsJsonString()
     }
 
@@ -83,7 +82,7 @@ class ConsumerImposterSpec extends Specification {
                     .status(200)
         then:
         Imposter imp = cib.getImposter()
-        imp.getStub(0).getPredicate(0).getEqulasParams().getQueries() == [
+        imp.getStub(0).getPredicate(0).getEquals().getQueries() == [
                 "q":"some query",
                 "p2":"some other query",
                 "p3":"some third query"
@@ -114,7 +113,7 @@ class ConsumerImposterSpec extends Specification {
                     .status(200)
         then:
         Imposter imp = cib.getImposter()
-        imp.getStub(0).getPredicate(0).getEqulasParams().getHeaders() == [
+        imp.getStub(0).getPredicate(0).getEquals().getHeaders() == [
                 "Some-Header":"Header-Data",
                 "Some-Other-Header":"Header-Data2",
                 "Some-Third-Header":"Header-Data3"
@@ -140,15 +139,15 @@ class ConsumerImposterSpec extends Specification {
                 .respondsWith()
                     .status(200)
                     .body("Hello World!")
-                    .header("Response-Header1", "Header1")
-                    .header("Response-header2", "Header2")
+                    .header("ResponseFields-Header1", "Header1")
+                    .header("ResponseFields-header2", "Header2")
         then:
         Imposter imp = cib.getImposter()
-        imp.getStub(0).getResponses().get(0).getResponse().getStatus() == 200
-        imp.getStub(0).getResponses().get(0).getResponse().getBody() == "Hello World!"
-        imp.getStub(0).getResponses().get(0).getResponse().getHeaders() == [
-                "Response-Header1":"Header1",
-                "Response-header2":"Header2"
+        imp.getStub(0).getResponses().get(0).getFields().getStatus() == 200
+        imp.getStub(0).getResponses().get(0).getFields().getBody() == "Hello World!"
+        imp.getStub(0).getResponses().get(0).getFields().getHeaders() == [
+                "ResponseFields-Header1":"Header1",
+                "ResponseFields-header2":"Header2"
         ]
 
         and:
@@ -181,8 +180,8 @@ class ConsumerImposterSpec extends Specification {
 
         then:
         Imposter imp = cib.getImposter()
-        imp.getStub(0).getResponses().get(0).getResponse().getStatus() == 200
-        imp.getStub(0).getResponses().get(0).getResponse().getBody() == mapper.writer().writeValueAsString(rootNode)
+        imp.getStub(0).getResponses().get(0).getFields().getStatus() == 200
+        imp.getStub(0).getResponses().get(0).getFields().getBody() == mapper.writer().writeValueAsString(rootNode)
 
         and:
         boolean isPosted = new MountebankClient().postImposter(cib.getImposterAsJsonString(), impostersUrl)
@@ -211,8 +210,8 @@ class ConsumerImposterSpec extends Specification {
         then:
         Imposter imp = cib.getImposter()
         imp.getStub(0).getResponses().size() == 2
-        imp.getStub(0).getResponses().get(0).getResponse().getStatus() == 200
-        imp.getStub(0).getResponses().get(1).getResponse().getStatus() == 201
+        imp.getStub(0).getResponse(0).getFields().getStatus() == 200
+        imp.getStub(0).getResponse(1).getFields().getStatus() == 201
 
         and:
         boolean isPosted = new MountebankClient().postImposter(cib.getImposterAsJsonString(), impostersUrl)

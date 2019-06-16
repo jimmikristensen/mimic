@@ -1,21 +1,14 @@
 package mimic.mountebank.imposter;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class Predicate {
 
-    EqualsParams equals;
+    Equals equals;
 
-//    public void addEquals(EqualsParams equals) {
-//        this.equals.add(equals);
-//    }
-
-    public EqualsParams getEquals() {
+    public Equals getEquals() {
         return equals;
     }
 
-    public void setEquals(EqualsParams equals) {
+    public void setEquals(Equals equals) {
         this.equals = equals;
     }
 }

@@ -1,15 +1,15 @@
 package mimic.mountebank.fragment;
 
-import mimic.mountebank.imposter.EqualsParams;
+import mimic.mountebank.imposter.Equals;
 import mimic.mountebank.net.http.HttpMethod;
 
 public class PredicateEqualsBuilder {
 
-    private EqualsParams equals;
+    private Equals equals;
     private PredicateBuilder predicateBuilder;
     private ResponseBuilder responseBuilder;
 
-    public PredicateEqualsBuilder(EqualsParams equals, PredicateBuilder predicateBuilder, ResponseBuilder responseBuilder) {
+    public PredicateEqualsBuilder(Equals equals, PredicateBuilder predicateBuilder, ResponseBuilder responseBuilder) {
         this.equals = equals;
         this.predicateBuilder = predicateBuilder;
         this.responseBuilder = responseBuilder;

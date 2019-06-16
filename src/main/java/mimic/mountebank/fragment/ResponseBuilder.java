@@ -3,21 +3,21 @@ package mimic.mountebank.fragment;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import mimic.mountebank.imposter.ResponseFields;
 import mimic.mountebank.imposter.Response;
-import mimic.mountebank.imposter.Responses;
 import mimic.mountebank.imposter.Stub;
 
 public class ResponseBuilder {
 
     private Stub stub;
-    private Responses responses;
-    private Response response;
+    private Response responses;
+    private ResponseFields response;
 
     public ResponseBuilder(Stub stub) {
         this.stub = stub;
-        responses = new Responses();
-        response = new Response();
-        responses.setResponse(response);
+        responses = new Response();
+        response = new ResponseFields();
+        responses.setFields(response);
         this.stub.addResponse(responses);
     }
 
@@ -44,9 +44,9 @@ public class ResponseBuilder {
     }
 
     public ResponseBuilder respondsWith() {
-        responses = new Responses();
-        response = new Response();
-        responses.setResponse(response);
+        responses = new Response();
+        response = new ResponseFields();
+        responses.setFields(response);
         stub.addResponse(responses);
         return this;
     }
