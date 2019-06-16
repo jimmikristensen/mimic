@@ -2,6 +2,7 @@ package mimic.mountebank.fragment;
 
 import mimic.mountebank.imposter.Equals;
 import mimic.mountebank.imposter.EqualsParams;
+import mimic.mountebank.imposter.Predicate;
 import mimic.mountebank.imposter.Stub;
 
 public class PredicateBuilder {
@@ -13,10 +14,10 @@ public class PredicateBuilder {
     }
 
     public PredicateEqualsBuilder equals() {
-        Equals equals = new Equals();
-        EqualsParams equalsParams = new EqualsParams();
-        equals.setEqulasParams(equalsParams);
-        stub.addPredicate(equals);
-        return new PredicateEqualsBuilder(equalsParams, this, new ResponseBuilder(stub));
+        Predicate predicate = new Predicate();
+        EqualsParams equals = new EqualsParams();
+        predicate.setEquals(equals);
+        stub.addPredicate(predicate);
+        return new PredicateEqualsBuilder(equals, this, new ResponseBuilder(stub));
     }
 }

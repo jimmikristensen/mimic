@@ -6,7 +6,7 @@ import java.util.List;
 
 public class Stub {
 
-    private List<Equals> predicates = new ArrayList<>();
+    private List<Predicate> predicates = new ArrayList<>();
     private List<Responses> responses = new ArrayList<>();
 
     public List<Responses> getResponses() {
@@ -17,15 +17,15 @@ public class Stub {
         this.responses.add(responses);
     }
 
-    public List<Equals> getPredicates() {
+    public List<Predicate> getPredicates() {
         return predicates;
     }
 
-    public Equals getPredicate(int index) {
+    public Predicate getPredicate(int index) {
         return predicates.get(index);
     }
 
-    public void addPredicate(Equals predicate) {
+    public void addPredicate(Predicate predicate) {
         this.predicates.add(predicate);
     }
 }
