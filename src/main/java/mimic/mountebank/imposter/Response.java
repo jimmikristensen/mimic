@@ -4,16 +4,16 @@ import java.util.HashMap;
 
 public class Response {
 
-    private int status;
+    private int statusCode;
     private String body;
     private HashMap<String, String> headers = new HashMap<>();
 
     public int getStatus() {
-        return status;
+        return statusCode;
     }
 
     public void setStatus(int status) {
-        this.status = status;
+        this.statusCode = status;
     }
 
     public String getBody() {

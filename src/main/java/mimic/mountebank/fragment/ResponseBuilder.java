@@ -42,4 +42,12 @@ public class ResponseBuilder {
         response.addHeader(key, value);
         return this;
     }
+
+    public ResponseBuilder respondsWith() {
+        responses = new Responses();
+        response = new Response();
+        responses.setResponse(response);
+        stub.addResponse(responses);
+        return this;
+    }
 }
