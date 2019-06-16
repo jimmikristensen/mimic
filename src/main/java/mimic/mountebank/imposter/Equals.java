@@ -8,7 +8,7 @@ public class Equals {
 
     private String method;
     private String path;
-    private HashMap<String, String> queries = new HashMap<>();
+    private HashMap<String, String> query = new HashMap<>();
     private HashMap<String, String> headers = new HashMap<>();
 
     public HttpMethod getMethod() {
@@ -36,11 +36,11 @@ public class Equals {
     }
 
     public HashMap<String, String> getQueries() {
-        return queries;
+        return query;
     }
 
     public void addQuery(String key, String value) {
-        this.queries.put(key, value);
+        this.query.put(key, value);
     }
 
     public HashMap<String, String> getHeaders() {

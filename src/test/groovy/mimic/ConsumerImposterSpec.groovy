@@ -9,6 +9,10 @@ import mimic.mountebank.net.http.HttpMethod
 import mimic.mountebank.net.http.MountebankClient
 import mimic.mountebank.MountebankContainerBuilder
 import mimic.mountebank.imposter.Imposter
+import okhttp3.Headers
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.Response
 import spock.lang.Shared
 import spock.lang.Specification
 
@@ -21,9 +25,13 @@ class ConsumerImposterSpec extends Specification {
     @Shared
     def mountebankUrl
 
+    @Shared
+    def stubUrl
+
     def setupSpec() {
-        mountebankContainer = new MountebankContainerBuilder().managementPort(2525).build()
+        mountebankContainer = new MountebankContainerBuilder().managementPort(2525).exposePort(4321).build()
         mountebankUrl = "http://localhost:${mountebankContainer.getMappedPort(2525)}"
+        stubUrl = "http://localhost:${mountebankContainer.getMappedPort(4321)}"
     }
 
     def setup() {
@@ -44,7 +52,7 @@ class ConsumerImposterSpec extends Specification {
                     .query("q", "some query")
                     .header("Some-Header", "Header-Data")
                 .respondsWith()
-                    .status(200)
+                    .status(201)
 
         then:
         Imposter imp = cib.getImposter()
@@ -56,11 +64,23 @@ class ConsumerImposterSpec extends Specification {
         imp.getStub(0).getPredicate(0).getEquals().getPath() == "/test"
         imp.getStub(0).getPredicate(0).getEquals().getHeaders() == ["Some-Header":"Header-Data"]
         imp.getStub(0).getPredicate(0).getEquals().getQueries() == ["q":"some query"]
+        imp.getStub(0).getResponse(0).getFields().getStatus() == 201
 
         and:
         boolean isPosted = new MountebankClient().postImposter(cib.getImposterAsJsonString(), impostersUrl)
         isPosted == true
         println cib.getImposterAsJsonString()
+
+        and:
+        new MountebankClient().getImposters(impostersUrl).size() == 1
+        Thread.sleep(200000)
+
+        and:
+        Response resp = sendPostToMountebank("${stubUrl}/test?q=some query", ["Some-Header":"Header-Data"])
+        resp.isSuccessful() == true
+        resp.body().string() == ""
+        resp.code() == 201
+
     }
 
     def "creating imposter stub with multiple queries succeeds"() {
@@ -217,5 +237,40 @@ class ConsumerImposterSpec extends Specification {
         boolean isPosted = new MountebankClient().postImposter(cib.getImposterAsJsonString(), impostersUrl)
         isPosted == true
         println cib.getImposterAsJsonString()
+
+        and:
+        Response res0 = fetchImposterResponse("http://localhost:4321/test")
+        res0.body().string() == "Hello World!"
+
+        and:
+        Response res1 = fetchImposterResponse("http://localhost:4321/test")
+        res1.body().string() == "Hello Second World!"
+    }
+
+    private Response sendPostToMountebank(String url, Map<String, String> headersMap) {
+        Headers.Builder headersBuilder = new Headers.Builder()
+        headersMap.each {k, v ->
+            headersBuilder.add("Some-Header", "Header-Data")
+        }
+        Headers headers = headersBuilder.build()
+
+        OkHttpClient client = new OkHttpClient()
+        Request request = new Request.Builder()
+                .url(url)
+                .headers(headers)
+                .get()
+                .build()
+
+        return client.newCall(request).execute()
+    }
+
+    private Response fetchImposterResponse(String url) {
+        OkHttpClient client = new OkHttpClient()
+        Request request = new Request.Builder()
+                .url(url)
+                .get()
+                .build()
+
+        return client.newCall(request).execute()
     }
 }
