@@ -10,8 +10,10 @@ import mimic.mountebank.net.http.MountebankClient
 import mimic.mountebank.MountebankContainerBuilder
 import mimic.mountebank.imposter.Imposter
 import okhttp3.Headers
+import okhttp3.MediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import okhttp3.RequestBody
 import okhttp3.Response
 import spock.lang.Shared
 import spock.lang.Specification
@@ -29,7 +31,7 @@ class ConsumerImposterSpec extends Specification {
     def stubUrl
 
     def setupSpec() {
-        mountebankContainer = new MountebankContainerBuilder().managementPort(2525).exposePort(4321).build()
+        mountebankContainer = new MountebankContainerBuilder().managementPort(2525).stubPort(4321).build()
         mountebankUrl = "http://localhost:${mountebankContainer.getMappedPort(2525)}"
         stubUrl = "http://localhost:${mountebankContainer.getMappedPort(4321)}"
     }
@@ -69,18 +71,18 @@ class ConsumerImposterSpec extends Specification {
         and:
         boolean isPosted = new MountebankClient().postImposter(cib.getImposterAsJsonString(), impostersUrl)
         isPosted == true
-        println cib.getImposterAsJsonString()
 
         and:
         new MountebankClient().getImposters(impostersUrl).size() == 1
-        Thread.sleep(200000)
 
         and:
-        Response resp = sendPostToMountebank("${stubUrl}/test?q=some query", ["Some-Header":"Header-Data"])
+        Response resp = sendPostToMountebank("${stubUrl}/test?q=some query", ["Some-Header":"Header-Data"], "")
         resp.isSuccessful() == true
         resp.body().string() == ""
         resp.code() == 201
 
+        and:
+        println cib.getImposterAsJsonString()
     }
 
     def "creating imposter stub with multiple queries succeeds"() {
@@ -247,18 +249,23 @@ class ConsumerImposterSpec extends Specification {
         res1.body().string() == "Hello Second World!"
     }
 
-    private Response sendPostToMountebank(String url, Map<String, String> headersMap) {
+    private Response sendPostToMountebank(String url, Map<String, String> headersMap, String body) {
         Headers.Builder headersBuilder = new Headers.Builder()
         headersMap.each {k, v ->
             headersBuilder.add("Some-Header", "Header-Data")
         }
         Headers headers = headersBuilder.build()
 
+        RequestBody requestBody = RequestBody.create(
+                MediaType.get("application/json; charset=utf-8"),
+                body
+        )
+
         OkHttpClient client = new OkHttpClient()
         Request request = new Request.Builder()
                 .url(url)
                 .headers(headers)
-                .get()
+                .post(requestBody)
                 .build()
 
         return client.newCall(request).execute()
