@@ -42,12 +42,11 @@ class ConsumerImposterSpec extends Specification {
 
     def "posting simple imposter to mountebank is successful"() {
         given:
-        def cib = new ConsumerImposterBuilder(4321, Protocol.HTTP)
         def impostersUrl = "${mountebankUrl}/imposters"
 
         when:
-        def predicate = cib
-                .givenRequest()
+        def impStr = ConsumerImposterBuilder.Builder()
+                .givenRequest(4321)
                     .equals()
                     .method(HttpMethod.POST)
                     .path("/test")
@@ -55,9 +54,10 @@ class ConsumerImposterSpec extends Specification {
                     .header("Some-Header", "Header-Data")
                 .respondsWith()
                     .status(201)
+                .toImposterString()
 
         then:
-        Imposter imp = cib.getImposter()
+        Imposter imp = ConsumerImposterBuilder.getImposter()
         imp.getStubs().size() == 1
         imp.getProtocol() == Protocol.HTTP
         imp.getPort() == 4321
@@ -69,7 +69,7 @@ class ConsumerImposterSpec extends Specification {
         imp.getStub(0).getResponse(0).getFields().getStatus() == 201
 
         and:
-        boolean isPosted = new MountebankClient().postImposter(cib.getImposterAsJsonString(), impostersUrl)
+        boolean isPosted = new MountebankClient().postImposter(impStr, impostersUrl)
         isPosted == true
 
         and:
@@ -82,17 +82,16 @@ class ConsumerImposterSpec extends Specification {
         resp.code() == 201
 
         and:
-        println cib.getImposterAsJsonString()
+        println impStr
     }
 
     def "creating imposter stub with multiple queries succeeds"() {
         given:
-        def cib = new ConsumerImposterBuilder(4321)
         def impostersUrl = "${mountebankUrl}/imposters"
 
         when:
-        def predicate = cib
-                .givenRequest()
+        def impStr = ConsumerImposterBuilder.Builder()
+                .givenRequest(4321)
                     .equals()
                     .method("POST")
                     .path("/test")
@@ -102,8 +101,10 @@ class ConsumerImposterSpec extends Specification {
                     .header("Some-Header", "Header-Data")
                 .respondsWith()
                     .status(200)
+                .toImposterString()
+
         then:
-        Imposter imp = cib.getImposter()
+        Imposter imp = ConsumerImposterBuilder.getImposter()
         imp.getStub(0).getPredicate(0).getEquals().getQueries() == [
                 "q":"some query",
                 "p2":"some other query",
@@ -111,19 +112,18 @@ class ConsumerImposterSpec extends Specification {
         ]
 
         and:
-        boolean isPosted = new MountebankClient().postImposter(cib.getImposterAsJsonString(), impostersUrl)
+        boolean isPosted = new MountebankClient().postImposter(impStr, impostersUrl)
         isPosted == true
-        println cib.getImposterAsJsonString()
+        println impStr
     }
 
     def "creating imposter stub with multiple headers succeeds"() {
         given:
-        def cib = new ConsumerImposterBuilder(4321)
         def impostersUrl = "${mountebankUrl}/imposters"
 
         when:
-        def predicate = cib
-                .givenRequest()
+        def impStr = ConsumerImposterBuilder.Builder()
+                .givenRequest(4321)
                     .equals()
                     .method("POST")
                     .path("/test")
@@ -133,8 +133,10 @@ class ConsumerImposterSpec extends Specification {
                     .header("Some-Third-Header", "Header-Data3")
                 .respondsWith()
                     .status(200)
+                .toImposterString()
+
         then:
-        Imposter imp = cib.getImposter()
+        Imposter imp = ConsumerImposterBuilder.getImposter()
         imp.getStub(0).getPredicate(0).getEquals().getHeaders() == [
                 "Some-Header":"Header-Data",
                 "Some-Other-Header":"Header-Data2",
@@ -142,19 +144,18 @@ class ConsumerImposterSpec extends Specification {
         ]
 
         and:
-        boolean isPosted = new MountebankClient().postImposter(cib.getImposterAsJsonString(), impostersUrl)
+        boolean isPosted = new MountebankClient().postImposter(impStr, impostersUrl)
         isPosted == true
-        println cib.getImposterAsJsonString()
+        println impStr
     }
 
     def "creating imposter stub with response status code, body and 3 headers is successful"() {
         given:
-        def cib = new ConsumerImposterBuilder(4321)
         def impostersUrl = "${mountebankUrl}/imposters"
 
         when:
-        def predicate = cib
-                .givenRequest()
+        def impStr = ConsumerImposterBuilder.Builder()
+                .givenRequest(4321)
                     .equals()
                     .method("get")
                     .path("/test")
@@ -163,8 +164,10 @@ class ConsumerImposterSpec extends Specification {
                     .body("Hello World!")
                     .header("ResponseFields-Header1", "Header1")
                     .header("ResponseFields-header2", "Header2")
+                .toImposterString()
+
         then:
-        Imposter imp = cib.getImposter()
+        Imposter imp = ConsumerImposterBuilder.getImposter()
         imp.getStub(0).getResponses().get(0).getFields().getStatus() == 200
         imp.getStub(0).getResponses().get(0).getFields().getBody() == "Hello World!"
         imp.getStub(0).getResponses().get(0).getFields().getHeaders() == [
@@ -173,14 +176,13 @@ class ConsumerImposterSpec extends Specification {
         ]
 
         and:
-        boolean isPosted = new MountebankClient().postImposter(cib.getImposterAsJsonString(), impostersUrl)
+        boolean isPosted = new MountebankClient().postImposter(impStr, impostersUrl)
         isPosted == true
-        println cib.getImposterAsJsonString()
+        println impStr
     }
 
     def "using an JsonObject for response body will result in json string response"() {
         given:
-        def cib = new ConsumerImposterBuilder(4321)
         def impostersUrl = "${mountebankUrl}/imposters"
 
         def mapper = new ObjectMapper()
@@ -190,8 +192,8 @@ class ConsumerImposterSpec extends Specification {
         ((ObjectNode) rootNode).set("test", node)
 
         when:
-        def predicate = cib
-                .givenRequest()
+        def impStr = ConsumerImposterBuilder.Builder()
+                .givenRequest(4321)
                     .equals()
                     .method("get")
                     .path("/test")
@@ -199,26 +201,26 @@ class ConsumerImposterSpec extends Specification {
                     .status(200)
                     .header("Content-Type", "application/json")
                     .body(rootNode)
+                .toImposterString()
 
         then:
-        Imposter imp = cib.getImposter()
+        Imposter imp = ConsumerImposterBuilder.getImposter()
         imp.getStub(0).getResponses().get(0).getFields().getStatus() == 200
         imp.getStub(0).getResponses().get(0).getFields().getBody() == mapper.writer().writeValueAsString(rootNode)
 
         and:
-        boolean isPosted = new MountebankClient().postImposter(cib.getImposterAsJsonString(), impostersUrl)
+        boolean isPosted = new MountebankClient().postImposter(impStr, impostersUrl)
         isPosted == true
-        println cib.getImposterAsJsonString()
+        println impStr
     }
 
     def "creating imposter stub with two responses is successful"() {
         given:
-        def cib = new ConsumerImposterBuilder(4321)
         def impostersUrl = "${mountebankUrl}/imposters"
 
         when:
-        def predicate = cib
-                .givenRequest()
+        def impStr = ConsumerImposterBuilder.Builder()
+                .givenRequest(4321)
                     .equals()
                     .method("get")
                     .path("/test")
@@ -228,17 +230,17 @@ class ConsumerImposterSpec extends Specification {
                 .respondsWith()
                     .status(201)
                     .body("Hello Second World!")
+                .toImposterString()
 
         then:
-        Imposter imp = cib.getImposter()
+        Imposter imp = ConsumerImposterBuilder.getImposter()
         imp.getStub(0).getResponses().size() == 2
         imp.getStub(0).getResponse(0).getFields().getStatus() == 200
         imp.getStub(0).getResponse(1).getFields().getStatus() == 201
 
         and:
-        boolean isPosted = new MountebankClient().postImposter(cib.getImposterAsJsonString(), impostersUrl)
+        boolean isPosted = new MountebankClient().postImposter(impStr, impostersUrl)
         isPosted == true
-        println cib.getImposterAsJsonString()
 
         and:
         Response res0 = fetchImposterResponse("http://localhost:4321/test")
@@ -247,6 +249,9 @@ class ConsumerImposterSpec extends Specification {
         and:
         Response res1 = fetchImposterResponse("http://localhost:4321/test")
         res1.body().string() == "Hello Second World!"
+
+        and:
+        println impStr
     }
 
     private Response sendPostToMountebank(String url, Map<String, String> headersMap, String body) {

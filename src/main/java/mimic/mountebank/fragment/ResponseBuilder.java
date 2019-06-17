@@ -3,9 +3,12 @@ package mimic.mountebank.fragment;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import mimic.mountebank.ConsumerImposterBuilder;
 import mimic.mountebank.imposter.ResponseFields;
 import mimic.mountebank.imposter.Response;
 import mimic.mountebank.imposter.Stub;
+
+import java.io.IOException;
 
 public class ResponseBuilder {
 
@@ -49,5 +52,9 @@ public class ResponseBuilder {
         responses.setFields(response);
         stub.addResponse(responses);
         return this;
+    }
+
+    public String toImposterString() throws IOException {
+        return ConsumerImposterBuilder.getImposterAsJsonString();
     }
 }
