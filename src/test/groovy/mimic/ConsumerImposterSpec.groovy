@@ -57,22 +57,8 @@ class ConsumerImposterSpec extends Specification {
                 .toImposterString()
 
         then:
-        Imposter imp = ConsumerImposterBuilder.getImposter()
-        imp.getStubs().size() == 1
-        imp.getProtocol() == Protocol.HTTP
-        imp.getPort() == 4321
-        imp.getStub(0).getPredicates().size() == 1
-        imp.getStub(0).getPredicate(0).getEquals().getMethod() == HttpMethod.POST
-        imp.getStub(0).getPredicate(0).getEquals().getPath() == "/test"
-        imp.getStub(0).getPredicate(0).getEquals().getHeaders() == ["Some-Header":"Header-Data"]
-        imp.getStub(0).getPredicate(0).getEquals().getQueries() == ["q":"some query"]
-        imp.getStub(0).getResponse(0).getFields().getStatus() == 201
-
-        and:
         boolean isPosted = new MountebankClient().postImposter(impStr, impostersUrl)
         isPosted == true
-
-        and:
         new MountebankClient().getImposters(impostersUrl).size() == 1
 
         and:
@@ -178,6 +164,11 @@ class ConsumerImposterSpec extends Specification {
         and:
         boolean isPosted = new MountebankClient().postImposter(impStr, impostersUrl)
         isPosted == true
+
+        and:
+        new MountebankClient().getImposters(impostersUrl).size() == 1
+
+        and:
         println impStr
     }
 
@@ -243,11 +234,14 @@ class ConsumerImposterSpec extends Specification {
         isPosted == true
 
         and:
-        Response res0 = fetchImposterResponse("http://localhost:4321/test")
+        new MountebankClient().getImposters(impostersUrl).size() == 1
+
+        and:
+        Response res0 = fetchImposterResponse("${stubUrl}/test")
         res0.body().string() == "Hello World!"
 
         and:
-        Response res1 = fetchImposterResponse("http://localhost:4321/test")
+        Response res1 = fetchImposterResponse("${stubUrl}/test")
         res1.body().string() == "Hello Second World!"
 
         and:
