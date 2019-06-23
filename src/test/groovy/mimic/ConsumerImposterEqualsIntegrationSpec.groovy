@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.ObjectNode
 import mimic.mountebank.ConsumerImposterBuilder
+import mimic.mountebank.net.Protocol
 import mimic.mountebank.net.http.HttpMethod
 import mimic.mountebank.net.http.MountebankClient
 import mimic.mountebank.MountebankContainerBuilder
@@ -281,7 +282,36 @@ class ConsumerImposterEqualsIntegrationSpec extends Specification {
         println impStr
     }
 
+    def "imposter two equals predicates stacks the predicate validater"() {
+        given:
+        def impostersUrl = "${mountebankUrl}/imposters"
 
+        when:
+        def impStr = ConsumerImposterBuilder.Builder()
+                .givenRequest(4321)
+                    .equals()
+                    .path("/test")
+                    .query("q", "test")
+                    .method(HttpMethod.POST)
+                    .and()
+                    .body("Hello World!")
+                .respondsWith()
+                    .status(201)
+                .toImposterString()
+
+        then:
+        boolean isPosted = new MountebankClient().postImposter(impStr, impostersUrl)
+        isPosted == true
+        new MountebankClient().getImposters(impostersUrl).size() == 1
+
+        when:
+        Response res0 = sendPostToStub("${stubUrl}/test?q=test", null, "Hello World!")
+        res0.body().string() == "Hello World!"
+
+        then:
+        impStr != ""
+        println impStr
+    }
 
     private Response sendPostToStub(String url, Map<String, String> headersMap, String body) {
         Headers.Builder headersBuilder = new Headers.Builder()

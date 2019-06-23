@@ -4,8 +4,6 @@ import mimic.mountebank.ConsumerImposterBuilder
 import mimic.mountebank.imposter.Imposter
 import mimic.mountebank.net.Protocol
 import mimic.mountebank.net.http.HttpMethod
-import mimic.mountebank.net.http.MountebankClient
-import okhttp3.Response
 import spock.lang.Specification
 
 
@@ -231,6 +229,41 @@ class ImposteEqualsrSpec extends Specification {
         imp.getStub(0).getResponses().size() == 2
         imp.getStub(0).getResponse(0).getFields().getStatus() == 200
         imp.getStub(0).getResponse(1).getFields().getStatus() == 401
+
+        and:
+        impStr != ""
+        println impStr
+    }
+
+    def "imposter two equals predicates stacks the predicate validater"() {
+        given:
+        def statusCode = 201
+
+        when:
+        def impStr = ConsumerImposterBuilder.Builder()
+                .givenRequest(4321)
+                    .equals()
+                    .path("/test")
+                    .query("q", "test")
+                    .method(HttpMethod.POST)
+                    .and()
+                    .body("Hello World!")
+                .respondsWith()
+                    .status(statusCode)
+                .toImposterString()
+
+        then:
+        Imposter imp = ConsumerImposterBuilder.getImposter()
+        imp.getStubs().size() == 1
+        imp.getProtocol() == Protocol.HTTP
+        imp.getPort() == 4321
+        imp.getStub(0).getPredicates().size() == 2
+        imp.getStub(0).getPredicate(0).getEquals().getMethod() == HttpMethod.POST
+        imp.getStub(0).getPredicate(0).getEquals().getPath() == "/test"
+        imp.getStub(0).getPredicate(0).getEquals().getQueries() == ["q":"test"]
+
+        and:
+        imp.getStub(0).getPredicate(1).getEquals().getBody() == "Hello World!"
 
         and:
         impStr != ""
