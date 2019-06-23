@@ -18,10 +18,6 @@ public class ResponseBuilder {
 
     public ResponseBuilder(Stub stub) {
         this.stub = stub;
-        responses = new Response();
-        response = new ResponseFields();
-        responses.setFields(response);
-        this.stub.addResponse(responses);
     }
 
     public ResponseBuilder status(int status) {
