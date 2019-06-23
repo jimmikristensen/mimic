@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import mimic.mountebank.fragment.ImposterBuilder;
+import mimic.mountebank.dsl.ImposterBuilder;
 import mimic.mountebank.imposter.Imposter;
 
 import java.io.IOException;

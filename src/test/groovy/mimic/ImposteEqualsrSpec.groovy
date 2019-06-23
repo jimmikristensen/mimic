@@ -9,7 +9,7 @@ import okhttp3.Response
 import spock.lang.Specification
 
 
-class ImposterSpec extends Specification {
+class ImposteEqualsrSpec extends Specification {
 
 
     def "creating imposter with method results in imposter with status code #statucCode"() {

@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.ObjectNode
 import mimic.mountebank.ConsumerImposterBuilder
-import mimic.mountebank.net.Protocol
 import mimic.mountebank.net.http.HttpMethod
 import mimic.mountebank.net.http.MountebankClient
 import mimic.mountebank.MountebankContainerBuilder
@@ -19,7 +18,7 @@ import spock.lang.Shared
 import spock.lang.Specification
 
 
-class ConsumerImposterSpec extends Specification {
+class ConsumerImposterEqualsIntegrationSpec extends Specification {
 
     @Shared
     def mountebankContainer
@@ -62,7 +61,7 @@ class ConsumerImposterSpec extends Specification {
         new MountebankClient().getImposters(impostersUrl).size() == 1
 
         and:
-        Response resp = sendPostToMountebank("${stubUrl}/test?q=some query", ["Some-Header":"Header-Data"], "")
+        Response resp = sendPostToStub("${stubUrl}/test?q=some query", ["Some-Header":"Header-Data"], "")
         resp.isSuccessful() == true
         resp.body().string() == ""
         resp.code() == 201
@@ -82,24 +81,33 @@ class ConsumerImposterSpec extends Specification {
                     .method("POST")
                     .path("/test")
                     .query("q", "some query")
-                    .query("p2", "some other query")
-                    .query("p3", "some third query")
+                    .query("q2", "some other query")
+                    .query("q3", "some third query")
                     .header("Some-Header", "Header-Data")
                 .respondsWith()
-                    .status(200)
+                    .status(201)
                 .toImposterString()
 
         then:
         Imposter imp = ConsumerImposterBuilder.getImposter()
         imp.getStub(0).getPredicate(0).getEquals().getQueries() == [
                 "q":"some query",
-                "p2":"some other query",
-                "p3":"some third query"
+                "q2":"some other query",
+                "q3":"some third query"
         ]
 
         and:
         boolean isPosted = new MountebankClient().postImposter(impStr, impostersUrl)
         isPosted == true
+        new MountebankClient().getImposters(impostersUrl).size() == 1
+
+        and:
+        Response resp = sendPostToStub("${stubUrl}/test?q=some query&q2=some other query&q3=some third query", ["Some-Header":"Header-Data"], "")
+        resp.isSuccessful() == true
+        resp.body().string() == ""
+        resp.code() == 201
+
+        and:
         println impStr
     }
 
@@ -118,7 +126,7 @@ class ConsumerImposterSpec extends Specification {
                     .header("Some-Other-Header", "Header-Data2")
                     .header("Some-Third-Header", "Header-Data3")
                 .respondsWith()
-                    .status(200)
+                    .status(201)
                 .toImposterString()
 
         then:
@@ -132,6 +140,17 @@ class ConsumerImposterSpec extends Specification {
         and:
         boolean isPosted = new MountebankClient().postImposter(impStr, impostersUrl)
         isPosted == true
+        new MountebankClient().getImposters(impostersUrl).size() == 1
+
+        and:
+        Response resp = sendPostToStub("${stubUrl}/test?q=some query",
+                ["Some-Header":"Header-Data", "Some-Other-Header":"Header-Data2", "Some-Third-Header":"Header-Data3"],
+                "")
+        resp.isSuccessful() == true
+        resp.body().string() == ""
+        resp.code() == 201
+
+        and:
         println impStr
     }
 
@@ -146,7 +165,7 @@ class ConsumerImposterSpec extends Specification {
                     .method("get")
                     .path("/test")
                 .respondsWith()
-                    .status(200)
+                    .status(201)
                     .body("Hello World!")
                     .header("ResponseFields-Header1", "Header1")
                     .header("ResponseFields-header2", "Header2")
@@ -154,7 +173,7 @@ class ConsumerImposterSpec extends Specification {
 
         then:
         Imposter imp = ConsumerImposterBuilder.getImposter()
-        imp.getStub(0).getResponses().get(0).getFields().getStatus() == 200
+        imp.getStub(0).getResponses().get(0).getFields().getStatus() == 201
         imp.getStub(0).getResponses().get(0).getFields().getBody() == "Hello World!"
         imp.getStub(0).getResponses().get(0).getFields().getHeaders() == [
                 "ResponseFields-Header1":"Header1",
@@ -164,9 +183,15 @@ class ConsumerImposterSpec extends Specification {
         and:
         boolean isPosted = new MountebankClient().postImposter(impStr, impostersUrl)
         isPosted == true
+        new MountebankClient().getImposters(impostersUrl).size() == 1
 
         and:
-        new MountebankClient().getImposters(impostersUrl).size() == 1
+        Response resp = sendGetToStub("${stubUrl}/test")
+        resp.isSuccessful() == true
+        resp.body().string() == "Hello World!"
+        resp.header("ResponseFields-Header1") == "Header1"
+        resp.header("ResponseFields-header2") == "Header2"
+        resp.code() == 201
 
         and:
         println impStr
@@ -189,19 +214,29 @@ class ConsumerImposterSpec extends Specification {
                     .method("get")
                     .path("/test")
                 .respondsWith()
-                    .status(200)
+                    .status(201)
                     .header("Content-Type", "application/json")
                     .body(rootNode)
                 .toImposterString()
 
         then:
         Imposter imp = ConsumerImposterBuilder.getImposter()
-        imp.getStub(0).getResponses().get(0).getFields().getStatus() == 200
+        imp.getStub(0).getResponses().get(0).getFields().getStatus() == 201
         imp.getStub(0).getResponses().get(0).getFields().getBody() == mapper.writer().writeValueAsString(rootNode)
 
         and:
         boolean isPosted = new MountebankClient().postImposter(impStr, impostersUrl)
         isPosted == true
+        new MountebankClient().getImposters(impostersUrl).size() == 1
+
+        and:
+        Response resp = sendGetToStub("${stubUrl}/test")
+        resp.isSuccessful() == true
+        resp.body().string() == mapper.writer().writeValueAsString(rootNode)
+        resp.header("Content-Type") == "application/json"
+        resp.code() == 201
+
+        and:
         println impStr
     }
 
@@ -232,26 +267,26 @@ class ConsumerImposterSpec extends Specification {
         and:
         boolean isPosted = new MountebankClient().postImposter(impStr, impostersUrl)
         isPosted == true
-
-        and:
         new MountebankClient().getImposters(impostersUrl).size() == 1
 
         and:
-        Response res0 = fetchImposterResponse("${stubUrl}/test")
+        Response res0 = sendGetToStub("${stubUrl}/test")
         res0.body().string() == "Hello World!"
 
         and:
-        Response res1 = fetchImposterResponse("${stubUrl}/test")
+        Response res1 = sendGetToStub("${stubUrl}/test")
         res1.body().string() == "Hello Second World!"
 
         and:
         println impStr
     }
 
-    private Response sendPostToMountebank(String url, Map<String, String> headersMap, String body) {
+
+
+    private Response sendPostToStub(String url, Map<String, String> headersMap, String body) {
         Headers.Builder headersBuilder = new Headers.Builder()
         headersMap.each {k, v ->
-            headersBuilder.add("Some-Header", "Header-Data")
+            headersBuilder.add(k, v)
         }
         Headers headers = headersBuilder.build()
 
@@ -270,7 +305,7 @@ class ConsumerImposterSpec extends Specification {
         return client.newCall(request).execute()
     }
 
-    private Response fetchImposterResponse(String url) {
+    private Response sendGetToStub(String url) {
         OkHttpClient client = new OkHttpClient()
         Request request = new Request.Builder()
                 .url(url)

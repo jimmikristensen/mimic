@@ -1,4 +1,4 @@
-package mimic.mountebank.fragment;
+package mimic.mountebank.dsl;
 
 import mimic.mountebank.imposter.Imposter;
 import mimic.mountebank.imposter.Stub;

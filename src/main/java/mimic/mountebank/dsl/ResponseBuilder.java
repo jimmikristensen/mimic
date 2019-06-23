@@ -1,4 +1,4 @@
-package mimic.mountebank.fragment;
+package mimic.mountebank.dsl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;

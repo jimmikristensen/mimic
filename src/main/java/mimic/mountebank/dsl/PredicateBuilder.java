@@ -1,4 +1,4 @@
-package mimic.mountebank.fragment;
+package mimic.mountebank.dsl;
 
 import mimic.mountebank.imposter.Equals;
 import mimic.mountebank.imposter.Predicate;
