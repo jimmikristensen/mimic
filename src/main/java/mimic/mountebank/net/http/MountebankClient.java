@@ -2,6 +2,7 @@ package mimic.mountebank.net.http;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import mimic.mountebank.net.http.exception.InvalidImposterException;
 import okhttp3.*;
 
 import java.io.IOException;
@@ -28,7 +29,13 @@ public class MountebankClient {
                 .build();
 
         try (Response response = client.newCall(request).execute()) {
-            return response.isSuccessful();
+            if (response.isSuccessful()) {
+                return true;
+            } else {
+                String bodyStr = response.body().string();
+                String msg = bodyStr != null && bodyStr != "" ? bodyStr : "Unable to POST imposter to Mountebank";
+                throw new InvalidImposterException(msg);
+            }
         }
     }
 
