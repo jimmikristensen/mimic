@@ -17,7 +17,4 @@ class MountebankContainerSpec extends Specification {
         mbc.stop()
         mbc.isRunning() == false
     }
-
-
-
 }

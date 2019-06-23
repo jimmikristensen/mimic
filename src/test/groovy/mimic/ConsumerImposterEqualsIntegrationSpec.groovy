@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.ObjectNode
 import mimic.mountebank.ConsumerImposterBuilder
-import mimic.mountebank.net.Protocol
 import mimic.mountebank.net.http.HttpMethod
 import mimic.mountebank.net.http.MountebankClient
 import mimic.mountebank.MountebankContainerBuilder
