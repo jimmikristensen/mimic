@@ -8,6 +8,7 @@ public class Equals {
 
     private String method;
     private String path;
+    private String body;
     private HashMap<String, String> query = new HashMap<>();
     private HashMap<String, String> headers = new HashMap<>();
 
@@ -53,5 +54,13 @@ public class Equals {
 
     public void addHeader(String key, String value) {
         this.headers.put(key, value);
+    }
+
+    public String getBody() {
+        return body;
+    }
+
+    public void setBody(String body) {
+        this.body = body;
     }
 }

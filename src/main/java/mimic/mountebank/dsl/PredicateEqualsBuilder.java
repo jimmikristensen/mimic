@@ -35,16 +35,21 @@ public class PredicateEqualsBuilder {
         return this;
     }
 
+    public PredicateEqualsBuilder body(String body) {
+        equals.setBody(body);
+        return this;
+    }
+
     public PredicateEqualsBuilder header(String key, String value) {
         equals.addHeader(key, value);
         return this;
     }
 
     public ResponseBuilder respondsWith() {
-        return responseBuilder;
+        return responseBuilder.respondsWith();
     }
 
-    public PredicateBuilder and() {
-        return predicateBuilder;
+    public PredicateEqualsBuilder and() {
+        return predicateBuilder.equals();
     }
 }
