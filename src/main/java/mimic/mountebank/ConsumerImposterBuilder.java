@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import mimic.mountebank.dsl.ImposterBuilder;
 import mimic.mountebank.imposter.Imposter;
+import mimic.mountebank.net.databind.JacksonObjectMapper;
 
 import java.io.IOException;
 
@@ -23,11 +24,7 @@ public class ConsumerImposterBuilder {
     }
 
     public static String getImposterAsJsonString() throws IOException {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.NONE);
-        mapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
-        mapper.setSerializationInclusion(Include.NON_NULL);
-        mapper.setSerializationInclusion(Include.NON_EMPTY);
+        ObjectMapper mapper = JacksonObjectMapper.getMapper();
         return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(imposter);
     }
 }

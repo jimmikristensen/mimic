@@ -58,7 +58,6 @@ class ConsumerImposterEqualsIntegrationSpec extends Specification {
         then:
         boolean isPosted = new MountebankClient().postImposter(impStr, impostersUrl)
         isPosted == true
-        new MountebankClient().getImposters(impostersUrl).size() == 1
 
         and:
         Response resp = sendPostToStub("${stubUrl}/test?q=some query", ["Some-Header":"Header-Data"], "")
@@ -99,7 +98,6 @@ class ConsumerImposterEqualsIntegrationSpec extends Specification {
         and:
         boolean isPosted = new MountebankClient().postImposter(impStr, impostersUrl)
         isPosted == true
-        new MountebankClient().getImposters(impostersUrl).size() == 1
 
         and:
         Response resp = sendPostToStub("${stubUrl}/test?q=some query&q2=some other query&q3=some third query", ["Some-Header":"Header-Data"], "")
@@ -140,7 +138,6 @@ class ConsumerImposterEqualsIntegrationSpec extends Specification {
         and:
         boolean isPosted = new MountebankClient().postImposter(impStr, impostersUrl)
         isPosted == true
-        new MountebankClient().getImposters(impostersUrl).size() == 1
 
         and:
         Response resp = sendPostToStub("${stubUrl}/test?q=some query",
@@ -183,7 +180,6 @@ class ConsumerImposterEqualsIntegrationSpec extends Specification {
         and:
         boolean isPosted = new MountebankClient().postImposter(impStr, impostersUrl)
         isPosted == true
-        new MountebankClient().getImposters(impostersUrl).size() == 1
 
         and:
         Response resp = sendGetToStub("${stubUrl}/test")
@@ -227,7 +223,6 @@ class ConsumerImposterEqualsIntegrationSpec extends Specification {
         and:
         boolean isPosted = new MountebankClient().postImposter(impStr, impostersUrl)
         isPosted == true
-        new MountebankClient().getImposters(impostersUrl).size() == 1
 
         and:
         Response resp = sendGetToStub("${stubUrl}/test")
@@ -267,7 +262,6 @@ class ConsumerImposterEqualsIntegrationSpec extends Specification {
         and:
         boolean isPosted = new MountebankClient().postImposter(impStr, impostersUrl)
         isPosted == true
-        new MountebankClient().getImposters(impostersUrl).size() == 1
 
         and:
         Response res0 = sendGetToStub("${stubUrl}/test")
@@ -301,7 +295,6 @@ class ConsumerImposterEqualsIntegrationSpec extends Specification {
         then:
         boolean isPosted = new MountebankClient().postImposter(impStr, impostersUrl)
         isPosted == true
-        new MountebankClient().getImposters(impostersUrl).size() == 1
 
         when:
         Response res0 = sendPostToStub("${stubUrl}/test?q=test", null, "Hello World!")

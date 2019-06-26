@@ -9,7 +9,6 @@ import java.util.List;
 
 class MountebankContainerBuilder {
 
-    private String dockerImage = "jkris/mountebank";
     private List<Integer> exposedPorts = new ArrayList<>();
     private int managementPort = 2525;
 
@@ -24,12 +23,12 @@ class MountebankContainerBuilder {
         return this;
     }
 
-    public GenericContainer build() {
-        GenericContainer container = new GenericContainer(dockerImage)
-                .withExposedPorts(exposedPorts.stream().toArray(Integer[]::new))
-                .waitingFor(
-                        Wait.forHttp("/").forPort(managementPort)
-                );
+    public MountebankContainer build() {
+        MountebankContainer container = new MountebankContainer();
+        container.withExposedPorts(exposedPorts.stream().toArray(Integer[]::new));
+        container.waitingFor(
+                Wait.forHttp("/").forPort(managementPort)
+        );
 
         container.start();
         return container;

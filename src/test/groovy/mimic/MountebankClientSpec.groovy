@@ -10,15 +10,15 @@ import spock.lang.Specification
 class MountebankClientSpec extends Specification {
 
     @Shared
-    def mountebankContainer
+    def mbContainer
 
     def setupSpec() {
-        mountebankContainer = new MountebankContainerBuilder().managementPort(2525).build()
+        mbContainer = new MountebankContainerBuilder().managementPort(2525).build()
     }
 
     def "imposter is successfully posted to mountebank server"() {
         given:
-        def impostersUrl = "http://localhost:${mountebankContainer.getMappedPort(2525)}/imposters"
+        def impostersUrl = "http://localhost:${mbContainer.getMappedPort(2525)}/imposters"
         def imposterStr = '{"port":4321,"protocol":"http","stubs":[{"responses":[{"is":{"statusCode":201}}]}]}'
 
         when:
@@ -31,7 +31,7 @@ class MountebankClientSpec extends Specification {
 
     def "posting invalid imposter results in exception"() {
         given:
-        def impostersUrl = "http://localhost:${mountebankContainer.getMappedPort(2525)}/imposters"
+        def impostersUrl = "http://localhost:${mbContainer.getMappedPort(2525)}/imposters"
         def malformedImposterStr = '{"port":4321,"protokoll":"http","stubs":[{"responses":[{"is":{"statusCode":201}}]}]}'
 
         when:
@@ -51,4 +51,28 @@ class MountebankClientSpec extends Specification {
                 '  ]\n' +
                 '}'
     }
+
+    def "posting one imposter and getting the list of imposter URLs results in an array of one URLs being returned"() {
+        given:
+        def impostersUrl = "http://localhost:${mbContainer.getMappedPort(2525)}/imposters"
+        def imposterStr = '{"port":4321,"protocol":"http","stubs":[{"responses":[{"is":{"statusCode":201}}]}]}'
+
+        when:
+        new MountebankClient(mbContainer).postImposter(imposterStr, impostersUrl)
+        def imposterUrlList = new MountebankClient(mbContainer).getImposter(4321)
+
+        then:
+        println imposterUrlList.getPort()
+        println imposterUrlList.getProtocol()
+        println imposterUrlList.getStub(0).getResponse(0).getFields().getStatus()
+    }
+
+    def "deleting imposters when none exists results in an exception"() {
+
+    }
+
+    def "deleting all existing imposters is successful"() {
+
+    }
+
 }
