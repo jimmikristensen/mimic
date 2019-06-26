@@ -23,7 +23,7 @@ class MountebankContainerBuilder {
         return this;
     }
 
-    public MountebankContainer build() {
+    public GenericContainer build() {
         MountebankContainer container = new MountebankContainer();
         container.withExposedPorts(exposedPorts.stream().toArray(Integer[]::new));
         container.waitingFor(

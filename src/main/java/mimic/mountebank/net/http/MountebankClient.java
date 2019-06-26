@@ -5,10 +5,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import mimic.mountebank.MountebankContainer;
 import mimic.mountebank.imposter.Imposter;
 import mimic.mountebank.net.databind.JacksonObjectMapper;
-import mimic.mountebank.net.http.exception.InvalidImposterException;
+import mimic.mountebank.net.http.exception.ImposterParseException;
+import mimic.mountebank.net.http.exception.MountebankCommunicationException;
+import mimic.mountebank.net.http.exception.InvalidImposterURLException;
 import okhttp3.*;
 
 import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,7 +46,7 @@ public class MountebankClient {
             } else {
                 String bodyStr = response.body().string();
                 String msg = bodyStr != null && bodyStr != "" ? bodyStr : "Unable to POST imposter to Mountebank";
-                throw new InvalidImposterException(msg);
+                throw new MountebankCommunicationException(msg);
             }
         }
     }
@@ -61,33 +64,44 @@ public class MountebankClient {
         }
     }
 
-    public List<String> getImposters(String url) throws IOException {
-        List<String> imposterUrls = new ArrayList<>();
+    public List<Imposter> getImposters() throws IOException {
+        String impostersUrl = mbManagementUrl+"/imposters";
 
+        List<Imposter> imposters = new ArrayList<>();
         OkHttpClient client = new OkHttpClient();
 
         Request request = new Request.Builder()
-                .url(url)
+                .url(impostersUrl)
                 .get()
                 .build();
 
         try (Response response = client.newCall(request).execute()) {
-            String body = response.body().string();
-            System.out.println(body);
-            ObjectMapper mapper = new ObjectMapper();
-            JsonNode imposterNodes = mapper.readTree(body).get("imposters");
-            if (imposterNodes.isArray()) {
-                for (JsonNode imposterNode : imposterNodes) {
-
-                    System.out.println("-----------------");
-                    System.out.println(imposterNode.asText());
-                    System.out.println("-----------------");
-                    imposterUrls.add(imposterNode.asText());
-                }
+            if (!response.isSuccessful()) {
+                String bodyStr = response.body().string();
+                String msg = bodyStr != null && bodyStr != "" ? bodyStr : "Unable to fetch imposter list on URL: "+impostersUrl;
+                throw new MountebankCommunicationException(msg);
             }
+
+            String body = response.body().string();
+            ObjectMapper mapper = JacksonObjectMapper.getMapper();
+
+            try {
+                JsonNode imposterNodes = mapper.readTree(body).get("imposters");
+                if (imposterNodes.isArray()) {
+                    for (JsonNode imposterNode : imposterNodes) {
+                        String imposterUrl = imposterNode.get("_links").get("self").get("href").asText();
+                        imposters.add(getImposter(imposterUrl));
+                    }
+                }
+            } catch (NullPointerException e) {
+                throw new ImposterParseException("Unable to parse imposter response", e);
+            }
+
+            System.out.println(imposters.get(0).getPort());
+
+            return imposters;
         }
 
-        return imposterUrls;
     }
 
     public Imposter getImposter(int imposterPort) throws IOException {
@@ -107,8 +121,21 @@ public class MountebankClient {
             } else {
                 String bodyStr = response.body().string();
                 String msg = bodyStr != null && bodyStr != "" ? bodyStr : "Unable to fetch imposter on URL: "+impostersUrl;
-                throw new InvalidImposterException(msg);
+                throw new MountebankCommunicationException(msg);
             }
+        }
+    }
+
+    private Imposter getImposter(String imposterUrl) throws IOException {
+        URL url = new URL(imposterUrl);
+
+        try {
+            // extract the port number by removing all non-digits
+            String portString = url.getPath().replaceAll("\\D+", "");
+            int port = Integer.parseInt(portString);
+            return getImposter(port);
+        } catch (NumberFormatException e) {
+            throw new InvalidImposterURLException("Unable to parse imposter port number", e);
         }
     }
 
