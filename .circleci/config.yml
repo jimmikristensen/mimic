@@ -11,7 +11,4 @@ jobs:
           command: ./gradlew clean
       - run:
           name: Build Project
-          command: ./gradlw build
-
-
-
+          command: ./gradlew build
