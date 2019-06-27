@@ -1,7 +1,7 @@
 version: 2.1
 
 jobs:
-  build:
+  clean:
     docker:
       - image: circleci/openjdk:11-jdk-stretch
     steps:
@@ -9,6 +9,18 @@ jobs:
       - run:
           name: Clean Project
           command: ./gradlew clean
+  build:
+    docker:
+      - image: circleci/openjdk:11-jdk-stretch
+    steps:
+      - checkout
       - run:
           name: Build Project
           command: ./gradlew build
+
+workflows:
+  version: 2
+  clean_and_build:
+    jobs:
+      - build
+      - test
