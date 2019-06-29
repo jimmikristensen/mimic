@@ -7,3 +7,6 @@ build
 # Ignore intellij
 .idea
 out
+
+# mac
+.DS_Store
