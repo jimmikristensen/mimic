@@ -12,6 +12,9 @@ plugins {
 
     // Apply the groovy plugin to also add support for Groovy (needed for Spock)
     id 'groovy'
+
+    // Apply the jacoco plugin to support code coverage
+    id 'jacoco'
 }
 
 repositories {
