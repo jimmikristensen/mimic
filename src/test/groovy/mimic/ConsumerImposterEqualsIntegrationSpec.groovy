@@ -21,7 +21,7 @@ import spock.lang.Specification
 class ConsumerImposterEqualsIntegrationSpec extends Specification {
 
     @Shared
-    def mountebankContainer
+    def mbContainer
 
     @Shared
     def mountebankUrl
@@ -30,19 +30,16 @@ class ConsumerImposterEqualsIntegrationSpec extends Specification {
     def stubUrl
 
     def setupSpec() {
-        mountebankContainer = new MountebankContainerBuilder().managementPort(2525).stubPort(4321).build()
-        mountebankUrl = "http://localhost:${mountebankContainer.getMappedPort(2525)}"
-        stubUrl = "http://localhost:${mountebankContainer.getMappedPort(4321)}"
+        mbContainer = new MountebankContainerBuilder().managementPort(2525).stubPort(4321).build()
+        mountebankUrl = "http://localhost:${mbContainer.getMappedPort(2525)}"
+        stubUrl = "http://localhost:${mbContainer.getMappedPort(4321)}"
     }
 
     def setup() {
-        new MountebankClient().deleteAllImposters("${mountebankUrl}/imposters")
+        new MountebankClient(mbContainer).deleteAllImposters()
     }
 
     def "posting simple imposter to mountebank is successful"() {
-        given:
-        def impostersUrl = "${mountebankUrl}/imposters"
-
         when:
         def impStr = ConsumerImposterBuilder.Builder()
                 .givenRequest(4321)
@@ -56,7 +53,7 @@ class ConsumerImposterEqualsIntegrationSpec extends Specification {
                 .toImposterString()
 
         then:
-        boolean isPosted = new MountebankClient().postImposter(impStr, impostersUrl)
+        boolean isPosted = new MountebankClient(mbContainer).postImposter(impStr)
         isPosted == true
 
         and:
@@ -70,9 +67,6 @@ class ConsumerImposterEqualsIntegrationSpec extends Specification {
     }
 
     def "creating imposter stub with multiple queries succeeds"() {
-        given:
-        def impostersUrl = "${mountebankUrl}/imposters"
-
         when:
         def impStr = ConsumerImposterBuilder.Builder()
                 .givenRequest(4321)
@@ -96,7 +90,7 @@ class ConsumerImposterEqualsIntegrationSpec extends Specification {
         ]
 
         and:
-        boolean isPosted = new MountebankClient().postImposter(impStr, impostersUrl)
+        boolean isPosted = new MountebankClient(mbContainer).postImposter(impStr)
         isPosted == true
 
         and:
@@ -110,9 +104,6 @@ class ConsumerImposterEqualsIntegrationSpec extends Specification {
     }
 
     def "creating imposter stub with multiple headers succeeds"() {
-        given:
-        def impostersUrl = "${mountebankUrl}/imposters"
-
         when:
         def impStr = ConsumerImposterBuilder.Builder()
                 .givenRequest(4321)
@@ -136,7 +127,7 @@ class ConsumerImposterEqualsIntegrationSpec extends Specification {
         ]
 
         and:
-        boolean isPosted = new MountebankClient().postImposter(impStr, impostersUrl)
+        boolean isPosted = new MountebankClient(mbContainer).postImposter(impStr)
         isPosted == true
 
         and:
@@ -152,9 +143,6 @@ class ConsumerImposterEqualsIntegrationSpec extends Specification {
     }
 
     def "creating imposter stub with response status code, body and 3 headers is successful"() {
-        given:
-        def impostersUrl = "${mountebankUrl}/imposters"
-
         when:
         def impStr = ConsumerImposterBuilder.Builder()
                 .givenRequest(4321)
@@ -178,7 +166,7 @@ class ConsumerImposterEqualsIntegrationSpec extends Specification {
         ]
 
         and:
-        boolean isPosted = new MountebankClient().postImposter(impStr, impostersUrl)
+        boolean isPosted = new MountebankClient(mbContainer).postImposter(impStr)
         isPosted == true
 
         and:
@@ -195,8 +183,6 @@ class ConsumerImposterEqualsIntegrationSpec extends Specification {
 
     def "using an JsonObject for response body will result in json string response"() {
         given:
-        def impostersUrl = "${mountebankUrl}/imposters"
-
         def mapper = new ObjectMapper()
         JsonNode rootNode = mapper.createObjectNode()
         JsonNode node = mapper.createObjectNode()
@@ -221,7 +207,7 @@ class ConsumerImposterEqualsIntegrationSpec extends Specification {
         imp.getStub(0).getResponses().get(0).getFields().getBody() == mapper.writer().writeValueAsString(rootNode)
 
         and:
-        boolean isPosted = new MountebankClient().postImposter(impStr, impostersUrl)
+        boolean isPosted = new MountebankClient(mbContainer).postImposter(impStr)
         isPosted == true
 
         and:
@@ -236,9 +222,6 @@ class ConsumerImposterEqualsIntegrationSpec extends Specification {
     }
 
     def "creating imposter stub with two responses is successful"() {
-        given:
-        def impostersUrl = "${mountebankUrl}/imposters"
-
         when:
         def impStr = ConsumerImposterBuilder.Builder()
                 .givenRequest(4321)
@@ -260,7 +243,7 @@ class ConsumerImposterEqualsIntegrationSpec extends Specification {
         imp.getStub(0).getResponse(1).getFields().getStatus() == 201
 
         and:
-        boolean isPosted = new MountebankClient().postImposter(impStr, impostersUrl)
+        boolean isPosted = new MountebankClient(mbContainer).postImposter(impStr)
         isPosted == true
 
         and:
@@ -276,9 +259,6 @@ class ConsumerImposterEqualsIntegrationSpec extends Specification {
     }
 
     def "imposter two equals predicates stacks the predicate validater"() {
-        given:
-        def impostersUrl = "${mountebankUrl}/imposters"
-
         when:
         def impStr = ConsumerImposterBuilder.Builder()
                 .givenRequest(4321)
@@ -293,7 +273,7 @@ class ConsumerImposterEqualsIntegrationSpec extends Specification {
                 .toImposterString()
 
         then:
-        boolean isPosted = new MountebankClient().postImposter(impStr, impostersUrl)
+        boolean isPosted = new MountebankClient(mbContainer).postImposter(impStr)
         isPosted == true
 
         when:

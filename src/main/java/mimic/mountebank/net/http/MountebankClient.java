@@ -53,16 +53,46 @@ public class MountebankClient {
         }
     }
 
-    public boolean deleteAllImposters(String url) throws IOException {
+    public boolean deleteAllImposters() throws IOException {
+        String impostersUrl = mbManagementUrl+"/imposters";
+
         OkHttpClient client = new OkHttpClient();
 
         Request request = new Request.Builder()
-                .url(url)
+                .url(impostersUrl)
                 .delete()
                 .build();
 
         try (Response response = client.newCall(request).execute()) {
-            return response.isSuccessful();
+            if (response.isSuccessful()) {
+                return true;
+            } else {
+                String bodyStr = response.body().string();
+                String msg = bodyStr != null && bodyStr != "" ? bodyStr : "Unable to delete imposters using URL: "+impostersUrl;
+                throw new MountebankCommunicationException(msg);
+            }
+        }
+
+    }
+
+    public boolean deleteImposter(int imposterPort) throws IOException {
+        String impostersUrl = mbManagementUrl+"/imposters/"+imposterPort;
+
+        OkHttpClient client = new OkHttpClient();
+
+        Request request = new Request.Builder()
+                .url(impostersUrl)
+                .delete()
+                .build();
+
+        try (Response response = client.newCall(request).execute()) {
+            if (response.isSuccessful()) {
+                return true;
+            } else {
+                String bodyStr = response.body().string();
+                String msg = bodyStr != null && bodyStr != "" ? bodyStr : "Unable to delete imposter on port "+impostersUrl+" using URL: "+impostersUrl;
+                throw new MountebankCommunicationException(msg);
+            }
         }
     }
 
@@ -118,7 +148,7 @@ public class MountebankClient {
                 return mapper.readValue(body, Imposter.class);
             } else {
                 String bodyStr = response.body().string();
-                String msg = bodyStr != null && bodyStr != "" ? bodyStr : "Unable to fetch imposter on URL: "+impostersUrl;
+                String msg = bodyStr != null && bodyStr != "" ? bodyStr : "Unable to fetch imposter on port "+impostersUrl+" using URL: "+impostersUrl;
                 throw new MountebankCommunicationException(msg);
             }
         }

@@ -23,7 +23,7 @@ class MountebankClientSpec extends Specification {
     }
 
     def setup() {
-        new MountebankClient(mbContainer).deleteAllImposters("${mountebankUrl}/imposters")
+        new MountebankClient(mbContainer).deleteAllImposters()
     }
 
     def "after posting an imposter it should be possible to retrieve it from mountebank"() {
@@ -159,12 +159,55 @@ class MountebankClientSpec extends Specification {
         imposters.get(1).getStub(0).getResponse(0).getFields().getStatus() == 201
     }
 
-    def "deleting imposters when none exists results in an exception"() {
+    def "deleting single imposter when none exists is allowed"() {
+        given:
+        def mbClient = new MountebankClient(mbContainer)
 
+        when:
+        boolean wasDeleted = mbClient.deleteImposter(8347)
+
+        then:
+        wasDeleted == true
+    }
+
+    def "deleting one imposter out of two results in one remaining"() {
+        given:
+        def imposterStr1 = '{"port":1234,"protocol":"https","stubs":[{"responses":[{"is":{"statusCode":404}}]}]}'
+        def imposterStr2 = '{"port":4321,"protocol":"http","stubs":[{"responses":[{"is":{"statusCode":201}}]}]}'
+        def mbClient = new MountebankClient(mbContainer)
+
+        when:
+        mbClient.postImposter(imposterStr1)
+        mbClient.postImposter(imposterStr2)
+
+        then:
+        mbClient.getImposters().size() == 2
+
+        when:
+        mbClient.deleteImposter(1234)
+
+        then:
+        mbClient.getImposters().size() == 1
     }
 
     def "deleting all existing imposters is successful"() {
+        given:
+        def imposterStr1 = '{"port":1234,"protocol":"https","stubs":[{"responses":[{"is":{"statusCode":404}}]}]}'
+        def imposterStr2 = '{"port":4321,"protocol":"http","stubs":[{"responses":[{"is":{"statusCode":201}}]}]}'
+        def mbClient = new MountebankClient(mbContainer)
 
+        when:
+        mbClient.postImposter(imposterStr1)
+        mbClient.postImposter(imposterStr2)
+
+        then:
+        mbClient.getImposters().size() == 2
+
+        when:
+        mbClient.deleteAllImposters()
+
+        then:
+        mbClient.getImposters().size() == 0
     }
 
 
