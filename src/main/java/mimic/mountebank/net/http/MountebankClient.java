@@ -27,7 +27,9 @@ public class MountebankClient {
         this.mbManagementUrl = mbManagementUrl;
     }
 
-    public boolean postImposter(String imposter, String url) throws IOException {
+    public boolean postImposter(String imposter) throws IOException {
+        String impostersUrl = mbManagementUrl+"/imposters";
+
         OkHttpClient client = new OkHttpClient();
 
         RequestBody body = RequestBody.create(
@@ -36,7 +38,7 @@ public class MountebankClient {
         );
 
         Request request = new Request.Builder()
-                .url(url)
+                .url(impostersUrl)
                 .post(body)
                 .build();
 
@@ -96,12 +98,8 @@ public class MountebankClient {
             } catch (NullPointerException e) {
                 throw new ImposterParseException("Unable to parse imposter response", e);
             }
-
-            System.out.println(imposters.get(0).getPort());
-
-            return imposters;
         }
-
+        return imposters;
     }
 
     public Imposter getImposter(int imposterPort) throws IOException {

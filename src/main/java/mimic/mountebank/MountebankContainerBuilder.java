@@ -24,11 +24,11 @@ class MountebankContainerBuilder {
     }
 
     public GenericContainer build() {
-        MountebankContainer container = new MountebankContainer();
-        container.withExposedPorts(exposedPorts.stream().toArray(Integer[]::new));
-        container.waitingFor(
-                Wait.forHttp("/").forPort(managementPort)
-        );
+        GenericContainer container = new MountebankContainer()
+                .withExposedPorts(exposedPorts.stream().toArray(Integer[]::new))
+                .waitingFor(
+                        Wait.forHttp("/").forPort(managementPort)
+                );
 
         container.start();
         return container;

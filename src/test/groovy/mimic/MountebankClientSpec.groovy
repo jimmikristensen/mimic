@@ -23,17 +23,16 @@ class MountebankClientSpec extends Specification {
     }
 
     def setup() {
-        new MountebankClient().deleteAllImposters("${mountebankUrl}/imposters")
+        new MountebankClient(mbContainer).deleteAllImposters("${mountebankUrl}/imposters")
     }
 
     def "after posting an imposter it should be possible to retrieve it from mountebank"() {
         given:
-        def impostersUrl = "http://localhost:${mbContainer.getMappedPort(2525)}/imposters"
         def imposterStr = '{"port":4321,"protocol":"http","stubs":[{"responses":[{"is":{"statusCode":201}}]}]}'
+        def mbClient = new MountebankClient(mbContainer)
 
         when:
-        def mbClient = new MountebankClient(mbContainer)
-        def isPosted = mbClient.postImposter(imposterStr, impostersUrl)
+        def isPosted = mbClient.postImposter(imposterStr)
 
         then:
         isPosted == true
@@ -47,7 +46,7 @@ class MountebankClientSpec extends Specification {
         imposter.getStub(0).getResponse(0).getFields().getStatus() == 201
     }
 
-    def "trying to fetch imposter non-existing imposter results in MountebankCommunicationException"() {
+    def "trying to fetch non-existing imposter results in MountebankCommunicationException"() {
         given:
         def mbClient = new MountebankClient(mbContainer)
 
@@ -68,12 +67,11 @@ class MountebankClientSpec extends Specification {
 
     def "retrieving an imposter from URL is successful"() {
         given:
-        def impostersUrl = "http://localhost:${mbContainer.getMappedPort(2525)}/imposters"
         def imposterStr = '{"port":4321,"protocol":"http","stubs":[{"responses":[{"is":{"statusCode":201}}]}]}'
+        def mbClient = new MountebankClient(mbContainer)
 
         when:
-        def mbClient = new MountebankClient(mbContainer)
-        mbClient.postImposter(imposterStr, impostersUrl)
+        mbClient.postImposter(imposterStr)
         def imposter = mbClient.getImposter("http://localhost:${mbContainer.getMappedPort(2525)}/imposters/4321")
 
         then:
@@ -86,12 +84,11 @@ class MountebankClientSpec extends Specification {
 
     def "supplying invalid imposter url result in a InvalidImposterURLException"() {
         given:
-        def impostersUrl = "http://localhost:${mbContainer.getMappedPort(2525)}/imposters"
         def imposterStr = '{"port":4321,"protocol":"http","stubs":[{"responses":[{"is":{"statusCode":201}}]}]}'
+        def mbClient = new MountebankClient(mbContainer)
 
         when:
-        def mbClient = new MountebankClient(mbContainer)
-        mbClient.postImposter(imposterStr, impostersUrl)
+        mbClient.postImposter(imposterStr)
         mbClient.getImposter("http://localhost:${mbContainer.getMappedPort(2525)}/imposters/four-three-two-one")
 
         then:
@@ -100,16 +97,16 @@ class MountebankClientSpec extends Specification {
 
     }
 
-    def "posting invalid imposter results in exception"() {
+    def "posting invalid imposter results in MountebankCommunicationException"() {
         given:
-        def impostersUrl = "http://localhost:${mbContainer.getMappedPort(2525)}/imposters"
         def malformedImposterStr = '{"port":4321,"protokoll":"http","stubs":[{"responses":[{"is":{"statusCode":201}}]}]}'
+        def mbClient = new MountebankClient(mbContainer)
 
         when:
-        new MountebankClient().postImposter(malformedImposterStr, impostersUrl)
+        mbClient.postImposter(malformedImposterStr)
 
         then:
-        new MountebankClient().getImposters(impostersUrl).size() == 0
+        mbClient.getImposters().size() == 0
 
         and:
         MountebankCommunicationException ex = thrown()
@@ -123,19 +120,43 @@ class MountebankClientSpec extends Specification {
                 '}'
     }
 
-    def "posting one imposter and getting the list of imposter URLs results in an array of one URLs being returned"() {
+    def "posting one imposter and getting the list of imposters results in an array of one being returned"() {
         given:
-        def impostersUrl = "http://localhost:${mbContainer.getMappedPort(2525)}/imposters"
         def imposterStr = '{"port":4321,"protocol":"http","stubs":[{"responses":[{"is":{"statusCode":201}}]}]}'
+        def mbClient = new MountebankClient(mbContainer)
 
         when:
-        new MountebankClient(mbContainer).postImposter(imposterStr, impostersUrl)
-        def imposterUrlList = new MountebankClient(mbContainer).getImposter(4321)
+        mbClient.postImposter(imposterStr)
+        def imposters = mbClient.getImposters()
 
         then:
-        println imposterUrlList.getPort()
-        println imposterUrlList.getProtocol()
-        println imposterUrlList.getStub(0).getResponse(0).getFields().getStatus()
+        imposters.size() == 1
+        imposters.get(0).getPort() == 4321
+        imposters.get(0).getProtocol() == Protocol.HTTP
+        imposters.get(0).getStub(0).getResponse(0).getFields().getStatus() == 201
+    }
+
+    def "posting two imposters and getting the list of imposters results in an array of two being returned"() {
+        given:
+        def imposterStr1 = '{"port":1234,"protocol":"https","stubs":[{"responses":[{"is":{"statusCode":404}}]}]}'
+        def imposterStr2 = '{"port":4321,"protocol":"http","stubs":[{"responses":[{"is":{"statusCode":201}}]}]}'
+        def mbClient = new MountebankClient(mbContainer)
+
+        when:
+        mbClient.postImposter(imposterStr1)
+        mbClient.postImposter(imposterStr2)
+        def imposters = mbClient.getImposters()
+
+        then:
+        imposters.size() == 2
+        imposters.get(0).getPort() == 1234
+        imposters.get(0).getProtocol() == Protocol.HTTPS
+        imposters.get(0).getStub(0).getResponse(0).getFields().getStatus() == 404
+
+        and:
+        imposters.get(1).getPort() == 4321
+        imposters.get(1).getProtocol() == Protocol.HTTP
+        imposters.get(1).getStub(0).getResponse(0).getFields().getStatus() == 201
     }
 
     def "deleting imposters when none exists results in an exception"() {
