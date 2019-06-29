@@ -22,4 +22,4 @@ jobs:
             - ~/.gradle
           key: gradle-{{ checksum "build.gradle" }}
       - store_test_results:
-          path: build/test-results/test
+          path: build/test-results/
