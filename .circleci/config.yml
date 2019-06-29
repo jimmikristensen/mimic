@@ -6,5 +6,20 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Build Project
-          command: ./gradlew build
+          name: Java Version
+          command: java -version
+      - run:
+          name: Clean
+          command: ./gradlew clean
+      - run:
+          name: Build
+          command: ./gradlew build -x test -x check
+      - run:
+          name: Test
+          command: ./gradlew test
+      - save_cache:
+          paths:
+            - ~/.gradle
+          key: gradle-{{ checksum "build.gradle" }}
+
+
