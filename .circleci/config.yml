@@ -17,6 +17,12 @@ jobs:
       - run:
           name: Test
           command: ./gradlew test
+      - run:
+          name: Jacoco Coverage Report
+          command: ./gradlew jacocoTestReport
+      - run:
+          name: Jacoco Test Coverage Verification
+          command: ./gradlew jacocoTestCoverageVerification
       - save_cache:
           paths:
             - ~/.gradle
@@ -25,3 +31,5 @@ jobs:
           path: build/test-results/
       - store_artifacts:
           path: build/reports/tests/test/
+      - store_artifacts:
+          path: build/reports/jacoco/test/html/
