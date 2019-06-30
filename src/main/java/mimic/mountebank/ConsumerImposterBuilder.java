@@ -32,4 +32,9 @@ public class ConsumerImposterBuilder {
         new MountebankClient(mbc).postImposter(getImposterAsJsonString());
         return mbc;
     }
+
+    public static String postImposterToMountebank(String mbManagementUrl) throws IOException {
+        new MountebankClient(mbManagementUrl).postImposter(getImposterAsJsonString());
+        return mbManagementUrl;
+    }
 }

@@ -58,4 +58,8 @@ public class ResponseBuilder {
     public GenericContainer toMountebank() throws IOException {
         return ConsumerImposterBuilder.postImposterToMountebank();
     }
+
+    public String toMountebank(String mbManagementUrl) throws IOException {
+        return ConsumerImposterBuilder.postImposterToMountebank(mbManagementUrl);
+    }
 }
