@@ -45,7 +45,7 @@ public class PredicateEqualsBuilder {
         return this;
     }
 
-    public ResponseBuilder respondsWith() {
+    public ResponseBuilder expectResponse() {
         return responseBuilder.respondsWith();
     }
 

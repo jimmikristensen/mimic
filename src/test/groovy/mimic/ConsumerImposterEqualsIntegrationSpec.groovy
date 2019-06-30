@@ -24,14 +24,10 @@ class ConsumerImposterEqualsIntegrationSpec extends Specification {
     def mbContainer
 
     @Shared
-    def mountebankUrl
-
-    @Shared
     def stubUrl
 
     def setupSpec() {
         mbContainer = new MountebankContainerBuilder().managementPort(2525).stubPort(4321).build()
-        mountebankUrl = "http://localhost:${mbContainer.getMappedPort(2525)}"
         stubUrl = "http://localhost:${mbContainer.getMappedPort(4321)}"
     }
 
@@ -48,7 +44,7 @@ class ConsumerImposterEqualsIntegrationSpec extends Specification {
                     .path("/test")
                     .query("q", "some query")
                     .header("Some-Header", "Header-Data")
-                .respondsWith()
+                .expectResponse()
                     .status(201)
                 .toImposterString()
 
@@ -77,7 +73,7 @@ class ConsumerImposterEqualsIntegrationSpec extends Specification {
                     .query("q2", "some other query")
                     .query("q3", "some third query")
                     .header("Some-Header", "Header-Data")
-                .respondsWith()
+                .expectResponse()
                     .status(201)
                 .toImposterString()
 
@@ -114,7 +110,7 @@ class ConsumerImposterEqualsIntegrationSpec extends Specification {
                     .header("Some-Header", "Header-Data")
                     .header("Some-Other-Header", "Header-Data2")
                     .header("Some-Third-Header", "Header-Data3")
-                .respondsWith()
+                .expectResponse()
                     .status(201)
                 .toImposterString()
 
@@ -149,7 +145,7 @@ class ConsumerImposterEqualsIntegrationSpec extends Specification {
                     .equals()
                     .method("get")
                     .path("/test")
-                .respondsWith()
+                .expectResponse()
                     .status(201)
                     .body("Hello World!")
                     .header("ResponseFields-Header1", "Header1")
@@ -195,7 +191,7 @@ class ConsumerImposterEqualsIntegrationSpec extends Specification {
                     .equals()
                     .method("get")
                     .path("/test")
-                .respondsWith()
+                .expectResponse()
                     .status(201)
                     .header("Content-Type", "application/json")
                     .body(rootNode)
@@ -228,7 +224,7 @@ class ConsumerImposterEqualsIntegrationSpec extends Specification {
                     .equals()
                     .method("get")
                     .path("/test")
-                .respondsWith()
+                .expectResponse()
                     .status(200)
                     .body("Hello World!")
                 .respondsWith()
@@ -268,7 +264,7 @@ class ConsumerImposterEqualsIntegrationSpec extends Specification {
                     .method(HttpMethod.POST)
                     .and()
                     .body("Hello World!")
-                .respondsWith()
+                .expectResponse()
                     .status(201)
                 .toImposterString()
 

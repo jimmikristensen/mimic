@@ -7,6 +7,7 @@ import mimic.mountebank.ConsumerImposterBuilder;
 import mimic.mountebank.imposter.ResponseFields;
 import mimic.mountebank.imposter.Response;
 import mimic.mountebank.imposter.Stub;
+import org.testcontainers.containers.GenericContainer;
 
 import java.io.IOException;
 
@@ -52,5 +53,9 @@ public class ResponseBuilder {
 
     public String toImposterString() throws IOException {
         return ConsumerImposterBuilder.getImposterAsJsonString();
+    }
+
+    public GenericContainer toMountebank() throws IOException {
+        return ConsumerImposterBuilder.postImposterToMountebank();
     }
 }

@@ -7,7 +7,7 @@ import mimic.mountebank.net.http.HttpMethod
 import spock.lang.Specification
 
 
-class ImposteEqualsrSpec extends Specification {
+class ImposteEqualsSpec extends Specification {
 
 
     def "creating imposter with method results in imposter with status code #statucCode"() {
@@ -19,7 +19,7 @@ class ImposteEqualsrSpec extends Specification {
                 .givenRequest(4321)
                     .equals()
                     .method(HttpMethod.POST)
-                .respondsWith()
+                .expectResponse()
                     .status(statucCode)
                 .toImposterString()
 
@@ -47,7 +47,7 @@ class ImposteEqualsrSpec extends Specification {
                 .equals()
                     .method(HttpMethod.POST)
                     .path("/test")
-                .respondsWith()
+                .expectResponse()
                     .status(statucCode)
                 .toImposterString()
 
@@ -77,7 +77,7 @@ class ImposteEqualsrSpec extends Specification {
                     .method(HttpMethod.POST)
                     .path("/test")
                     .query("q", "some query")
-                .respondsWith()
+                .expectResponse()
                     .status(statucCode)
                 .toImposterString()
 
@@ -109,7 +109,7 @@ class ImposteEqualsrSpec extends Specification {
                     .path("/test")
                     .query("q", "some query")
                     .header("Some-Header", "Header-Data")
-                .respondsWith()
+                .expectResponse()
                     .status(statucCode)
                 .toImposterString()
 
@@ -143,7 +143,7 @@ class ImposteEqualsrSpec extends Specification {
                     .query("q", "some query")
                     .query("q2", "some other query")
                     .header("Some-Header", "Header-Data")
-                .respondsWith()
+                .expectResponse()
                     .status(statucCode)
                 .toImposterString()
 
@@ -178,7 +178,7 @@ class ImposteEqualsrSpec extends Specification {
                     .query("q2", "some other query")
                     .header("Some-Header", "Header-Data")
                     .header("Some-Other-Header", "Header-Data2")
-                .respondsWith()
+                .expectResponse()
                     .status(statucCode)
                 .toImposterString()
 
@@ -210,7 +210,7 @@ class ImposteEqualsrSpec extends Specification {
                     .equals()
                     .method(HttpMethod.POST)
                     .path("/test")
-                .respondsWith()
+                .expectResponse()
                     .status(statucCode1)
                 .respondsWith()
                     .status(statucCode2)
@@ -248,7 +248,7 @@ class ImposteEqualsrSpec extends Specification {
                     .method(HttpMethod.POST)
                     .and()
                     .body("Hello World!")
-                .respondsWith()
+                .expectResponse()
                     .status(statusCode)
                 .toImposterString()
 

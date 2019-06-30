@@ -3,7 +3,7 @@ package mimic
 import mimic.mountebank.MountebankContainerBuilder
 import spock.lang.Specification
 
-class MountebankContainerSpec extends Specification {
+class MountebankContainerBuilderSpec extends Specification {
 
     def "Mountebank container can be started and stopped"() {
         given:

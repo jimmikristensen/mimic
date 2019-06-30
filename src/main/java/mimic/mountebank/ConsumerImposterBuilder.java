@@ -1,12 +1,11 @@
 package mimic.mountebank;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import mimic.mountebank.dsl.ImposterBuilder;
 import mimic.mountebank.imposter.Imposter;
 import mimic.mountebank.net.databind.JacksonObjectMapper;
+import mimic.mountebank.net.http.MountebankClient;
+import org.testcontainers.containers.GenericContainer;
 
 import java.io.IOException;
 
@@ -26,5 +25,11 @@ public class ConsumerImposterBuilder {
     public static String getImposterAsJsonString() throws IOException {
         ObjectMapper mapper = JacksonObjectMapper.getMapper();
         return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(imposter);
+    }
+
+    public static GenericContainer postImposterToMountebank() throws IOException {
+        GenericContainer mbc = new MountebankContainerBuilder().managementPort(2525).stubPort(imposter.getPort()).build();
+        new MountebankClient(mbc).postImposter(getImposterAsJsonString());
+        return mbc;
     }
 }

@@ -2,13 +2,13 @@ package mimic.mountebank.net.http;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import mimic.mountebank.MountebankContainer;
 import mimic.mountebank.imposter.Imposter;
 import mimic.mountebank.net.databind.JacksonObjectMapper;
 import mimic.mountebank.net.http.exception.ImposterParseException;
 import mimic.mountebank.net.http.exception.MountebankCommunicationException;
 import mimic.mountebank.net.http.exception.InvalidImposterURLException;
 import okhttp3.*;
+import org.testcontainers.containers.GenericContainer;
 
 import java.io.IOException;
 import java.net.URL;
@@ -19,7 +19,7 @@ public class MountebankClient {
 
     private String mbManagementUrl;
 
-    public MountebankClient(MountebankContainer mbContainer) {
+    public MountebankClient(GenericContainer mbContainer) {
         mbManagementUrl = "http://localhost:"+mbContainer.getMappedPort(2525);
     }
 
