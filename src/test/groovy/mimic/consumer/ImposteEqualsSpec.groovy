@@ -1,4 +1,4 @@
-package mimic
+package mimic.consumer
 
 import mimic.mountebank.ConsumerImposterBuilder
 import mimic.mountebank.imposter.Imposter

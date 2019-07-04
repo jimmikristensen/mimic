@@ -1,4 +1,4 @@
-package mimic
+package mimic.consumer
 
 import mimic.mountebank.MountebankContainerBuilder
 import spock.lang.Specification

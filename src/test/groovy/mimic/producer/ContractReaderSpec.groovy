@@ -1,4 +1,4 @@
-package mimic
+package mimic.producer
 
 import mimic.mountebank.ContractReader
 import spock.lang.Specification
@@ -21,4 +21,18 @@ class ContractReaderSpec extends Specification {
         0   || '/contracts/imposter.json'
     }
 
+    @Unroll
+    def "retrieving contract file paths on custom location results in a string list of paths: #filePath"() {
+        given:
+        def path = new File('src/test/resources/custom_contract_dir').getPath()
+        def listOfFilePaths = new ContractReader().readContractFilesFromDir(path)
+
+        expect:
+        listOfFilePaths.size() == 1
+        listOfFilePaths.get(id).endsWith(filePath) == true
+
+        where:
+        id  || filePath
+        0   || '/custom_contract_dir/imposter_in_custom_dir.json'
+    }
 }

@@ -1,4 +1,4 @@
-package mimic
+package mimic.producer
 
 import mimic.mountebank.ConsumerImposterBuilder
 import mimic.mountebank.ProducerImposterVerifier
