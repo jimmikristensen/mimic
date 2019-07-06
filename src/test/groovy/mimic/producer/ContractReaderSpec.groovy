@@ -1,5 +1,6 @@
 package mimic.producer
 
+import mimic.mountebank.exception.ImposterNotFoundException
 import mimic.mountebank.producer.ContractFileReader
 import mimic.mountebank.net.http.HttpMethod
 import spock.lang.Specification
@@ -43,7 +44,17 @@ class ContractReaderSpec extends Specification {
         def listOfFilePaths = new ContractFileReader().getContractFilesFromDir(path)
 
         then:
-        FileNotFoundException ex = thrown()
+        ImposterNotFoundException ex = thrown()
+        ex.message.startsWith('Did not find any local imposter contract files at path:') == true
+    }
+
+    def "searching for imposters in a non-empty dir with no imposters results in FileNotFoundException"() {
+        when:
+        def imposters = new ContractFileReader('src/test/resources/not_a_contract_dir').readContract()
+
+        then:
+        ImposterNotFoundException ex = thrown()
+        ex.message.startsWith('No imposter contract files found') == true
     }
 
     @Unroll

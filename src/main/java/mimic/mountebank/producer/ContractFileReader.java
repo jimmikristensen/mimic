@@ -1,11 +1,11 @@
 package mimic.mountebank.producer;
 
+import mimic.mountebank.exception.ImposterNotFoundException;
 import mimic.mountebank.imposter.Imposter;
 import mimic.mountebank.net.databind.JacksonObjectMapper;
 import mimic.mountebank.exception.ImposterParseException;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Arrays;
@@ -22,7 +22,7 @@ public class ContractFileReader implements ContractReader {
 
     public ContractFileReader() {}
 
-    private List<File> getContractFilesFromClasspath() throws FileNotFoundException {
+    private List<File> getContractFilesFromClasspath() {
         URL url = getClass().getResource("/contracts");
         String path = url.getPath();
         String[] fileNames = new File(path).list();
@@ -30,10 +30,11 @@ public class ContractFileReader implements ContractReader {
         if (fileNames != null) {
             return getFiles(path, fileNames);
         }
-        throw new FileNotFoundException();
+
+        throw new ImposterNotFoundException("Did not find any local imposter contract files at path: " + path);
     }
 
-    private List<File> getContractFilesFromDir(String dir) throws FileNotFoundException {
+    private List<File> getContractFilesFromDir(String dir) {
         File fileDir = new File(dir);
         String path = fileDir.getAbsolutePath();
         String[] fileNames = fileDir.list();
@@ -41,7 +42,8 @@ public class ContractFileReader implements ContractReader {
         if (fileNames != null) {
             return getFiles(path, fileNames);
         }
-        throw new FileNotFoundException();
+
+        throw new ImposterNotFoundException("Did not find any local imposter contract files at path: " + path);
     }
 
     private List<File> getFiles(String path, String[] fileNames) {
@@ -53,19 +55,15 @@ public class ContractFileReader implements ContractReader {
 
 
     public List<Imposter> readContract() {
-        List<File> contractFiles = null;
+        List<File> contractFiles;
 
-        try {
-            if (contractFilePath != null) {
-                contractFiles = getContractFilesFromDir(contractFilePath);
-            } else {
-                contractFiles = getContractFilesFromClasspath();
-            }
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
+        if (contractFilePath != null) {
+            contractFiles = getContractFilesFromDir(contractFilePath);
+        } else {
+            contractFiles = getContractFilesFromClasspath();
         }
 
-        if (contractFiles != null) {
+        if (contractFiles != null && !contractFiles.isEmpty()) {
             List<Imposter> imposters = contractFiles.stream().map(s -> {
 
                 try {
@@ -79,6 +77,6 @@ public class ContractFileReader implements ContractReader {
             return imposters;
         }
 
-        return null;
+        throw new ImposterNotFoundException("No imposter contract files found");
     }
 }
