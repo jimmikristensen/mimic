@@ -4,9 +4,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import mimic.mountebank.imposter.Imposter;
 import mimic.mountebank.net.databind.JacksonObjectMapper;
-import mimic.mountebank.net.http.exception.ImposterParseException;
-import mimic.mountebank.net.http.exception.MountebankCommunicationException;
-import mimic.mountebank.net.http.exception.InvalidImposterURLException;
+import mimic.mountebank.exception.ImposterParseException;
+import mimic.mountebank.exception.MountebankCommunicationException;
+import mimic.mountebank.exception.InvalidImposterURLException;
 import okhttp3.*;
 import org.testcontainers.containers.GenericContainer;
 

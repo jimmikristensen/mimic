@@ -1,4 +1,4 @@
-package mimic.mountebank.net.http.exception;
+package mimic.mountebank.exception;
 
 public class InvalidImposterURLException extends RuntimeException {
 

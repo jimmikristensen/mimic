@@ -2,6 +2,7 @@ package mimic.mountebank.producer;
 
 import mimic.mountebank.imposter.Imposter;
 import mimic.mountebank.net.databind.JacksonObjectMapper;
+import mimic.mountebank.exception.ImposterParseException;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -70,8 +71,7 @@ public class ContractFileReader implements ContractReader {
                 try {
                     return JacksonObjectMapper.getMapper().readValue(s, Imposter.class);
                 } catch (IOException e) {
-                    e.printStackTrace();
-                    return null;
+                    throw new ImposterParseException("Unable to parse contract imposter to object", e);
                 }
 
             }).collect(Collectors.toList());

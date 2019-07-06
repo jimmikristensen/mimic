@@ -3,8 +3,8 @@ package mimic.consumer
 import mimic.mountebank.consumer.MountebankContainerBuilder
 import mimic.mountebank.net.Protocol
 import mimic.mountebank.net.http.MountebankClient
-import mimic.mountebank.net.http.exception.MountebankCommunicationException
-import mimic.mountebank.net.http.exception.InvalidImposterURLException
+import mimic.mountebank.exception.MountebankCommunicationException
+import mimic.mountebank.exception.InvalidImposterURLException
 import spock.lang.Shared
 import spock.lang.Specification
 
