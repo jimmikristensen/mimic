@@ -1,7 +1,7 @@
 package mimic.producer
 
-import mimic.mountebank.ConsumerImposterBuilder
-import mimic.mountebank.ProducerImposterVerifier
+import mimic.mountebank.consumer.ConsumerImposterBuilder
+import mimic.mountebank.producer.ProducerImposterVerifier
 import mimic.mountebank.net.http.HttpMethod
 import org.testcontainers.containers.GenericContainer
 import spock.lang.Shared

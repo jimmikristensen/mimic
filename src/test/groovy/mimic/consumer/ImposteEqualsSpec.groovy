@@ -1,6 +1,6 @@
 package mimic.consumer
 
-import mimic.mountebank.ConsumerImposterBuilder
+import mimic.mountebank.consumer.ConsumerImposterBuilder
 import mimic.mountebank.imposter.Imposter
 import mimic.mountebank.net.Protocol
 import mimic.mountebank.net.http.HttpMethod

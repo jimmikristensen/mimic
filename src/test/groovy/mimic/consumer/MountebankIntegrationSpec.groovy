@@ -1,7 +1,7 @@
 package mimic.consumer
 
-import mimic.mountebank.ConsumerImposterBuilder
-import mimic.mountebank.MountebankContainerBuilder
+import mimic.mountebank.consumer.ConsumerImposterBuilder
+import mimic.mountebank.consumer.MountebankContainerBuilder
 import mimic.mountebank.net.http.HttpMethod
 import mimic.mountebank.net.http.MountebankClient
 import okhttp3.OkHttpClient

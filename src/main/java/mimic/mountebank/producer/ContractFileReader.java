@@ -1,4 +1,4 @@
-package mimic.mountebank;
+package mimic.mountebank.producer;
 
 import mimic.mountebank.imposter.Imposter;
 import mimic.mountebank.net.databind.JacksonObjectMapper;

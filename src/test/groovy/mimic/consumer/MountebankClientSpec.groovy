@@ -1,6 +1,6 @@
 package mimic.consumer
 
-import mimic.mountebank.MountebankContainerBuilder
+import mimic.mountebank.consumer.MountebankContainerBuilder
 import mimic.mountebank.net.Protocol
 import mimic.mountebank.net.http.MountebankClient
 import mimic.mountebank.net.http.exception.MountebankCommunicationException

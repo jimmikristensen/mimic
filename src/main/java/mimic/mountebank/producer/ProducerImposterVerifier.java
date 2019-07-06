@@ -1,4 +1,4 @@
-package mimic.mountebank;
+package mimic.mountebank.producer;
 
 public class ProducerImposterVerifier {
 

@@ -1,7 +1,6 @@
 package mimic.producer
 
-import mimic.mountebank.ContractFileReader
-import mimic.mountebank.imposter.Imposter
+import mimic.mountebank.producer.ContractFileReader
 import mimic.mountebank.net.http.HttpMethod
 import spock.lang.Specification
 import spock.lang.Unroll

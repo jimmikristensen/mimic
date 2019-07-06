@@ -1,6 +1,6 @@
 package mimic.consumer
 
-import mimic.mountebank.MountebankContainerBuilder
+import mimic.mountebank.consumer.MountebankContainerBuilder
 import spock.lang.Specification
 
 class MountebankContainerBuilderSpec extends Specification {

@@ -1,4 +1,4 @@
-package mimic.mountebank;
+package mimic.mountebank.consumer;
 
 import org.testcontainers.containers.GenericContainer;
 

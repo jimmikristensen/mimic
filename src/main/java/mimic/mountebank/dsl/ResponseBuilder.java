@@ -3,7 +3,7 @@ package mimic.mountebank.dsl;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import mimic.mountebank.ConsumerImposterBuilder;
+import mimic.mountebank.consumer.ConsumerImposterBuilder;
 import mimic.mountebank.imposter.ResponseFields;
 import mimic.mountebank.imposter.Response;
 import mimic.mountebank.imposter.Stub;

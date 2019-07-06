@@ -1,5 +1,5 @@
 
-package mimic.mountebank;
+package mimic.mountebank.consumer;
 
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
