@@ -23,6 +23,7 @@ class ProducerImposterVerifierSpec extends Specification {
     def "verifying local imposter is successful"() {
         when:
         def isVerified = ProducerImposterVerifier.Verify()
+        // should this be a builder?
 
         then:
         isVerified == true
