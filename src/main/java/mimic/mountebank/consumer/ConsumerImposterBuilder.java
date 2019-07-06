@@ -1,7 +1,7 @@
 package mimic.mountebank.consumer;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import mimic.mountebank.dsl.ImposterBuilder;
+import mimic.mountebank.consumer.dsl.ImposterBuilder;
 import mimic.mountebank.imposter.Imposter;
 import mimic.mountebank.net.databind.JacksonObjectMapper;
 import mimic.mountebank.net.http.MountebankClient;

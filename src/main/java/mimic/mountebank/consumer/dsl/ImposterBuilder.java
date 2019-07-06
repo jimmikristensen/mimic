@@ -1,4 +1,4 @@
-package mimic.mountebank.dsl;
+package mimic.mountebank.consumer.dsl;
 
 import mimic.mountebank.imposter.Imposter;
 import mimic.mountebank.imposter.Stub;

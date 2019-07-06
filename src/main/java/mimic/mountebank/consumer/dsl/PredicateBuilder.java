@@ -1,4 +1,4 @@
-package mimic.mountebank.dsl;
+package mimic.mountebank.consumer.dsl;
 
 import mimic.mountebank.imposter.Equals;
 import mimic.mountebank.imposter.Predicate;
