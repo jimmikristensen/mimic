@@ -1,7 +1,7 @@
-package mimic.producer
+package mimic.provider
 
 import mimic.mountebank.exception.ImposterNotFoundException
-import mimic.mountebank.producer.ContractFileReader
+import mimic.mountebank.provider.ContractFileReader
 import mimic.mountebank.net.http.HttpMethod
 import spock.lang.Specification
 import spock.lang.Unroll

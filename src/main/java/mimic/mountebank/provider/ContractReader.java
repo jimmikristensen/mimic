@@ -1,4 +1,4 @@
-package mimic.mountebank.producer;
+package mimic.mountebank.provider;
 
 import mimic.mountebank.imposter.Imposter;
 

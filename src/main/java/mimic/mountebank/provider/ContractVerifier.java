@@ -1,4 +1,4 @@
-package mimic.mountebank.producer;
+package mimic.mountebank.provider;
 
 public class ContractVerifier {
 }

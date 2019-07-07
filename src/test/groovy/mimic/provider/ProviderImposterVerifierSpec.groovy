@@ -1,14 +1,14 @@
-package mimic.producer
+package mimic.provider
 
 import mimic.mountebank.consumer.ConsumerImposterBuilder
-import mimic.mountebank.producer.ProducerImposterVerifier
+import mimic.mountebank.provider.ProviderImposterVerifier
 import mimic.mountebank.net.http.HttpMethod
 import org.testcontainers.containers.GenericContainer
 import spock.lang.Shared
 import spock.lang.Specification
 
 
-class ProducerImposterVerifierSpec extends Specification {
+class ProviderImposterVerifierSpec extends Specification {
 
     @Shared
     GenericContainer container = ConsumerImposterBuilder.Builder()
@@ -22,7 +22,7 @@ class ProducerImposterVerifierSpec extends Specification {
 
     def "verifying local imposter is successful"() {
         when:
-        def isVerified = ProducerImposterVerifier.Verify()
+        def isVerified = ProviderImposterVerifier.Verify()
         // should this be a builder?
 
         then:
