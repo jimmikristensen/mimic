@@ -2,7 +2,7 @@ package mimic.provider
 
 import mimic.mountebank.imposter.ResponseFields
 import mimic.mountebank.provider.ProviderResponse
-import mimic.mountebank.provider.verifier.HttpHeaderVerifier
+import mimic.mountebank.provider.verifier.StandardHttpHeaderVerifier
 import spock.lang.Specification
 
 
@@ -14,10 +14,10 @@ class HttpHeaderVerifierSpec extends Specification {
         def providerResponseFields = new ProviderResponse(statusCode: 200)
 
         when:
-        new HttpHeaderVerifier().verify(contractResponseFields, providerResponseFields)
+        def isVerified = new StandardHttpHeaderVerifier().verify(contractResponseFields, providerResponseFields)
 
         then:
-        1 == 1
+        isVerified == true
     }
 
 }
