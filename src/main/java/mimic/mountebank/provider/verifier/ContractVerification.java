@@ -1,9 +1,42 @@
 package mimic.mountebank.provider.verifier;
 
-public class ContractVerification implements ContractVerificationFactory {
+import mimic.mountebank.imposter.Imposter;
 
-    @Override
-    public HttpHeaderVerifier createrHttpHeaderVerifier() {
-        return new StandardHttpHeaderVerifier();
+import java.util.List;
+
+public class ContractVerification {
+
+    private ContractVerificationFactory contractVerification;
+
+    public ContractVerification(ContractVerificationFactory contractVerification) {
+        this.contractVerification = contractVerification;
+    }
+
+    public boolean verify(List<Imposter> imposters) {
+        // http call to provider based in imposter contract
+        // compare with contract by looping them
+
+        /*
+        Given provider
+            <Provider>
+        When
+            HTTP <Method> request is send to <URL>
+        Then response contains
+            status code <code>
+            headers
+                <list of headers>
+            a matching body
+         */
+
+
+        imposters.get(0).getProtocol();
+        imposters.get(0).getStub(0).getPredicate(0).getEquals().getBody();
+        imposters.get(0).getStub(0).getPredicate(0).getEquals().getHeaders();
+        imposters.get(0).getStub(0).getPredicate(0).getEquals().getMethod();
+        imposters.get(0).getStub(0).getPredicate(0).getEquals().getPath();
+        imposters.get(0).getStub(0).getPredicate(0).getEquals().getQueries();
+
+        HttpHeaderVerifier headerVerifier = contractVerification.createHttpHeaderVerifier();
+        return false;
     }
 }

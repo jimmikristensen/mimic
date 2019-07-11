@@ -1,7 +1,7 @@
 package mimic.provider
 
+import mimic.mountebank.provider.verifier.HttpContractVerificationFactory
 import mimic.mountebank.provider.verifier.ContractVerification
-import mimic.mountebank.provider.verifier.ContractVerifier
 import spock.lang.Specification
 
 
@@ -9,10 +9,10 @@ class ContractVerifierSpec extends Specification {
 
     def "verifying contract with matchin statuc code succeeds"() {
         given:
-        def contractVerifier = new ContractVerifier(new ContractVerification())
+        def contractVerifier = new ContractVerification(new HttpContractVerificationFactory())
 
-        when:
-        contractVerifier
+        expect:
+        1 == 1
     }
 
 }
