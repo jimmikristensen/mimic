@@ -1,13 +1,15 @@
 package mimic.mountebank.provider.verifier.net.http;
 
 import mimic.mountebank.imposter.HttpPredicate;
+import mimic.mountebank.net.http.HttpMethod;
 import mimic.mountebank.provider.ProviderResponse;
 import okhttp3.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -19,6 +21,8 @@ import java.util.concurrent.TimeUnit;
  * @see <a target="_blank" href="https://square.github.io/okhttp/">okhttp</a>
  */
 public class StandardHTTPClient implements HTTPClient {
+
+    final Logger logger = LoggerFactory.getLogger(StandardHTTPClient.class);
 
     @Override
     public ProviderResponse sendRequest(String baseUrl, HttpPredicate httpPredicate) {
@@ -55,6 +59,7 @@ public class StandardHTTPClient implements HTTPClient {
         Request request = requestBuilder.build();
 
         try (Response response = client.newCall(request).execute()) {
+            logRequest(httpPredicate.getMethod(), httUrl, headers, body);
             if (response.isSuccessful()) {
 
                 return createResponse(response);
@@ -148,6 +153,18 @@ public class StandardHTTPClient implements HTTPClient {
         for (Map.Entry<String, String> queryParam : httpPredicate.getQueries().entrySet()) {
             httpBuider.addQueryParameter(queryParam.getKey(), queryParam.getValue());
         }
+
         return httpBuider.build();
+    }
+
+    private void logRequest(HttpMethod httpMethod, HttpUrl httpUrl, Headers headers, RequestBody body) {
+        String strBody = body != null ? body.toString() : "No body";
+        String strHeaders = headers.size() > 0 ? headers.toString() : "No headers";
+
+        logger.info("\nSending {} request\nto URL: {}\nwith headers:\n{}\nand body:\n{}",
+                httpMethod.toString(),
+                httpUrl.toString(),
+                strHeaders,
+                strBody);
     }
 }
