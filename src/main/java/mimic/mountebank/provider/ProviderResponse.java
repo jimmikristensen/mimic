@@ -1,34 +1,34 @@
 package mimic.mountebank.provider;
 
-import java.util.HashMap;
+import java.util.Map;
 
 public class ProviderResponse {
 
-    private int statusCode;
-    private String body;
-    private HashMap<String, String> headers = new HashMap<>();
+    private final int statusCode;
+    private final String body;
+    private final Map<String, String> headers;
+    private final String mediaType;
+
+    public ProviderResponse(int statusCode, String mediaType, Map<String, String> headers, String body) {
+        this.statusCode = statusCode;
+        this.headers = headers;
+        this.body = body;
+        this.mediaType = mediaType;
+    }
 
     public int getStatus() {
         return statusCode;
-    }
-
-    public void setStatus(int statusCode) {
-        this.statusCode = statusCode;
     }
 
     public String getBody() {
         return body;
     }
 
-    public void setBody(String body) {
-        this.body = body;
-    }
-
-    public HashMap<String, String> getHeaders() {
+    public Map<String, String> getHeaders() {
         return headers;
     }
 
-    public void setHeaders(HashMap<String, String> headers) {
-        this.headers = headers;
+    public String getMediaType() {
+        return mediaType;
     }
 }

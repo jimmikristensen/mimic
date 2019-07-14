@@ -1,9 +1,11 @@
 package mimic.mountebank.provider.verifier.net.http;
 
 import mimic.mountebank.imposter.HttpPredicate;
+import mimic.mountebank.provider.ProviderResponse;
 import okhttp3.*;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -18,7 +20,7 @@ import java.util.concurrent.TimeUnit;
 public class StandardHTTPClient implements HTTPClient {
 
     @Override
-    public void sendRequest(String baseUrl, HttpPredicate httpPredicate) {
+    public ProviderResponse sendRequest(String baseUrl, HttpPredicate httpPredicate) {
         OkHttpClient client = new OkHttpClient().newBuilder()
                 .connectTimeout(5, TimeUnit.SECONDS)
                 .readTimeout(5, TimeUnit.SECONDS)
@@ -30,28 +32,30 @@ public class StandardHTTPClient implements HTTPClient {
         // add headers if any
         Headers headers = createHeaders(httpPredicate);
 
-        RequestBody body = RequestBody.create(
-                null,
-                httpPredicate.getBody()
-        );
-
         // create request builder
         Request.Builder requestBuilder = new Request.Builder();
         requestBuilder.url(httUrl);
         requestBuilder.headers(headers);
 
-        // run specific method depending on predicate method type
-        setHttpMethod(requestBuilder, httpPredicate, body);
+        // if request body is present, add it to the request builder
+        if (httpPredicate.getBody() != null) {
+            RequestBody body = RequestBody.create(
+                    null,
+                    httpPredicate.getBody()
+            );
+            setHttpMethod(requestBuilder, httpPredicate, body);
+        }
 
         // build the request
         Request request = requestBuilder.build();
 
         try (Response response = client.newCall(request).execute()) {
             if (response.isSuccessful()) {
-                response.code();
-                response.body();
-                response.headers();
+
+                return createResponse(response);
+
             } else {
+
 //                String bodyStr = response.body().string();
 //                String msg = bodyStr != null && bodyStr != "" ? bodyStr : "Unable to POST imposter to Mountebank";
 //                throw new MountebankCommunicationException(msg);
@@ -59,6 +63,29 @@ public class StandardHTTPClient implements HTTPClient {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        return null;
+    }
+
+    private ProviderResponse createResponse(Response response) throws IOException {
+        Map<String, String> responseHeaders = new HashMap<>();
+        for (int i = 0; response.headers().size()-1 < i; i++) {
+            responseHeaders.put(
+                    response.headers().name(i),
+                    response.headers().value(i)
+            );
+        }
+
+        String mediaType = null;
+        if (response.header("Content-Type") != null) {
+            mediaType = MediaType.parse(response.header("Content-Type")).toString();
+        }
+
+        return new ProviderResponse(
+                response.code(),
+                mediaType,
+                responseHeaders,
+                response.body().string()
+        );
     }
 
     private void setHttpMethod(Request.Builder requestBuilder, HttpPredicate httpPredicate, RequestBody body) {

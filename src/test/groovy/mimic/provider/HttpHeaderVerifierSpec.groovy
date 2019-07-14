@@ -11,7 +11,7 @@ class HttpHeaderVerifierSpec extends Specification {
     def "HTTP status code is successfully verified agains imposter response fields"() {
         given:
         def contractResponseFields = new ResponseFields(statusCode: 201)
-        def providerResponseFields = new ProviderResponse(statusCode: 201)
+        def providerResponseFields = new ProviderResponse(201, null, [:], '')
 
         when:
         def isVerified = new StandardHttpHeaderVerifier().verify(contractResponseFields, providerResponseFields)
@@ -23,7 +23,7 @@ class HttpHeaderVerifierSpec extends Specification {
     def "difference in status between contract and provider results in unvarified"() {
         given:
         def contractResponseFields = new ResponseFields(statusCode: 201)
-        def providerResponseFields = new ProviderResponse(statusCode: 200)
+        def providerResponseFields = new ProviderResponse(200, null, [:], '')
 
         when:
         def isVerified = new StandardHttpHeaderVerifier().verify(contractResponseFields, providerResponseFields)
@@ -38,8 +38,8 @@ class HttpHeaderVerifierSpec extends Specification {
                 "X-Header":"this is x",
                 "Y-Header":"this is y"
         ]
-        def contractResponseFields = new ResponseFields(headers: headers)
-        def providerResponseFields = new ProviderResponse(headers: headers)
+        def contractResponseFields = new ResponseFields(status: 201, headers: headers)
+        def providerResponseFields = new ProviderResponse(201, null, headers, '')
 
         when:
         def isVerified = new StandardHttpHeaderVerifier().verify(contractResponseFields, providerResponseFields)
@@ -58,8 +58,8 @@ class HttpHeaderVerifierSpec extends Specification {
                 "Y-Header":"this is y",
                 "X-Header":"this is x"
         ]
-        def contractResponseFields = new ResponseFields(headers: contractHeaders)
-        def providerResponseFields = new ProviderResponse(headers: providertHeaders)
+        def contractResponseFields = new ResponseFields(status: 201, headers: contractHeaders)
+        def providerResponseFields = new ProviderResponse(201, null, providertHeaders, '')
 
         when:
         def isVerified = new StandardHttpHeaderVerifier().verify(contractResponseFields, providerResponseFields)
@@ -78,8 +78,8 @@ class HttpHeaderVerifierSpec extends Specification {
                 "Z-Header":"this is z",
                 "Y-Header":"this is y"
         ]
-        def contractResponseFields = new ResponseFields(headers: contractHeaders)
-        def providerResponseFields = new ProviderResponse(headers: providertHeaders)
+        def contractResponseFields = new ResponseFields(status: 201, headers: contractHeaders)
+        def providerResponseFields = new ProviderResponse(201, null, providertHeaders, '')
 
         when:
         def isVerified = new StandardHttpHeaderVerifier().verify(contractResponseFields, providerResponseFields)

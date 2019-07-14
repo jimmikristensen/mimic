@@ -15,7 +15,7 @@ class JsonBodyVerifierSpec extends Specification {
         given:
         def body = '{"key": "value"}'
         def contractResponseFields = new ResponseFields(body: body)
-        def providerResponseFields = new ProviderResponse(body: body)
+        def providerResponseFields = new ProviderResponse(201, null, [:], body)
 
         when:
         def isVerified = new JsonBodyVerifier().verify(contractResponseFields, providerResponseFields)
@@ -42,7 +42,7 @@ class JsonBodyVerifierSpec extends Specification {
 
         and:
         def contractResponseFields = new ResponseFields(body: contractJson.writer().writeValueAsString(cRootNode))
-        def providerResponseFields = new ProviderResponse(body: providerJson.writer().writeValueAsString(pRootNode))
+        def providerResponseFields = new ProviderResponse(201, null, [:], providerJson.writer().writeValueAsString(pRootNode))
 
         when:
         def isVerified = new JsonBodyVerifier().verify(contractResponseFields, providerResponseFields)
@@ -85,7 +85,7 @@ class JsonBodyVerifierSpec extends Specification {
 
         and:
         def contractResponseFields = new ResponseFields(body: contractJson.writer().writeValueAsString(cRootNode))
-        def providerResponseFields = new ProviderResponse(body: providerJson.writer().writeValueAsString(pRootNode))
+        def providerResponseFields = new ProviderResponse(201, null, [:], providerJson.writer().writeValueAsString(pRootNode))
 
         when:
         def isVerified = new JsonBodyVerifier().verify(contractResponseFields, providerResponseFields)

@@ -11,7 +11,7 @@ class TextBodyVerifierSpec extends Specification {
         given:
         def body = 'Some text'
         def contractResponseFields = new ResponseFields(body: body)
-        def providerResponseFields = new ProviderResponse(body: body)
+        def providerResponseFields = new ProviderResponse(201, null, [:], body)
 
         when:
         def isVerified = new TextBodyVerifier().verify(contractResponseFields,providerResponseFields)
@@ -25,7 +25,7 @@ class TextBodyVerifierSpec extends Specification {
         def contractBody = 'Some text'
         def providerBody = 'Some other body'
         def contractResponseFields = new ResponseFields(body: contractBody)
-        def providerResponseFields = new ProviderResponse(body: providerBody)
+        def providerResponseFields = new ProviderResponse(201, null, [:], providerBody)
 
         when:
         def isVerified = new TextBodyVerifier().verify(contractResponseFields,providerResponseFields)
@@ -39,7 +39,7 @@ class TextBodyVerifierSpec extends Specification {
         def contractBody = 'Some text'
         def providerBody = 'Some TEXT'
         def contractResponseFields = new ResponseFields(body: contractBody)
-        def providerResponseFields = new ProviderResponse(body: providerBody)
+        def providerResponseFields = new ProviderResponse(201, null, [:], providerBody)
 
         when:
         def isVerified = new TextBodyVerifier().verify(contractResponseFields,providerResponseFields)
