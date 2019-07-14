@@ -55,6 +55,11 @@ public class ResponseBuilder {
         return ConsumerImposterBuilder.getImposterAsJsonString();
     }
 
+    public ResponseBuilder printImposter() throws IOException {
+        System.out.println(ConsumerImposterBuilder.getImposterAsJsonString());
+        return this;
+    }
+
     public GenericContainer toMountebank() throws IOException {
         return ConsumerImposterBuilder.postImposterToMountebank();
     }

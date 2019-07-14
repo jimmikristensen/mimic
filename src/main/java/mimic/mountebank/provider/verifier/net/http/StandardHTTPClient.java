@@ -7,6 +7,7 @@ import okhttp3.*;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -68,10 +69,11 @@ public class StandardHTTPClient implements HTTPClient {
 
     private ProviderResponse createResponse(Response response) throws IOException {
         Map<String, String> responseHeaders = new HashMap<>();
-        for (int i = 0; response.headers().size()-1 < i; i++) {
+
+        for (String name : response.headers().names()) {
             responseHeaders.put(
-                    response.headers().name(i),
-                    response.headers().value(i)
+                    name,
+                    response.headers().get(name)
             );
         }
 

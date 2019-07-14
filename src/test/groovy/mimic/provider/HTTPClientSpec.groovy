@@ -8,7 +8,7 @@ import spock.lang.Specification
 
 class HTTPClientSpec extends Specification {
 
-    def "using a predicate a GET request is sent to the provider server"() {
+    def "using a predicate, a GET request is sent to the provider server"() {
         setup:
         def providerServer = ConsumerImposterBuilder.Builder()
             .givenRequest(4321)
@@ -29,7 +29,59 @@ class HTTPClientSpec extends Specification {
         providerResponse.getHeaders() == [:]
         providerResponse.getBody() == ''
         providerResponse.getMediaType() == null
+    }
 
+    def "using a predicate, a GET request with headers is sent to the provider server"() {
+        setup:
+        def providerServer = ConsumerImposterBuilder.Builder()
+                .givenRequest(4321)
+                    .equals()
+                    .method(HttpMethod.GET)
+                    .path("/test")
+                .expectResponse()
+                    .status(201)
+                    .header("Res-Header0", "Value0")
+                    .header("Res-Header1", "Value1")
+                .toMountebank()
+        def baseUrl = "http://localhost:${providerServer.getMappedPort(4321)}".toString()
+
+        when:
+        def providerResponse = new StandardHTTPClient()
+                .sendRequest(baseUrl, ConsumerImposterBuilder.getImposter().getStub(0).getPredicate(0).getEquals())
+
+        then:
+        providerResponse.getStatus() == 201
+        providerResponse.getHeaders().get("Res-Header0") == "Value0"
+        providerResponse.getHeaders().get("Res-Header1") == "Value1"
+        providerResponse.getBody() == ''
+        providerResponse.getMediaType() == null
+    }
+
+    def "using a predicate, a GET request with headers and body is sent to the provider server"() {
+        setup:
+        def providerServer = ConsumerImposterBuilder.Builder()
+                .givenRequest(4321)
+                    .equals()
+                    .method(HttpMethod.GET)
+                    .path("/test")
+                .expectResponse()
+                    .status(201)
+                    .header("Res-Header0", "Value0")
+                    .header("Res-Header1", "Value1")
+                    .body("This is body content")
+                .toMountebank()
+        def baseUrl = "http://localhost:${providerServer.getMappedPort(4321)}".toString()
+
+        when:
+        def providerResponse = new StandardHTTPClient()
+                .sendRequest(baseUrl, ConsumerImposterBuilder.getImposter().getStub(0).getPredicate(0).getEquals())
+
+        then:
+        providerResponse.getStatus() == 201
+        providerResponse.getHeaders().get("Res-Header0") == "Value0"
+        providerResponse.getHeaders().get("Res-Header1") == "Value1"
+        providerResponse.getBody() == 'This is body content'
+        providerResponse.getMediaType() == null
     }
 
 }
