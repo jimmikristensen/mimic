@@ -1,10 +1,13 @@
 package mimic.mountebank.imposter;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+
 public class Predicate {
 
-    Equals equals;
+    @JsonDeserialize(as = Equals.class)
+    HttpPredicate equals;
 
-    public Equals getEquals() {
+    public HttpPredicate getEquals() {
         return equals;
     }
 
