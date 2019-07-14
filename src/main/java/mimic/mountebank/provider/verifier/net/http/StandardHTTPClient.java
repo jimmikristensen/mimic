@@ -39,13 +39,17 @@ public class StandardHTTPClient implements HTTPClient {
         requestBuilder.headers(headers);
 
         // if request body is present, add it to the request builder
+        RequestBody body = null;
         if (httpPredicate.getBody() != null) {
-            RequestBody body = RequestBody.create(
+            body = RequestBody.create(
                     null,
                     httpPredicate.getBody()
             );
-            setHttpMethod(requestBuilder, httpPredicate, body);
+
         }
+
+        // set the request method
+        setHttpMethod(requestBuilder, httpPredicate, body);
 
         // build the request
         Request request = requestBuilder.build();
@@ -94,16 +98,22 @@ public class StandardHTTPClient implements HTTPClient {
         switch (httpPredicate.getMethod()) {
             case GET:
                 requestBuilder.get();
+                break;
             case HEAD:
                 requestBuilder.head();
+                break;
             case POST:
                 requestBuilder.post(body);
+                break;
             case DELETE:
                 requestBuilder.delete(body);
+                break;
             case PATCH:
                 requestBuilder.patch(body);
+                break;
             case PUT:
                 requestBuilder.put(body);
+                break;
             default:
                 break;
         }

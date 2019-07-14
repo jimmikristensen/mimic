@@ -26,7 +26,6 @@ class HTTPClientSpec extends Specification {
 
         then:
         providerResponse.getStatus() == 201
-        providerResponse.getHeaders() == [:]
         providerResponse.getBody() == ''
         providerResponse.getMediaType() == null
     }
@@ -84,4 +83,46 @@ class HTTPClientSpec extends Specification {
         providerResponse.getMediaType() == null
     }
 
+    def "using a predicate, a POST request is sent to the provider server"() {
+        setup:
+        def providerServer = ConsumerImposterBuilder.Builder()
+                .givenRequest(4321)
+                    .equals()
+                    .method(HttpMethod.POST)
+                    .path("/test-post")
+                    .body("This is request body")
+                .expectResponse()
+                    .status(201)
+                .toMountebank()
+        def baseUrl = "http://localhost:${providerServer.getMappedPort(4321)}".toString()
+
+        when:
+        def providerResponse = new StandardHTTPClient()
+                .sendRequest(baseUrl, ConsumerImposterBuilder.getImposter().getStub(0).getPredicate(0).getEquals())
+
+        then:
+        providerResponse.getStatus() == 201
+        providerResponse.getBody() == ''
+        providerResponse.getMediaType() == null
+    }
+
+    def "using a predicate that defines a POST without a body results in a IllegalArgumentException"() {
+        setup:
+        def providerServer = ConsumerImposterBuilder.Builder()
+                .givenRequest(4321)
+                    .equals()
+                    .method(HttpMethod.POST)
+                    .path("/test-post")
+                .expectResponse()
+                    .status(201)
+                .toMountebank()
+        def baseUrl = "http://localhost:${providerServer.getMappedPort(4321)}".toString()
+
+        when:
+        def providerResponse = new StandardHTTPClient()
+                .sendRequest(baseUrl, ConsumerImposterBuilder.getImposter().getStub(0).getPredicate(0).getEquals())
+
+        then:
+        IllegalArgumentException ex = thrown()
+    }
 }
