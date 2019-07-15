@@ -47,4 +47,46 @@ class TextBodyVerifierSpec extends Specification {
         then:
         isVerified == false
     }
+
+    def "contract body is null but provider body contains a string is unverified"() {
+        given:
+        def contractBody = null
+        def providerBody = 'Some TEXT'
+        def contractResponseFields = new ResponseFields(body: contractBody)
+        def providerResponseFields = new ProviderResponse(201, null, [:], providerBody)
+
+        when:
+        def isVerified = new HttpTextBodyVerifier().verify(contractResponseFields,providerResponseFields)
+
+        then:
+        isVerified == false
+    }
+
+    def "contract body contains a string but provider body is null is unverified"() {
+        given:
+        def contractBody = 'Some TEXT'
+        def providerBody = null
+        def contractResponseFields = new ResponseFields(body: contractBody)
+        def providerResponseFields = new ProviderResponse(201, null, [:], providerBody)
+
+        when:
+        def isVerified = new HttpTextBodyVerifier().verify(contractResponseFields,providerResponseFields)
+
+        then:
+        isVerified == false
+    }
+
+    def "both contract and provider body is null is verified"() {
+        given:
+        def contractBody = 'Some TEXT'
+        def providerBody = null
+        def contractResponseFields = new ResponseFields(body: contractBody)
+        def providerResponseFields = new ProviderResponse(201, null, [:], providerBody)
+
+        when:
+        def isVerified = new HttpTextBodyVerifier().verify(contractResponseFields,providerResponseFields)
+
+        then:
+        isVerified == true
+    }
 }

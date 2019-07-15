@@ -93,4 +93,40 @@ class JsonBodyVerifierSpec extends Specification {
         then:
         isVerified == true
     }
+
+    def "comparison between contract and provider where only contract has a null body verifies to false"() {
+        given:
+        def contractResponseFields = new ResponseFields(body: null)
+        def providerResponseFields = new ProviderResponse(201, null, [:], '{"key": "value"}')
+
+        when:
+        def isVerified = new HttpJsonBodyVerifier().verify(contractResponseFields, providerResponseFields)
+
+        then:
+        isVerified == false
+    }
+
+    def "comparison between contract and provider where only provider has a null body verifies to false"() {
+        given:
+        def contractResponseFields = new ResponseFields(body: '{"key": "value"}')
+        def providerResponseFields = new ProviderResponse(201, null, [:], null)
+
+        when:
+        def isVerified = new HttpJsonBodyVerifier().verify(contractResponseFields, providerResponseFields)
+
+        then:
+        isVerified == false
+    }
+
+    def "comparison between contract and provider where both contract and provider has a null body verifies to false"() {
+        given:
+        def contractResponseFields = new ResponseFields(body: null)
+        def providerResponseFields = new ProviderResponse(201, null, [:], null)
+
+        when:
+        def isVerified = new HttpJsonBodyVerifier().verify(contractResponseFields, providerResponseFields)
+
+        then:
+        isVerified == true
+    }
 }
