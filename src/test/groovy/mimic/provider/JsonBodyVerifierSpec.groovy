@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode
 import com.fasterxml.jackson.databind.node.ObjectNode
 import mimic.mountebank.imposter.ResponseFields
 import mimic.mountebank.provider.ProviderResponse
-import mimic.mountebank.provider.verifier.JsonBodyVerifier
+import mimic.mountebank.provider.verifier.HttpJsonBodyVerifier
 import spock.lang.Specification
 
 class JsonBodyVerifierSpec extends Specification {
@@ -18,7 +18,7 @@ class JsonBodyVerifierSpec extends Specification {
         def providerResponseFields = new ProviderResponse(201, null, [:], body)
 
         when:
-        def isVerified = new JsonBodyVerifier().verify(contractResponseFields, providerResponseFields)
+        def isVerified = new HttpJsonBodyVerifier().verify(contractResponseFields, providerResponseFields)
 
         then:
         isVerified == true
@@ -45,7 +45,7 @@ class JsonBodyVerifierSpec extends Specification {
         def providerResponseFields = new ProviderResponse(201, null, [:], providerJson.writer().writeValueAsString(pRootNode))
 
         when:
-        def isVerified = new JsonBodyVerifier().verify(contractResponseFields, providerResponseFields)
+        def isVerified = new HttpJsonBodyVerifier().verify(contractResponseFields, providerResponseFields)
 
         then:
         isVerified == true
@@ -88,7 +88,7 @@ class JsonBodyVerifierSpec extends Specification {
         def providerResponseFields = new ProviderResponse(201, null, [:], providerJson.writer().writeValueAsString(pRootNode))
 
         when:
-        def isVerified = new JsonBodyVerifier().verify(contractResponseFields, providerResponseFields)
+        def isVerified = new HttpJsonBodyVerifier().verify(contractResponseFields, providerResponseFields)
 
         then:
         isVerified == true

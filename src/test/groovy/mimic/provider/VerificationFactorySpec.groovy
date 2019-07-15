@@ -2,19 +2,19 @@ package mimic.provider
 
 import mimic.mountebank.imposter.ResponseFields
 import mimic.mountebank.provider.verifier.HttpVerificationFactory
-import mimic.mountebank.provider.verifier.JsonBodyVerifier
-import mimic.mountebank.provider.verifier.StandardHttpHeaderVerifier
-import mimic.mountebank.provider.verifier.TextBodyVerifier
+import mimic.mountebank.provider.verifier.HttpJsonBodyVerifier
+import mimic.mountebank.provider.verifier.HttpHeaderVerifier
+import mimic.mountebank.provider.verifier.HttpTextBodyVerifier
 import spock.lang.Specification
 
-class ContractVerificationFactory extends Specification {
+class VerificationFactorySpec extends Specification {
 
     def "createHttpHeaderVerifier returns an StandardHttpHeaderVerifier object"() {
         given:
         def httpVerifier = new HttpVerificationFactory().createHttpHeaderVerifier()
 
         expect:
-        httpVerifier.getClass() == StandardHttpHeaderVerifier.class
+        httpVerifier.getClass() == HttpHeaderVerifier.class
     }
 
     def "createHttpBodyVerifier returns an JsonBodyVerifier object if body looks like json"() {
@@ -24,7 +24,7 @@ class ContractVerificationFactory extends Specification {
         def httpVerifier = new HttpVerificationFactory().createHttpBodyVerifier(contractResponseFields, null)
 
         expect:
-        httpVerifier.getClass() == JsonBodyVerifier.class
+        httpVerifier.getClass() == HttpJsonBodyVerifier.class
     }
 
     def "createHttpBodyVerifier returns an TextBodyVerifier object if body doesn't look like json"() {
@@ -34,6 +34,6 @@ class ContractVerificationFactory extends Specification {
         def httpVerifier = new HttpVerificationFactory().createHttpBodyVerifier(contractResponseFields, null)
 
         expect:
-        httpVerifier.getClass() == TextBodyVerifier.class
+        httpVerifier.getClass() == HttpTextBodyVerifier.class
     }
 }

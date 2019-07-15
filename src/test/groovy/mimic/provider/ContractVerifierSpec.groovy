@@ -1,17 +1,32 @@
 package mimic.provider
 
-import mimic.mountebank.provider.verifier.HttpContractVerificationFactory
-import mimic.mountebank.provider.verifier.ContractVerification
+import mimic.mountebank.consumer.ConsumerImposterBuilder
+import mimic.mountebank.net.http.HttpMethod
+import mimic.mountebank.provider.verifier.HttpVerificationFactory
+import mimic.mountebank.provider.verifier.ContractVerifier
 import spock.lang.Specification
 
 
 class ContractVerifierSpec extends Specification {
 
-    def "verifying contract with matchin statuc code succeeds"() {
+    def "verifying contract with matching status code succeeds"() {
         given:
-        def contractVerifier = new ContractVerification(new HttpContractVerificationFactory())
+        def imposter = ConsumerImposterBuilder.Builder()
+            .givenRequest(4321)
+                .equals()
+                .path("/test1")
+                .method(HttpMethod.GET)
+            .expectResponse()
+                .status(201)
+            .toImposter()
 
-        expect:
+        when:
+        def contractVerifier = new ContractVerifier(new HttpVerificationFactory())
+
+        and:
+        contractVerifier.verify(imposter)
+
+        then:
         1 == 1
     }
 

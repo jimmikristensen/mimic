@@ -2,7 +2,7 @@ package mimic.provider
 
 import mimic.mountebank.imposter.ResponseFields
 import mimic.mountebank.provider.ProviderResponse
-import mimic.mountebank.provider.verifier.StandardHttpHeaderVerifier
+import mimic.mountebank.provider.verifier.HttpHeaderVerifier
 import spock.lang.Specification
 
 
@@ -14,7 +14,7 @@ class HttpHeaderVerifierSpec extends Specification {
         def providerResponseFields = new ProviderResponse(201, null, [:], '')
 
         when:
-        def isVerified = new StandardHttpHeaderVerifier().verify(contractResponseFields, providerResponseFields)
+        def isVerified = new HttpHeaderVerifier().verify(contractResponseFields, providerResponseFields)
 
         then:
         isVerified == true
@@ -26,7 +26,7 @@ class HttpHeaderVerifierSpec extends Specification {
         def providerResponseFields = new ProviderResponse(200, null, [:], '')
 
         when:
-        def isVerified = new StandardHttpHeaderVerifier().verify(contractResponseFields, providerResponseFields)
+        def isVerified = new HttpHeaderVerifier().verify(contractResponseFields, providerResponseFields)
 
         then:
         isVerified == false
@@ -42,7 +42,7 @@ class HttpHeaderVerifierSpec extends Specification {
         def providerResponseFields = new ProviderResponse(201, null, headers, '')
 
         when:
-        def isVerified = new StandardHttpHeaderVerifier().verify(contractResponseFields, providerResponseFields)
+        def isVerified = new HttpHeaderVerifier().verify(contractResponseFields, providerResponseFields)
 
         then:
         isVerified == true
@@ -62,7 +62,7 @@ class HttpHeaderVerifierSpec extends Specification {
         def providerResponseFields = new ProviderResponse(201, null, providertHeaders, '')
 
         when:
-        def isVerified = new StandardHttpHeaderVerifier().verify(contractResponseFields, providerResponseFields)
+        def isVerified = new HttpHeaderVerifier().verify(contractResponseFields, providerResponseFields)
 
         then:
         isVerified == true
@@ -82,7 +82,7 @@ class HttpHeaderVerifierSpec extends Specification {
         def providerResponseFields = new ProviderResponse(201, null, providertHeaders, '')
 
         when:
-        def isVerified = new StandardHttpHeaderVerifier().verify(contractResponseFields, providerResponseFields)
+        def isVerified = new HttpHeaderVerifier().verify(contractResponseFields, providerResponseFields)
 
         then:
         isVerified == false

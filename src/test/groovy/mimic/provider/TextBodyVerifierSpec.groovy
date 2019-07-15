@@ -2,7 +2,7 @@ package mimic.provider
 
 import mimic.mountebank.imposter.ResponseFields
 import mimic.mountebank.provider.ProviderResponse
-import mimic.mountebank.provider.verifier.TextBodyVerifier
+import mimic.mountebank.provider.verifier.HttpTextBodyVerifier
 import spock.lang.Specification
 
 class TextBodyVerifierSpec extends Specification {
@@ -14,7 +14,7 @@ class TextBodyVerifierSpec extends Specification {
         def providerResponseFields = new ProviderResponse(201, null, [:], body)
 
         when:
-        def isVerified = new TextBodyVerifier().verify(contractResponseFields,providerResponseFields)
+        def isVerified = new HttpTextBodyVerifier().verify(contractResponseFields,providerResponseFields)
 
         then:
         isVerified == true
@@ -28,7 +28,7 @@ class TextBodyVerifierSpec extends Specification {
         def providerResponseFields = new ProviderResponse(201, null, [:], providerBody)
 
         when:
-        def isVerified = new TextBodyVerifier().verify(contractResponseFields,providerResponseFields)
+        def isVerified = new HttpTextBodyVerifier().verify(contractResponseFields,providerResponseFields)
 
         then:
         isVerified == false
@@ -42,7 +42,7 @@ class TextBodyVerifierSpec extends Specification {
         def providerResponseFields = new ProviderResponse(201, null, [:], providerBody)
 
         when:
-        def isVerified = new TextBodyVerifier().verify(contractResponseFields,providerResponseFields)
+        def isVerified = new HttpTextBodyVerifier().verify(contractResponseFields,providerResponseFields)
 
         then:
         isVerified == false
