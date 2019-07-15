@@ -6,15 +6,15 @@ import mimic.mountebank.provider.ProviderResponse;
 
 import java.io.IOException;
 
-public class HttpContractVerificationFactory implements ContractVerificationFactory {
+public class HttpVerificationFactory implements VerificationFactory {
 
     @Override
-    public HttpHeaderVerifier createHttpHeaderVerifier() {
-        return new StandardHttpHeaderVerifier();
+    public MessageHeaderVerifier createHttpHeaderVerifier() {
+        return new HttpHeaderVerifier();
     }
 
     @Override
-    public HttpBodyVerifier createHttpBodyVerifier(ResponseFields contractResponse, ProviderResponse providerResponse) {
+    public MessageBodyVerifier createHttpBodyVerifier(ResponseFields contractResponse, ProviderResponse providerResponse) {
         boolean isJson = false;
 
         try {
@@ -25,6 +25,6 @@ public class HttpContractVerificationFactory implements ContractVerificationFact
             // silence exception
         }
 
-        return isJson ? new JsonBodyVerifier() : new TextBodyVerifier();
+        return isJson ? new HttpJsonBodyVerifier() : new HttpTextBodyVerifier();
     }
 }

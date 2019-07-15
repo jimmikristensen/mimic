@@ -1,7 +1,7 @@
 package mimic.provider
 
 import mimic.mountebank.imposter.ResponseFields
-import mimic.mountebank.provider.verifier.HttpContractVerificationFactory
+import mimic.mountebank.provider.verifier.HttpVerificationFactory
 import mimic.mountebank.provider.verifier.JsonBodyVerifier
 import mimic.mountebank.provider.verifier.StandardHttpHeaderVerifier
 import mimic.mountebank.provider.verifier.TextBodyVerifier
@@ -11,7 +11,7 @@ class ContractVerificationFactory extends Specification {
 
     def "createHttpHeaderVerifier returns an StandardHttpHeaderVerifier object"() {
         given:
-        def httpVerifier = new HttpContractVerificationFactory().createHttpHeaderVerifier()
+        def httpVerifier = new HttpVerificationFactory().createHttpHeaderVerifier()
 
         expect:
         httpVerifier.getClass() == StandardHttpHeaderVerifier.class
@@ -21,7 +21,7 @@ class ContractVerificationFactory extends Specification {
         given:
         def contractBody = '{"key": "value"}'
         def contractResponseFields = new ResponseFields(body: contractBody)
-        def httpVerifier = new HttpContractVerificationFactory().createHttpBodyVerifier(contractResponseFields, null)
+        def httpVerifier = new HttpVerificationFactory().createHttpBodyVerifier(contractResponseFields, null)
 
         expect:
         httpVerifier.getClass() == JsonBodyVerifier.class
@@ -31,7 +31,7 @@ class ContractVerificationFactory extends Specification {
         given:
         def contractBody = 'This is regular text'
         def contractResponseFields = new ResponseFields(body: contractBody)
-        def httpVerifier = new HttpContractVerificationFactory().createHttpBodyVerifier(contractResponseFields, null)
+        def httpVerifier = new HttpVerificationFactory().createHttpBodyVerifier(contractResponseFields, null)
 
         expect:
         httpVerifier.getClass() == TextBodyVerifier.class

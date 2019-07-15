@@ -7,7 +7,7 @@ import mimic.mountebank.provider.ProviderResponse;
 
 import java.io.IOException;
 
-public class JsonBodyVerifier implements HttpBodyVerifier {
+public class HttpJsonBodyVerifier implements MessageBodyVerifier {
 
     @Override
     public boolean verify(ResponseFields contractResponseFields, ProviderResponse providerResponseFields) {
