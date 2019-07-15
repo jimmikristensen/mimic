@@ -9,7 +9,7 @@ import mimic.mountebank.provider.ProviderResponse
 import mimic.mountebank.provider.verifier.HttpJsonBodyVerifier
 import spock.lang.Specification
 
-class JsonBodyVerifierSpec extends Specification {
+class HttpJsonBodyVerifierSpec extends Specification {
 
     def "exact match between contract and provider is verified"() {
         given:

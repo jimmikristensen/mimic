@@ -1,6 +1,11 @@
 package mimic.mountebank.provider.verifier;
 
+import mimic.mountebank.imposter.HttpPredicate;
 import mimic.mountebank.imposter.Imposter;
+import mimic.mountebank.imposter.ResponseFields;
+import mimic.mountebank.provider.ProviderResponse;
+import mimic.mountebank.provider.verifier.net.http.HTTPClient;
+
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,13 +18,13 @@ public class ContractVerifier {
         this.verificationFactory = verificationFactory;
     }
 
-    public boolean verify(Imposter imposter) {
+    public boolean verify(String baseUrl, Imposter imposter) {
         List<Imposter> imposters = new ArrayList<>();
         imposters.add(imposter);
-        return verify(imposters);
+        return verify(baseUrl, imposters);
     }
 
-    public boolean verify(List<Imposter> imposters) {
+    public boolean verify(String baseUrl, List<Imposter> imposters) {
         // http call to provider based in imposter contract
         // compare with contract by looping them
 
@@ -35,26 +40,31 @@ public class ContractVerifier {
             a matching body
          */
 
-
+        HTTPClient httpClient = verificationFactory.createHttpClient();
 
         for (Imposter imposter : imposters) {
+
+            HttpPredicate predicate = imposters.get(0).getStub(0).getPredicate(0).getEquals();
+            ProviderResponse providerResponse = httpClient.sendRequest(baseUrl, predicate);
+
+            ResponseFields responseFields = imposters.get(0).getStub(0).getResponse(0).getFields();
+            MessageHeaderVerifier headerVerifier = verificationFactory.createHeaderVerifier();
+            boolean isHeaderVerified = headerVerifier.verify(responseFields, providerResponse);
+
+            MessageBodyVerifier bodyVerifier = verificationFactory.createBodyVerifier(responseFields, providerResponse);
+            boolean isBodyVerified = bodyVerifier.verify(responseFields, providerResponse);
+
             System.out.println(imposters.get(0).getProtocol());
             System.out.println(imposters.get(0).getStub(0).getPredicate(0).getEquals().getBody());
             System.out.println(imposters.get(0).getStub(0).getPredicate(0).getEquals().getHeaders());
             System.out.println(imposters.get(0).getStub(0).getPredicate(0).getEquals().getMethod());
             System.out.println(imposters.get(0).getStub(0).getPredicate(0).getEquals().getPath());
             System.out.println(imposters.get(0).getStub(0).getPredicate(0).getEquals().getQueries());
+
+            return isBodyVerified && isHeaderVerified;
         }
 
 
-        imposters.get(0).getProtocol();
-        imposters.get(0).getStub(0).getPredicate(0).getEquals().getBody();
-        imposters.get(0).getStub(0).getPredicate(0).getEquals().getHeaders();
-        imposters.get(0).getStub(0).getPredicate(0).getEquals().getMethod();
-        imposters.get(0).getStub(0).getPredicate(0).getEquals().getPath();
-        imposters.get(0).getStub(0).getPredicate(0).getEquals().getQueries();
-
-        MessageHeaderVerifier headerVerifier = verificationFactory.createHttpHeaderVerifier();
         return false;
     }
 }

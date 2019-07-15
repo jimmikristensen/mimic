@@ -11,23 +11,25 @@ class ContractVerifierSpec extends Specification {
 
     def "verifying contract with matching status code succeeds"() {
         given:
-        def imposter = ConsumerImposterBuilder.Builder()
+        def providerServer = ConsumerImposterBuilder.Builder()
             .givenRequest(4321)
                 .equals()
                 .path("/test1")
                 .method(HttpMethod.GET)
             .expectResponse()
                 .status(201)
-            .toImposter()
+            .toMountebank()
+        def baseUrl = "http://localhost:${providerServer.getMappedPort(4321)}".toString()
 
         when:
+        def imposter = ConsumerImposterBuilder.getImposter()
         def contractVerifier = new ContractVerifier(new HttpVerificationFactory())
 
         and:
-        contractVerifier.verify(imposter)
+        boolean isContractVerified = contractVerifier.verify(baseUrl, imposter)
 
         then:
-        1 == 1
+        isContractVerified == true
     }
 
 }

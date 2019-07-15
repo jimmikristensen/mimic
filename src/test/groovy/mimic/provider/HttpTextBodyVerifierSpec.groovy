@@ -5,7 +5,7 @@ import mimic.mountebank.provider.ProviderResponse
 import mimic.mountebank.provider.verifier.HttpTextBodyVerifier
 import spock.lang.Specification
 
-class TextBodyVerifierSpec extends Specification {
+class HttpTextBodyVerifierSpec extends Specification {
 
     def "exact match between contract body and provider body is verified"() {
         given:
@@ -78,7 +78,7 @@ class TextBodyVerifierSpec extends Specification {
 
     def "both contract and provider body is null is verified"() {
         given:
-        def contractBody = 'Some TEXT'
+        def contractBody = null
         def providerBody = null
         def contractResponseFields = new ResponseFields(body: contractBody)
         def providerResponseFields = new ProviderResponse(201, null, [:], providerBody)

@@ -2,14 +2,14 @@ package mimic.mountebank.provider.verifier;
 
 import mimic.mountebank.imposter.ResponseFields;
 import mimic.mountebank.provider.ProviderResponse;
+import mimic.mountebank.provider.verifier.net.http.HTTPClient;
 
-import java.net.http.HttpClient;
 
 public interface VerificationFactory {
 
-    public MessageHeaderVerifier createHttpHeaderVerifier();
+    public MessageHeaderVerifier createHeaderVerifier();
 
-    public MessageBodyVerifier createHttpBodyVerifier(ResponseFields contractResponse, ProviderResponse providerResponse);
+    public MessageBodyVerifier createBodyVerifier(ResponseFields contractResponse, ProviderResponse providerResponse);
 
-    public HttpClient createHttpClient();
+    public HTTPClient createHttpClient();
 }
