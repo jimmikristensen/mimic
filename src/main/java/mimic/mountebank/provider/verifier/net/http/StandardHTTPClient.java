@@ -4,10 +4,13 @@ import mimic.mountebank.imposter.HttpPredicate;
 import mimic.mountebank.net.http.HttpMethod;
 import mimic.mountebank.provider.ProviderResponse;
 import okhttp3.*;
+import okio.Buffer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.BufferedInputStream;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -31,49 +34,24 @@ public class StandardHTTPClient implements HTTPClient {
                 .readTimeout(5, TimeUnit.SECONDS)
                 .build();
 
-        // add path parameters to URL if any
         HttpUrl httUrl = createUrl(baseUrl, httpPredicate);
-
-        // add headers if any
         Headers headers = createHeaders(httpPredicate);
+        RequestBody body = createBody(httpPredicate);
 
-        // create request builder
         Request.Builder requestBuilder = new Request.Builder();
         requestBuilder.url(httUrl);
         requestBuilder.headers(headers);
-
-        // if request body is present, add it to the request builder
-        RequestBody body = null;
-        if (httpPredicate.getBody() != null) {
-            body = RequestBody.create(
-                    null,
-                    httpPredicate.getBody()
-            );
-
-        }
-
-        // set the request method
         setHttpMethod(requestBuilder, httpPredicate, body);
-
-        // build the request
         Request request = requestBuilder.build();
 
         try (Response response = client.newCall(request).execute()) {
             logRequest(httpPredicate.getMethod(), httUrl, headers, body);
-            if (response.isSuccessful()) {
+            return createResponse(response);
 
-                return createResponse(response);
-
-            } else {
-
-//                String bodyStr = response.body().string();
-//                String msg = bodyStr != null && bodyStr != "" ? bodyStr : "Unable to POST imposter to Mountebank";
-//                throw new MountebankCommunicationException(msg);
-            }
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("Unable to execute HTTP request to provider server", e);
+            throw new UncheckedIOException(e);
         }
-        return null;
     }
 
     private ProviderResponse createResponse(Response response) throws IOException {
@@ -100,28 +78,44 @@ public class StandardHTTPClient implements HTTPClient {
     }
 
     private void setHttpMethod(Request.Builder requestBuilder, HttpPredicate httpPredicate, RequestBody body) {
-        switch (httpPredicate.getMethod()) {
-            case GET:
-                requestBuilder.get();
-                break;
-            case HEAD:
-                requestBuilder.head();
-                break;
-            case POST:
-                requestBuilder.post(body);
-                break;
-            case DELETE:
-                requestBuilder.delete(body);
-                break;
-            case PATCH:
-                requestBuilder.patch(body);
-                break;
-            case PUT:
-                requestBuilder.put(body);
-                break;
-            default:
-                break;
+        try {
+            switch (httpPredicate.getMethod()) {
+                case GET:
+                    requestBuilder.get();
+                    break;
+                case HEAD:
+                    requestBuilder.head();
+                    break;
+                case POST:
+                    requestBuilder.post(body);
+                    break;
+                case DELETE:
+                    requestBuilder.delete(body);
+                    break;
+                case PATCH:
+                    requestBuilder.patch(body);
+                    break;
+                case PUT:
+                    requestBuilder.put(body);
+                    break;
+                default:
+                    break;
+            }
+        } catch (NullPointerException e) {
+            throw new IllegalArgumentException("Request HTTP Method must be specified", e);
         }
+    }
+
+    private RequestBody createBody(HttpPredicate httpPredicate) {
+        RequestBody body = null;
+        if (httpPredicate.getBody() != null) {
+            body = RequestBody.create(
+                    null,
+                    httpPredicate.getBody()
+            );
+
+        }
+        return body;
     }
 
     /**
@@ -147,18 +141,33 @@ public class StandardHTTPClient implements HTTPClient {
      * @return the assembled {@code URL}
      */
     private HttpUrl createUrl(String baseUrl, HttpPredicate httpPredicate) {
-        // add path parameters to URL if any
-        String url = baseUrl+httpPredicate.getPath();
-        HttpUrl.Builder httpBuider = HttpUrl.parse(url).newBuilder();
-        for (Map.Entry<String, String> queryParam : httpPredicate.getQueries().entrySet()) {
-            httpBuider.addQueryParameter(queryParam.getKey(), queryParam.getValue());
-        }
+        try {
+            String path = httpPredicate.getPath() != null ? httpPredicate.getPath() : "";
+            String url = baseUrl + path;
+            HttpUrl.Builder httpBuider = HttpUrl.parse(url).newBuilder();
+            for (Map.Entry<String, String> queryParam : httpPredicate.getQueries().entrySet()) {
+                httpBuider.addQueryParameter(queryParam.getKey(), queryParam.getValue());
+            }
+            return httpBuider.build();
 
-        return httpBuider.build();
+        } catch (NullPointerException e) {
+            throw new IllegalArgumentException("Request URL must contain at leas a base URL", e);
+        }
     }
 
     private void logRequest(HttpMethod httpMethod, HttpUrl httpUrl, Headers headers, RequestBody body) {
-        String strBody = body != null ? body.toString() : "No body";
+        String strBody = "No body";
+
+        if (body != null) {
+            try {
+                Buffer buff = new Buffer();
+                body.writeTo(buff);
+                strBody = buff.readUtf8();
+            } catch (IOException e) {
+                logger.warn("Request log was unable to write request body to buffer");
+            }
+        }
+
         String strHeaders = headers.size() > 0 ? headers.toString() : "No headers";
 
         logger.info("\nSending {} request\nto URL: {}\nwith headers:\n{}\nand body:\n{}",
