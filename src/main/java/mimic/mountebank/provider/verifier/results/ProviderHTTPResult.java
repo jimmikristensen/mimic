@@ -5,7 +5,7 @@ import mimic.mountebank.net.http.HttpMethod;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class HTTPResult {
+public class ProviderHTTPResult {
 
     private HttpMethod httpMethod;
     private String url = "";

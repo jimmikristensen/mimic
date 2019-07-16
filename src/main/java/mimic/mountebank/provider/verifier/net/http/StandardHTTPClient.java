@@ -1,9 +1,7 @@
 package mimic.mountebank.provider.verifier.net.http;
 
 import mimic.mountebank.imposter.HttpPredicate;
-import mimic.mountebank.net.http.HttpMethod;
-import mimic.mountebank.provider.ProviderResponse;
-import mimic.mountebank.provider.verifier.results.HTTPResult;
+import mimic.mountebank.provider.verifier.results.ProviderHTTPResult;
 import okhttp3.*;
 import okio.Buffer;
 import org.slf4j.Logger;
@@ -26,14 +24,14 @@ import java.util.concurrent.TimeUnit;
 public class StandardHTTPClient implements HTTPClient {
 
     final Logger logger = LoggerFactory.getLogger(StandardHTTPClient.class);
-    private HTTPResult httpResult;
+    private ProviderHTTPResult httpResult;
 
     public StandardHTTPClient() {
-        this.httpResult = new HTTPResult();
+        this.httpResult = new ProviderHTTPResult();
     }
 
     @Override
-    public HTTPResult sendRequest(String baseUrl, HttpPredicate httpPredicate) {
+    public ProviderHTTPResult sendRequest(String baseUrl, HttpPredicate httpPredicate) {
         OkHttpClient client = new OkHttpClient().newBuilder()
                 .connectTimeout(5, TimeUnit.SECONDS)
                 .readTimeout(5, TimeUnit.SECONDS)
@@ -58,7 +56,7 @@ public class StandardHTTPClient implements HTTPClient {
         }
     }
 
-    private HTTPResult createResponse(Response response) throws IOException {
+    private ProviderHTTPResult createResponse(Response response) throws IOException {
         Map<String, String> responseHeaders = new HashMap<>();
 
         for (String name : response.headers().names()) {

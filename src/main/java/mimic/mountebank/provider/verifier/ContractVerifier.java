@@ -2,10 +2,8 @@ package mimic.mountebank.provider.verifier;
 
 import mimic.mountebank.imposter.HttpPredicate;
 import mimic.mountebank.imposter.Imposter;
-import mimic.mountebank.imposter.ResponseFields;
-import mimic.mountebank.provider.ProviderResponse;
 import mimic.mountebank.provider.verifier.net.http.HTTPClient;
-import mimic.mountebank.provider.verifier.results.HTTPResult;
+import mimic.mountebank.provider.verifier.results.ProviderHTTPResult;
 
 
 import java.util.ArrayList;
@@ -46,7 +44,7 @@ public class ContractVerifier {
         for (Imposter imposter : imposters) {
 
             HttpPredicate predicate = imposters.get(0).getStub(0).getPredicate(0).getEquals();
-            HTTPResult providerResponse = httpClient.sendRequest(baseUrl, predicate);
+            ProviderHTTPResult providerResponse = httpClient.sendRequest(baseUrl, predicate);
 
 //            ResponseFields responseFields = imposters.get(0).getStub(0).getResponse(0).getFields();
 //            MessageHeaderVerifier headerVerifier = verificationFactory.createHeaderVerifier();

@@ -3,7 +3,6 @@ package mimic.provider
 import mimic.mountebank.consumer.ConsumerImposterBuilder
 import mimic.mountebank.net.http.HttpMethod
 import mimic.mountebank.provider.verifier.net.http.StandardHTTPClient
-import mimic.mountebank.provider.verifier.results.HTTPResult
 import spock.lang.Specification
 
 
