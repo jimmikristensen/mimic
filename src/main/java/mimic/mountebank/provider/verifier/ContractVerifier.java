@@ -5,6 +5,7 @@ import mimic.mountebank.imposter.Imposter;
 import mimic.mountebank.imposter.ResponseFields;
 import mimic.mountebank.provider.ProviderResponse;
 import mimic.mountebank.provider.verifier.net.http.HTTPClient;
+import mimic.mountebank.provider.verifier.results.HTTPResult;
 
 
 import java.util.ArrayList;
@@ -45,29 +46,29 @@ public class ContractVerifier {
         for (Imposter imposter : imposters) {
 
             HttpPredicate predicate = imposters.get(0).getStub(0).getPredicate(0).getEquals();
-            ProviderResponse providerResponse = httpClient.sendRequest(baseUrl, predicate);
+            HTTPResult providerResponse = httpClient.sendRequest(baseUrl, predicate);
 
-            ResponseFields responseFields = imposters.get(0).getStub(0).getResponse(0).getFields();
-            MessageHeaderVerifier headerVerifier = verificationFactory.createHeaderVerifier();
-            boolean isHeaderVerified = headerVerifier.verify(responseFields, providerResponse);
+//            ResponseFields responseFields = imposters.get(0).getStub(0).getResponse(0).getFields();
+//            MessageHeaderVerifier headerVerifier = verificationFactory.createHeaderVerifier();
+//            boolean isHeaderVerified = headerVerifier.verify(responseFields, providerResponse);
+//
+//            MessageBodyVerifier bodyVerifier = verificationFactory.createBodyVerifier(responseFields, providerResponse);
+//            boolean isBodyVerified = bodyVerifier.verify(responseFields, providerResponse);
+//
+//            System.out.println(imposters.get(0).getProtocol());
+//            System.out.println(imposters.get(0).getStub(0).getPredicate(0).getEquals().getBody());
+//            System.out.println(imposters.get(0).getStub(0).getPredicate(0).getEquals().getHeaders());
+//            System.out.println(imposters.get(0).getStub(0).getPredicate(0).getEquals().getMethod());
+//            System.out.println(imposters.get(0).getStub(0).getPredicate(0).getEquals().getPath());
+//            System.out.println(imposters.get(0).getStub(0).getPredicate(0).getEquals().getQueries());
+//
+//
+//            System.out.println("#######################################");
+//            verificationFactory.createReport().printReport();
+//            System.out.println("#######################################");
 
-            MessageBodyVerifier bodyVerifier = verificationFactory.createBodyVerifier(responseFields, providerResponse);
-            boolean isBodyVerified = bodyVerifier.verify(responseFields, providerResponse);
 
-            System.out.println(imposters.get(0).getProtocol());
-            System.out.println(imposters.get(0).getStub(0).getPredicate(0).getEquals().getBody());
-            System.out.println(imposters.get(0).getStub(0).getPredicate(0).getEquals().getHeaders());
-            System.out.println(imposters.get(0).getStub(0).getPredicate(0).getEquals().getMethod());
-            System.out.println(imposters.get(0).getStub(0).getPredicate(0).getEquals().getPath());
-            System.out.println(imposters.get(0).getStub(0).getPredicate(0).getEquals().getQueries());
-
-
-            System.out.println("#######################################");
-            verificationFactory.createReport().printReport();
-            System.out.println("#######################################");
-
-
-            return isBodyVerified && isHeaderVerified;
+//            return isBodyVerified && isHeaderVerified;
         }
 
 

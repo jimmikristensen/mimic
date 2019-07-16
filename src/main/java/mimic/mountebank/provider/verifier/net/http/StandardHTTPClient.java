@@ -28,12 +28,12 @@ public class StandardHTTPClient implements HTTPClient {
     final Logger logger = LoggerFactory.getLogger(StandardHTTPClient.class);
     private HTTPResult httpResult;
 
-    public StandardHTTPClient(HTTPResult httpResult) {
-        this.httpResult = httpResult;
+    public StandardHTTPClient() {
+        this.httpResult = new HTTPResult();
     }
 
     @Override
-    public ProviderResponse sendRequest(String baseUrl, HttpPredicate httpPredicate) {
+    public HTTPResult sendRequest(String baseUrl, HttpPredicate httpPredicate) {
         OkHttpClient client = new OkHttpClient().newBuilder()
                 .connectTimeout(5, TimeUnit.SECONDS)
                 .readTimeout(5, TimeUnit.SECONDS)
@@ -50,7 +50,6 @@ public class StandardHTTPClient implements HTTPClient {
         Request request = requestBuilder.build();
 
         try (Response response = client.newCall(request).execute()) {
-            logRequest(httpPredicate.getMethod(), httUrl, headers, body);
             return createResponse(response);
 
         } catch (IOException e) {
@@ -59,7 +58,7 @@ public class StandardHTTPClient implements HTTPClient {
         }
     }
 
-    private ProviderResponse createResponse(Response response) throws IOException {
+    private HTTPResult createResponse(Response response) throws IOException {
         Map<String, String> responseHeaders = new HashMap<>();
 
         for (String name : response.headers().names()) {
@@ -81,12 +80,7 @@ public class StandardHTTPClient implements HTTPClient {
         httpResult.setResponseBody(responseBody);
         httpResult.setResponseMediaType(mediaType);
 
-        return new ProviderResponse(
-                response.code(),
-                mediaType,
-                responseHeaders,
-                responseBody
-        );
+        return httpResult;
     }
 
     private void setHttpMethod(Request.Builder requestBuilder, HttpPredicate httpPredicate, RequestBody body) {
@@ -189,27 +183,5 @@ public class StandardHTTPClient implements HTTPClient {
         }
 
         return strBody;
-    }
-
-    private void logRequest(HttpMethod httpMethod, HttpUrl httpUrl, Headers headers, RequestBody body) {
-        String strBody = "No body";
-
-        if (body != null) {
-            try {
-                Buffer buff = new Buffer();
-                body.writeTo(buff);
-                strBody = buff.readUtf8();
-            } catch (IOException e) {
-                logger.warn("Request log was unable to write request body to buffer");
-            }
-        }
-
-        String strHeaders = headers.size() > 0 ? headers.toString() : "No headers";
-
-        logger.info("\nSending {} request\nto URL: {}\nwith headers:\n{}\nand body:\n{}",
-                httpMethod.toString(),
-                httpUrl.toString(),
-                strHeaders,
-                strBody);
     }
 }

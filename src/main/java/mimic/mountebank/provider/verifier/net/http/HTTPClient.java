@@ -1,8 +1,8 @@
 package mimic.mountebank.provider.verifier.net.http;
 
 import mimic.mountebank.imposter.HttpPredicate;
-import mimic.mountebank.provider.ProviderResponse;
+import mimic.mountebank.provider.verifier.results.HTTPResult;
 
 public interface HTTPClient {
-    public ProviderResponse sendRequest(String baseUrl, HttpPredicate httpPredicate);
+    public HTTPResult sendRequest(String baseUrl, HttpPredicate httpPredicate);
 }

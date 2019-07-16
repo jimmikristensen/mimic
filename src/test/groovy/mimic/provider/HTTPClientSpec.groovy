@@ -3,7 +3,7 @@ package mimic.provider
 import mimic.mountebank.consumer.ConsumerImposterBuilder
 import mimic.mountebank.net.http.HttpMethod
 import mimic.mountebank.provider.verifier.net.http.StandardHTTPClient
-import mimic.mountebank.provider.verifier.results.StandardHTTPResult
+import mimic.mountebank.provider.verifier.results.HTTPResult
 import spock.lang.Specification
 
 
@@ -22,16 +22,10 @@ class HTTPClientSpec extends Specification {
         def baseUrl = "http://localhost:${providerServer.getMappedPort(4321)}".toString()
 
         when:
-        def httpResult = new StandardHTTPResult()
-        def providerResponse = new StandardHTTPClient(httpResult)
+        def httpResult = new StandardHTTPClient()
             .sendRequest(baseUrl, ConsumerImposterBuilder.getImposter().getStub(0).getPredicate(0).getEquals())
 
         then:
-        providerResponse.getStatus() == 201
-        providerResponse.getBody() == ''
-        providerResponse.getMediaType() == null
-
-        and:
         httpResult.getHttpMethod() == HttpMethod.GET
         httpResult.getRequestUrl() == "http://localhost:${providerServer.getMappedPort(4321)}/test".toString()
         httpResult.getRequestHeaders() == [:]
@@ -57,18 +51,10 @@ class HTTPClientSpec extends Specification {
         def baseUrl = "http://localhost:${providerServer.getMappedPort(4321)}".toString()
 
         when:
-        def httpResult = new StandardHTTPResult()
-        def providerResponse = new StandardHTTPClient(httpResult)
+        def httpResult = new StandardHTTPClient()
                 .sendRequest(baseUrl, ConsumerImposterBuilder.getImposter().getStub(0).getPredicate(0).getEquals())
 
         then:
-        providerResponse.getStatus() == 201
-        providerResponse.getHeaders().get("Res-Header0") == "Value0"
-        providerResponse.getHeaders().get("Res-Header1") == "Value1"
-        providerResponse.getBody() == ''
-        providerResponse.getMediaType() == null
-
-        and:
         httpResult.getHttpMethod() == HttpMethod.GET
         httpResult.getRequestUrl() == "http://localhost:${providerServer.getMappedPort(4321)}/test".toString()
         httpResult.getRequestHeaders() == [:]
@@ -97,18 +83,10 @@ class HTTPClientSpec extends Specification {
         def baseUrl = "http://localhost:${providerServer.getMappedPort(4321)}".toString()
 
         when:
-        def httpResult = new StandardHTTPResult()
-        def providerResponse = new StandardHTTPClient(httpResult)
+        def httpResult = new StandardHTTPClient()
                 .sendRequest(baseUrl, ConsumerImposterBuilder.getImposter().getStub(0).getPredicate(0).getEquals())
 
         then:
-        providerResponse.getStatus() == 201
-        providerResponse.getHeaders().get("Res-Header0") == "Value0"
-        providerResponse.getHeaders().get("Res-Header1") == "Value1"
-        providerResponse.getBody() == 'This is body content'
-        providerResponse.getMediaType() == null
-
-        and:
         httpResult.getHttpMethod() == HttpMethod.GET
         httpResult.getRequestUrl() == "http://localhost:${providerServer.getMappedPort(4321)}/test".toString()
         httpResult.getRequestHeaders() == [:]
@@ -119,6 +97,7 @@ class HTTPClientSpec extends Specification {
         httpResult.getResponseHeaders().get("Res-Header0") == "Value0"
         httpResult.getResponseHeaders().get("Res-Header1") == "Value1"
         httpResult.getResponseBody() == "This is body content"
+        httpResult.getResponseMediaType() == null
     }
 
     def "using a predicat, a GET request with request headers but plain status code as response"() {
@@ -136,15 +115,10 @@ class HTTPClientSpec extends Specification {
         def baseUrl = "http://localhost:${providerServer.getMappedPort(4321)}".toString()
 
         when:
-        def httpResult = new StandardHTTPResult()
-        def providerResponse = new StandardHTTPClient(httpResult)
+        def httpResult = new StandardHTTPClient()
                 .sendRequest(baseUrl, ConsumerImposterBuilder.getImposter().getStub(0).getPredicate(0).getEquals())
 
         then:
-        providerResponse.getStatus() == 201
-        providerResponse.getMediaType() == null
-
-        and:
         httpResult.getHttpMethod() == HttpMethod.GET
         httpResult.getRequestUrl() == "http://localhost:${providerServer.getMappedPort(4321)}/test".toString()
         httpResult.getRequestHeaders().get("Req-Header0") == "Val0"
@@ -170,16 +144,10 @@ class HTTPClientSpec extends Specification {
         def baseUrl = "http://localhost:${providerServer.getMappedPort(4321)}".toString()
 
         when:
-        def httpResult = new StandardHTTPResult()
-        def providerResponse = new StandardHTTPClient(httpResult)
+        def httpResult = new StandardHTTPClient()
                 .sendRequest(baseUrl, ConsumerImposterBuilder.getImposter().getStub(0).getPredicate(0).getEquals())
 
         then:
-        providerResponse.getStatus() == 201
-        providerResponse.getBody() == ''
-        providerResponse.getMediaType() == null
-
-        and:
         httpResult.getHttpMethod() == HttpMethod.POST
         httpResult.getRequestUrl() == "http://localhost:${providerServer.getMappedPort(4321)}/test-post".toString()
         httpResult.requestBody == "This is request body"
@@ -203,7 +171,7 @@ class HTTPClientSpec extends Specification {
         def baseUrl = "http://localhost:${providerServer.getMappedPort(4321)}".toString()
 
         when:
-        def providerResponse = new StandardHTTPClient(new StandardHTTPResult())
+        def providerResponse = new StandardHTTPClient()
                 .sendRequest(baseUrl, ConsumerImposterBuilder.getImposter().getStub(0).getPredicate(0).getEquals())
 
         then:
@@ -224,16 +192,10 @@ class HTTPClientSpec extends Specification {
         def baseUrl = "http://localhost:${providerServer.getMappedPort(4321)}".toString()
 
         when:
-        def httpResult = new StandardHTTPResult()
-        def providerResponse = new StandardHTTPClient(httpResult)
+        def httpResult = new StandardHTTPClient()
                 .sendRequest(baseUrl, ConsumerImposterBuilder.getImposter().getStub(0).getPredicate(0).getEquals())
 
         then:
-        providerResponse.getStatus() == 202
-        providerResponse.getBody() == ''
-        providerResponse.getMediaType() == null
-
-        and:
         httpResult.getHttpMethod() == HttpMethod.DELETE
         httpResult.getRequestUrl() == "http://localhost:${providerServer.getMappedPort(4321)}/test-post/10".toString()
         httpResult.requestBody == ""
@@ -279,16 +241,10 @@ class HTTPClientSpec extends Specification {
         def baseUrl = "http://localhost:${providerServer.getMappedPort(4321)}".toString()
 
         when:
-        def httpResult = new StandardHTTPResult()
-        def providerResponse = new StandardHTTPClient(httpResult)
+        def httpResult = new StandardHTTPClient()
                 .sendRequest(baseUrl, ConsumerImposterBuilder.getImposter().getStub(0).getPredicate(0).getEquals())
 
         then:
-        providerResponse.getStatus() == 204
-        providerResponse.getBody() == ''
-        providerResponse.getMediaType() == null
-
-        and:
         httpResult.getHttpMethod() == HttpMethod.PATCH
         httpResult.getRequestUrl() == "http://localhost:${providerServer.getMappedPort(4321)}/test-post/11".toString()
         httpResult.requestBody == "this is the patch data"
@@ -312,16 +268,10 @@ class HTTPClientSpec extends Specification {
         def baseUrl = "http://localhost:${providerServer.getMappedPort(4321)}".toString()
 
         when:
-        def httpResult = new StandardHTTPResult()
-        def providerResponse = new StandardHTTPClient(httpResult)
+        def httpResult = new StandardHTTPClient()
                 .sendRequest(baseUrl, ConsumerImposterBuilder.getImposter().getStub(0).getPredicate(0).getEquals())
 
         then:
-        providerResponse.getStatus() == 204
-        providerResponse.getBody() == ''
-        providerResponse.getMediaType() == null
-
-        and:
         httpResult.getHttpMethod() == HttpMethod.HEAD
         httpResult.getRequestUrl() == "http://localhost:${providerServer.getMappedPort(4321)}/test-head".toString()
         httpResult.requestBody == ""
@@ -346,16 +296,10 @@ class HTTPClientSpec extends Specification {
         def baseUrl = "http://localhost:${providerServer.getMappedPort(4321)}".toString()
 
         when:
-        def httpResult = new StandardHTTPResult()
-        def providerResponse = new StandardHTTPClient(httpResult)
+        def httpResult = new StandardHTTPClient()
                 .sendRequest(baseUrl, ConsumerImposterBuilder.getImposter().getStub(0).getPredicate(0).getEquals())
 
         then:
-        providerResponse.getStatus() == 201
-        providerResponse.getBody() == ''
-        providerResponse.getMediaType() == null
-
-        and:
         httpResult.getHttpMethod() == HttpMethod.PUT
         httpResult.getRequestUrl() == "http://localhost:${providerServer.getMappedPort(4321)}/test-put/11".toString()
         httpResult.requestBody == "this is the patch data"
@@ -378,16 +322,10 @@ class HTTPClientSpec extends Specification {
         def baseUrl = "http://localhost:${providerServer.getMappedPort(4321)}".toString()
 
         when:
-        def httpResult = new StandardHTTPResult()
-        def providerResponse = new StandardHTTPClient(httpResult)
+        def httpResult = new StandardHTTPClient()
                 .sendRequest(baseUrl, ConsumerImposterBuilder.getImposter().getStub(0).getPredicate(0).getEquals())
 
         then:
-        providerResponse.getStatus() == 201
-        providerResponse.getBody() == ''
-        providerResponse.getMediaType() == null
-
-        and:
         httpResult.getHttpMethod() == HttpMethod.GET
         httpResult.getRequestUrl() == "http://localhost:${providerServer.getMappedPort(4321)}/".toString()
         httpResult.requestBody == ""
@@ -410,7 +348,7 @@ class HTTPClientSpec extends Specification {
         def baseUrl = ""
 
         when:
-        def providerResponse = new StandardHTTPClient(new StandardHTTPResult())
+        def providerResponse = new StandardHTTPClient()
                 .sendRequest(baseUrl, ConsumerImposterBuilder.getImposter().getStub(0).getPredicate(0).getEquals())
 
         then:
@@ -431,7 +369,7 @@ class HTTPClientSpec extends Specification {
         def baseUrl = null
 
         when:
-        def providerResponse = new StandardHTTPClient(new StandardHTTPResult())
+        def providerResponse = new StandardHTTPClient()
                 .sendRequest(baseUrl, ConsumerImposterBuilder.getImposter().getStub(0).getPredicate(0).getEquals())
 
         then:
@@ -453,7 +391,7 @@ class HTTPClientSpec extends Specification {
         def baseUrl = null
 
         when:
-        def providerResponse = new StandardHTTPClient(new StandardHTTPResult())
+        def providerResponse = new StandardHTTPClient()
                 .sendRequest(baseUrl, ConsumerImposterBuilder.getImposter().getStub(0).getPredicate(0).getEquals())
 
         then:
@@ -474,7 +412,7 @@ class HTTPClientSpec extends Specification {
         def baseUrl = "http://localhost:${providerServer.getMappedPort(4321)}".toString()
 
         when:
-        def providerResponse = new StandardHTTPClient(new StandardHTTPResult())
+        def providerResponse = new StandardHTTPClient()
                 .sendRequest(baseUrl, ConsumerImposterBuilder.getImposter().getStub(0).getPredicate(0).getEquals())
 
         then:
@@ -497,16 +435,10 @@ class HTTPClientSpec extends Specification {
         def baseUrl = "http://localhost:${providerServer.getMappedPort(4321)}".toString()
 
         when:
-        def httpResult = new StandardHTTPResult()
-        def providerResponse = new StandardHTTPClient(httpResult)
+        def httpResult = new StandardHTTPClient()
                 .sendRequest(baseUrl, ConsumerImposterBuilder.getImposter().getStub(0).getPredicate(0).getEquals())
 
         then:
-        providerResponse.getStatus() == 404
-        providerResponse.getBody() == 'Content not found'
-        providerResponse.getMediaType() == null
-
-        and:
         httpResult.getHttpMethod() == HttpMethod.GET
         httpResult.getRequestUrl() == "http://localhost:${providerServer.getMappedPort(4321)}/test".toString()
         httpResult.requestBody == ""

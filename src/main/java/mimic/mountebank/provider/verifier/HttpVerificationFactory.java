@@ -42,7 +42,7 @@ public class HttpVerificationFactory implements VerificationFactory {
 
     @Override
     public HTTPClient createHttpClient() {
-        return new StandardHTTPClient(null);
+        return new StandardHTTPClient();
     }
 
     @Override
