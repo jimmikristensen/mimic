@@ -4,6 +4,5 @@ import mimic.mountebank.imposter.HttpPredicate;
 import mimic.mountebank.provider.ProviderResponse;
 
 public interface HTTPClient {
-
     public ProviderResponse sendRequest(String baseUrl, HttpPredicate httpPredicate);
 }

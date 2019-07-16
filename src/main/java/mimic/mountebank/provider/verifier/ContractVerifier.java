@@ -61,8 +61,15 @@ public class ContractVerifier {
             System.out.println(imposters.get(0).getStub(0).getPredicate(0).getEquals().getPath());
             System.out.println(imposters.get(0).getStub(0).getPredicate(0).getEquals().getQueries());
 
+
+            System.out.println("#######################################");
+            verificationFactory.createReport().printReport();
+            System.out.println("#######################################");
+
+
             return isBodyVerified && isHeaderVerified;
         }
+
 
 
         return false;

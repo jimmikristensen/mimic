@@ -3,6 +3,7 @@ package mimic.provider
 import mimic.mountebank.consumer.ConsumerImposterBuilder
 import mimic.mountebank.net.http.HttpMethod
 import mimic.mountebank.provider.verifier.net.http.StandardHTTPClient
+import mimic.mountebank.provider.verifier.results.StandardHTTPResult
 import spock.lang.Specification
 
 
@@ -21,13 +22,24 @@ class HTTPClientSpec extends Specification {
         def baseUrl = "http://localhost:${providerServer.getMappedPort(4321)}".toString()
 
         when:
-        def providerResponse = new StandardHTTPClient()
+        def httpResult = new StandardHTTPResult()
+        def providerResponse = new StandardHTTPClient(httpResult)
             .sendRequest(baseUrl, ConsumerImposterBuilder.getImposter().getStub(0).getPredicate(0).getEquals())
 
         then:
         providerResponse.getStatus() == 201
         providerResponse.getBody() == ''
         providerResponse.getMediaType() == null
+
+        and:
+        httpResult.getHttpMethod() == HttpMethod.GET
+        httpResult.getRequestUrl() == "http://localhost:${providerServer.getMappedPort(4321)}/test".toString()
+        httpResult.getRequestHeaders() == [:]
+        httpResult.requestBody == ""
+
+        and:
+        httpResult.getResponseStatus() == 201
+        httpResult.getResponseBody() == ""
     }
 
     def "using a predicate, a GET request with response response headers is sent to the provider server"() {
@@ -45,7 +57,8 @@ class HTTPClientSpec extends Specification {
         def baseUrl = "http://localhost:${providerServer.getMappedPort(4321)}".toString()
 
         when:
-        def providerResponse = new StandardHTTPClient()
+        def httpResult = new StandardHTTPResult()
+        def providerResponse = new StandardHTTPClient(httpResult)
                 .sendRequest(baseUrl, ConsumerImposterBuilder.getImposter().getStub(0).getPredicate(0).getEquals())
 
         then:
@@ -54,6 +67,18 @@ class HTTPClientSpec extends Specification {
         providerResponse.getHeaders().get("Res-Header1") == "Value1"
         providerResponse.getBody() == ''
         providerResponse.getMediaType() == null
+
+        and:
+        httpResult.getHttpMethod() == HttpMethod.GET
+        httpResult.getRequestUrl() == "http://localhost:${providerServer.getMappedPort(4321)}/test".toString()
+        httpResult.getRequestHeaders() == [:]
+        httpResult.requestBody == ""
+
+        and:
+        httpResult.getResponseStatus() == 201
+        httpResult.getResponseHeaders().get("Res-Header0") == "Value0"
+        httpResult.getResponseHeaders().get("Res-Header1") == "Value1"
+        httpResult.getResponseBody() == ""
     }
 
     def "using a predicate, a GET request with response headers and body is sent to the provider server"() {
@@ -72,7 +97,8 @@ class HTTPClientSpec extends Specification {
         def baseUrl = "http://localhost:${providerServer.getMappedPort(4321)}".toString()
 
         when:
-        def providerResponse = new StandardHTTPClient()
+        def httpResult = new StandardHTTPResult()
+        def providerResponse = new StandardHTTPClient(httpResult)
                 .sendRequest(baseUrl, ConsumerImposterBuilder.getImposter().getStub(0).getPredicate(0).getEquals())
 
         then:
@@ -81,6 +107,18 @@ class HTTPClientSpec extends Specification {
         providerResponse.getHeaders().get("Res-Header1") == "Value1"
         providerResponse.getBody() == 'This is body content'
         providerResponse.getMediaType() == null
+
+        and:
+        httpResult.getHttpMethod() == HttpMethod.GET
+        httpResult.getRequestUrl() == "http://localhost:${providerServer.getMappedPort(4321)}/test".toString()
+        httpResult.getRequestHeaders() == [:]
+        httpResult.requestBody == ""
+
+        and:
+        httpResult.getResponseStatus() == 201
+        httpResult.getResponseHeaders().get("Res-Header0") == "Value0"
+        httpResult.getResponseHeaders().get("Res-Header1") == "Value1"
+        httpResult.getResponseBody() == "This is body content"
     }
 
     def "using a predicat, a GET request with request headers but plain status code as response"() {
@@ -90,7 +128,7 @@ class HTTPClientSpec extends Specification {
                     .equals()
                     .method(HttpMethod.GET)
                     .header("Req-Header0", "Val0")
-                    .header("Req.Header1", "val1")
+                    .header("Req-Header1", "val1")
                     .path("/test")
                 .expectResponse()
                     .status(201)
@@ -98,12 +136,24 @@ class HTTPClientSpec extends Specification {
         def baseUrl = "http://localhost:${providerServer.getMappedPort(4321)}".toString()
 
         when:
-        def providerResponse = new StandardHTTPClient()
+        def httpResult = new StandardHTTPResult()
+        def providerResponse = new StandardHTTPClient(httpResult)
                 .sendRequest(baseUrl, ConsumerImposterBuilder.getImposter().getStub(0).getPredicate(0).getEquals())
 
         then:
         providerResponse.getStatus() == 201
         providerResponse.getMediaType() == null
+
+        and:
+        httpResult.getHttpMethod() == HttpMethod.GET
+        httpResult.getRequestUrl() == "http://localhost:${providerServer.getMappedPort(4321)}/test".toString()
+        httpResult.getRequestHeaders().get("Req-Header0") == "Val0"
+        httpResult.getRequestHeaders().get("Req-Header1") == "val1"
+        httpResult.requestBody == ""
+
+        and:
+        httpResult.getResponseStatus() == 201
+        httpResult.getResponseBody() == ""
     }
 
     def "using a predicate, a POST request is sent to the provider server"() {
@@ -120,13 +170,24 @@ class HTTPClientSpec extends Specification {
         def baseUrl = "http://localhost:${providerServer.getMappedPort(4321)}".toString()
 
         when:
-        def providerResponse = new StandardHTTPClient()
+        def httpResult = new StandardHTTPResult()
+        def providerResponse = new StandardHTTPClient(httpResult)
                 .sendRequest(baseUrl, ConsumerImposterBuilder.getImposter().getStub(0).getPredicate(0).getEquals())
 
         then:
         providerResponse.getStatus() == 201
         providerResponse.getBody() == ''
         providerResponse.getMediaType() == null
+
+        and:
+        httpResult.getHttpMethod() == HttpMethod.POST
+        httpResult.getRequestUrl() == "http://localhost:${providerServer.getMappedPort(4321)}/test-post".toString()
+        httpResult.requestBody == "This is request body"
+
+        and:
+        httpResult.getResponseStatus() == 201
+        httpResult.getResponseBody() == ""
+
     }
 
     def "using a predicate that defines a POST without a body results in a IllegalArgumentException"() {
@@ -142,7 +203,7 @@ class HTTPClientSpec extends Specification {
         def baseUrl = "http://localhost:${providerServer.getMappedPort(4321)}".toString()
 
         when:
-        def providerResponse = new StandardHTTPClient()
+        def providerResponse = new StandardHTTPClient(new StandardHTTPResult())
                 .sendRequest(baseUrl, ConsumerImposterBuilder.getImposter().getStub(0).getPredicate(0).getEquals())
 
         then:
@@ -163,13 +224,23 @@ class HTTPClientSpec extends Specification {
         def baseUrl = "http://localhost:${providerServer.getMappedPort(4321)}".toString()
 
         when:
-        def providerResponse = new StandardHTTPClient()
+        def httpResult = new StandardHTTPResult()
+        def providerResponse = new StandardHTTPClient(httpResult)
                 .sendRequest(baseUrl, ConsumerImposterBuilder.getImposter().getStub(0).getPredicate(0).getEquals())
 
         then:
         providerResponse.getStatus() == 202
         providerResponse.getBody() == ''
         providerResponse.getMediaType() == null
+
+        and:
+        httpResult.getHttpMethod() == HttpMethod.DELETE
+        httpResult.getRequestUrl() == "http://localhost:${providerServer.getMappedPort(4321)}/test-post/10".toString()
+        httpResult.requestBody == ""
+
+        and:
+        httpResult.getResponseStatus() == 202
+        httpResult.getResponseBody() == ""
     }
 
     def "using a predicate, a PATCH request is sent to the provider server with no body which results in IllegalArgumentException"() {
@@ -208,13 +279,23 @@ class HTTPClientSpec extends Specification {
         def baseUrl = "http://localhost:${providerServer.getMappedPort(4321)}".toString()
 
         when:
-        def providerResponse = new StandardHTTPClient()
+        def httpResult = new StandardHTTPResult()
+        def providerResponse = new StandardHTTPClient(httpResult)
                 .sendRequest(baseUrl, ConsumerImposterBuilder.getImposter().getStub(0).getPredicate(0).getEquals())
 
         then:
         providerResponse.getStatus() == 204
         providerResponse.getBody() == ''
         providerResponse.getMediaType() == null
+
+        and:
+        httpResult.getHttpMethod() == HttpMethod.PATCH
+        httpResult.getRequestUrl() == "http://localhost:${providerServer.getMappedPort(4321)}/test-post/11".toString()
+        httpResult.requestBody == "this is the patch data"
+
+        and:
+        httpResult.getResponseStatus() == 204
+        httpResult.getResponseBody() == ""
     }
 
     def "using a predicate, a HEAD request is sent to the provider server"() {
@@ -223,7 +304,7 @@ class HTTPClientSpec extends Specification {
                 .givenRequest(4321)
                     .equals()
                     .method(HttpMethod.HEAD)
-                    .path("/test-post")
+                    .path("/test-head")
                 .expectResponse()
                     .status(204)
                 .printImposter()
@@ -231,13 +312,23 @@ class HTTPClientSpec extends Specification {
         def baseUrl = "http://localhost:${providerServer.getMappedPort(4321)}".toString()
 
         when:
-        def providerResponse = new StandardHTTPClient()
+        def httpResult = new StandardHTTPResult()
+        def providerResponse = new StandardHTTPClient(httpResult)
                 .sendRequest(baseUrl, ConsumerImposterBuilder.getImposter().getStub(0).getPredicate(0).getEquals())
 
         then:
         providerResponse.getStatus() == 204
         providerResponse.getBody() == ''
         providerResponse.getMediaType() == null
+
+        and:
+        httpResult.getHttpMethod() == HttpMethod.HEAD
+        httpResult.getRequestUrl() == "http://localhost:${providerServer.getMappedPort(4321)}/test-head".toString()
+        httpResult.requestBody == ""
+
+        and:
+        httpResult.getResponseStatus() == 204
+        httpResult.getResponseBody() == ""
     }
 
     def "using a predicate, a PUT request is sent to the provider server"() {
@@ -246,7 +337,7 @@ class HTTPClientSpec extends Specification {
                 .givenRequest(4321)
                     .equals()
                     .method(HttpMethod.PUT)
-                    .path("/test-post/11")
+                    .path("/test-put/11")
                     .body("this is the patch data")
                 .expectResponse()
                     .status(201)
@@ -255,13 +346,23 @@ class HTTPClientSpec extends Specification {
         def baseUrl = "http://localhost:${providerServer.getMappedPort(4321)}".toString()
 
         when:
-        def providerResponse = new StandardHTTPClient()
+        def httpResult = new StandardHTTPResult()
+        def providerResponse = new StandardHTTPClient(httpResult)
                 .sendRequest(baseUrl, ConsumerImposterBuilder.getImposter().getStub(0).getPredicate(0).getEquals())
 
         then:
         providerResponse.getStatus() == 201
         providerResponse.getBody() == ''
         providerResponse.getMediaType() == null
+
+        and:
+        httpResult.getHttpMethod() == HttpMethod.PUT
+        httpResult.getRequestUrl() == "http://localhost:${providerServer.getMappedPort(4321)}/test-put/11".toString()
+        httpResult.requestBody == "this is the patch data"
+
+        and:
+        httpResult.getResponseStatus() == 201
+        httpResult.getResponseBody() == ""
     }
 
     def "using a predicate with base URL but no request path is successful"() {
@@ -277,13 +378,23 @@ class HTTPClientSpec extends Specification {
         def baseUrl = "http://localhost:${providerServer.getMappedPort(4321)}".toString()
 
         when:
-        def providerResponse = new StandardHTTPClient()
+        def httpResult = new StandardHTTPResult()
+        def providerResponse = new StandardHTTPClient(httpResult)
                 .sendRequest(baseUrl, ConsumerImposterBuilder.getImposter().getStub(0).getPredicate(0).getEquals())
 
         then:
         providerResponse.getStatus() == 201
         providerResponse.getBody() == ''
         providerResponse.getMediaType() == null
+
+        and:
+        httpResult.getHttpMethod() == HttpMethod.GET
+        httpResult.getRequestUrl() == "http://localhost:${providerServer.getMappedPort(4321)}/".toString()
+        httpResult.requestBody == ""
+
+        and:
+        httpResult.getResponseStatus() == 201
+        httpResult.getResponseBody() == ""
     }
 
     def "using a predicate with no base URL and no request path results in IllegalArgumentException"() {
@@ -299,11 +410,11 @@ class HTTPClientSpec extends Specification {
         def baseUrl = ""
 
         when:
-        def providerResponse = new StandardHTTPClient()
+        def providerResponse = new StandardHTTPClient(new StandardHTTPResult())
                 .sendRequest(baseUrl, ConsumerImposterBuilder.getImposter().getStub(0).getPredicate(0).getEquals())
 
         then:
-        IllegalArgumentException ex = thrown();
+        IllegalArgumentException ex = thrown()
         ex.message == "Request URL must contain at leas a base URL"
     }
 
@@ -320,11 +431,11 @@ class HTTPClientSpec extends Specification {
         def baseUrl = null
 
         when:
-        def providerResponse = new StandardHTTPClient()
+        def providerResponse = new StandardHTTPClient(new StandardHTTPResult())
                 .sendRequest(baseUrl, ConsumerImposterBuilder.getImposter().getStub(0).getPredicate(0).getEquals())
 
         then:
-        IllegalArgumentException ex = thrown();
+        IllegalArgumentException ex = thrown()
         ex.message == "Request URL must contain at leas a base URL"
     }
 
@@ -342,11 +453,11 @@ class HTTPClientSpec extends Specification {
         def baseUrl = null
 
         when:
-        def providerResponse = new StandardHTTPClient()
+        def providerResponse = new StandardHTTPClient(new StandardHTTPResult())
                 .sendRequest(baseUrl, ConsumerImposterBuilder.getImposter().getStub(0).getPredicate(0).getEquals())
 
         then:
-        IllegalArgumentException ex = thrown();
+        IllegalArgumentException ex = thrown()
         ex.message == "Request URL must contain at leas a base URL"
     }
 
@@ -363,11 +474,11 @@ class HTTPClientSpec extends Specification {
         def baseUrl = "http://localhost:${providerServer.getMappedPort(4321)}".toString()
 
         when:
-        def providerResponse = new StandardHTTPClient()
+        def providerResponse = new StandardHTTPClient(new StandardHTTPResult())
                 .sendRequest(baseUrl, ConsumerImposterBuilder.getImposter().getStub(0).getPredicate(0).getEquals())
 
         then:
-        IllegalArgumentException ex = thrown();
+        IllegalArgumentException ex = thrown()
         ex.message == "Request HTTP Method must be specified"
     }
 
@@ -386,12 +497,22 @@ class HTTPClientSpec extends Specification {
         def baseUrl = "http://localhost:${providerServer.getMappedPort(4321)}".toString()
 
         when:
-        def providerResponse = new StandardHTTPClient()
+        def httpResult = new StandardHTTPResult()
+        def providerResponse = new StandardHTTPClient(httpResult)
                 .sendRequest(baseUrl, ConsumerImposterBuilder.getImposter().getStub(0).getPredicate(0).getEquals())
 
         then:
         providerResponse.getStatus() == 404
         providerResponse.getBody() == 'Content not found'
         providerResponse.getMediaType() == null
+
+        and:
+        httpResult.getHttpMethod() == HttpMethod.GET
+        httpResult.getRequestUrl() == "http://localhost:${providerServer.getMappedPort(4321)}/test".toString()
+        httpResult.requestBody == ""
+
+        and:
+        httpResult.getResponseStatus() == 404
+        httpResult.getResponseBody() == "Content not found"
     }
 }

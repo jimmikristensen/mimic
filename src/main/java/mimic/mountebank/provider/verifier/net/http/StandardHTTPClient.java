@@ -3,6 +3,7 @@ package mimic.mountebank.provider.verifier.net.http;
 import mimic.mountebank.imposter.HttpPredicate;
 import mimic.mountebank.net.http.HttpMethod;
 import mimic.mountebank.provider.ProviderResponse;
+import mimic.mountebank.provider.verifier.results.HTTPResult;
 import okhttp3.*;
 import okio.Buffer;
 import org.slf4j.Logger;
@@ -25,6 +26,11 @@ import java.util.concurrent.TimeUnit;
 public class StandardHTTPClient implements HTTPClient {
 
     final Logger logger = LoggerFactory.getLogger(StandardHTTPClient.class);
+    private HTTPResult httpResult;
+
+    public StandardHTTPClient(HTTPResult httpResult) {
+        this.httpResult = httpResult;
+    }
 
     @Override
     public ProviderResponse sendRequest(String baseUrl, HttpPredicate httpPredicate) {
@@ -68,16 +74,23 @@ public class StandardHTTPClient implements HTTPClient {
             mediaType = MediaType.parse(response.header("Content-Type")).toString();
         }
 
+        String responseBody = response.body().string();
+
+        httpResult.setResponseStatus(response.code());
+        httpResult.setResponseHeaders(responseHeaders);
+        httpResult.setResponseBody(responseBody);
+
         return new ProviderResponse(
                 response.code(),
                 mediaType,
                 responseHeaders,
-                response.body().string()
+                responseBody
         );
     }
 
     private void setHttpMethod(Request.Builder requestBuilder, HttpPredicate httpPredicate, RequestBody body) {
         try {
+            httpResult.setHttpMethod(httpPredicate.getMethod());
             switch (httpPredicate.getMethod()) {
                 case GET:
                     requestBuilder.get();
@@ -112,7 +125,7 @@ public class StandardHTTPClient implements HTTPClient {
                     null,
                     httpPredicate.getBody()
             );
-
+            httpResult.setRequestBody(requestBodyToString(body));
         }
         return body;
     }
@@ -124,11 +137,14 @@ public class StandardHTTPClient implements HTTPClient {
      * @return a {@link Headers} object containing all headers from {@link HttpPredicate}
      */
     private Headers createHeaders(HttpPredicate httpPredicate) {
+
         // add headers if any
         Headers.Builder headerBuilder = new Headers.Builder();
         for (Map.Entry<String, String> header : httpPredicate.getHeaders().entrySet()) {
             headerBuilder.add(header.getKey(), header.getValue());
+            httpResult.addRequestHeader(header.getKey(), header.getValue());
         }
+
         return headerBuilder.build();
     }
 
@@ -147,11 +163,31 @@ public class StandardHTTPClient implements HTTPClient {
             for (Map.Entry<String, String> queryParam : httpPredicate.getQueries().entrySet()) {
                 httpBuider.addQueryParameter(queryParam.getKey(), queryParam.getValue());
             }
+
+            httpResult.setRequestUrl(httpBuider.toString());
+
             return httpBuider.build();
 
         } catch (NullPointerException e) {
             throw new IllegalArgumentException("Request URL must contain at leas a base URL", e);
         }
+    }
+
+    private String requestBodyToString(RequestBody body) {
+        String strBody = "";
+
+        if (body != null) {
+            try {
+                Buffer buff = new Buffer();
+                body.writeTo(buff);
+                strBody = buff.readUtf8();
+            } catch (IOException e) {
+                logger.error("Request log was unable to write request body to buffer", e);
+                throw new UncheckedIOException(e);
+            }
+        }
+
+        return strBody;
     }
 
     private void logRequest(HttpMethod httpMethod, HttpUrl httpUrl, Headers headers, RequestBody body) {

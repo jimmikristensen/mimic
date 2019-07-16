@@ -3,12 +3,20 @@ package mimic.mountebank.provider.verifier;
 import mimic.mountebank.imposter.ResponseFields;
 import mimic.mountebank.net.databind.JacksonObjectMapper;
 import mimic.mountebank.provider.ProviderResponse;
+import mimic.mountebank.provider.report.ProviderReport;
+import mimic.mountebank.provider.report.ProviderReportBuilder;
 import mimic.mountebank.provider.verifier.net.http.HTTPClient;
 import mimic.mountebank.provider.verifier.net.http.StandardHTTPClient;
 
 import java.io.IOException;
 
 public class HttpVerificationFactory implements VerificationFactory {
+
+    private ProviderReportBuilder reportBuilder;
+
+    public HttpVerificationFactory() {
+        reportBuilder = new ProviderReportBuilder();
+    }
 
     @Override
     public MessageHeaderVerifier createHeaderVerifier() {
@@ -34,6 +42,11 @@ public class HttpVerificationFactory implements VerificationFactory {
 
     @Override
     public HTTPClient createHttpClient() {
-        return new StandardHTTPClient();
+        return new StandardHTTPClient(null);
+    }
+
+    @Override
+    public ProviderReport createReport() {
+        return reportBuilder.build();
     }
 }
