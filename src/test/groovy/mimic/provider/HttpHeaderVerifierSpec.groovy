@@ -1,8 +1,8 @@
 package mimic.provider
 
 import mimic.mountebank.imposter.ResponseFields
-import mimic.mountebank.provider.ProviderResponse
 import mimic.mountebank.provider.verifier.HttpHeaderVerifier
+import mimic.mountebank.provider.verifier.results.ProviderHTTPResult
 import spock.lang.Specification
 
 
@@ -11,7 +11,7 @@ class HttpHeaderVerifierSpec extends Specification {
     def "HTTP status code is successfully verified agains imposter response fields"() {
         given:
         def contractResponseFields = new ResponseFields(statusCode: 201)
-        def providerResponseFields = new ProviderResponse(201, null, [:], '')
+        def providerResponseFields = new ProviderHTTPResult(responseStatus: 201)
 
         when:
         def isVerified = new HttpHeaderVerifier().verify(contractResponseFields, providerResponseFields)
@@ -23,7 +23,7 @@ class HttpHeaderVerifierSpec extends Specification {
     def "difference in status between contract and provider results in unvarified"() {
         given:
         def contractResponseFields = new ResponseFields(statusCode: 201)
-        def providerResponseFields = new ProviderResponse(200, null, [:], '')
+        def providerResponseFields = new ProviderHTTPResult(responseStatus: 200)
 
         when:
         def isVerified = new HttpHeaderVerifier().verify(contractResponseFields, providerResponseFields)
@@ -39,7 +39,7 @@ class HttpHeaderVerifierSpec extends Specification {
                 "Y-Header":"this is y"
         ]
         def contractResponseFields = new ResponseFields(status: 201, headers: headers)
-        def providerResponseFields = new ProviderResponse(201, null, headers, '')
+        def providerResponseFields = new ProviderHTTPResult(responseStatus:  201, responseHeaders: headers)
 
         when:
         def isVerified = new HttpHeaderVerifier().verify(contractResponseFields, providerResponseFields)
@@ -59,7 +59,7 @@ class HttpHeaderVerifierSpec extends Specification {
                 "X-Header":"this is x"
         ]
         def contractResponseFields = new ResponseFields(status: 201, headers: contractHeaders)
-        def providerResponseFields = new ProviderResponse(201, null, providertHeaders, '')
+        def providerResponseFields = new ProviderHTTPResult(responseStatus:  201, responseHeaders: providertHeaders)
 
         when:
         def isVerified = new HttpHeaderVerifier().verify(contractResponseFields, providerResponseFields)
@@ -79,7 +79,7 @@ class HttpHeaderVerifierSpec extends Specification {
                 "Y-Header":"this is y"
         ]
         def contractResponseFields = new ResponseFields(status: 201, headers: contractHeaders)
-        def providerResponseFields = new ProviderResponse(201, null, providertHeaders, '')
+        def providerResponseFields = new ProviderHTTPResult(responseStatus:  201, responseHeaders: providertHeaders)
 
         when:
         def isVerified = new HttpHeaderVerifier().verify(contractResponseFields, providerResponseFields)

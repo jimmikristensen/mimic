@@ -1,8 +1,8 @@
 package mimic.provider
 
 import mimic.mountebank.imposter.ResponseFields
-import mimic.mountebank.provider.ProviderResponse
 import mimic.mountebank.provider.verifier.HttpTextBodyVerifier
+import mimic.mountebank.provider.verifier.results.ProviderHTTPResult
 import spock.lang.Specification
 
 class HttpTextBodyVerifierSpec extends Specification {
@@ -11,7 +11,7 @@ class HttpTextBodyVerifierSpec extends Specification {
         given:
         def body = 'Some text'
         def contractResponseFields = new ResponseFields(body: body)
-        def providerResponseFields = new ProviderResponse(201, null, [:], body)
+        def providerResponseFields = new ProviderHTTPResult(responseBody: body)
 
         when:
         def isVerified = new HttpTextBodyVerifier().verify(contractResponseFields,providerResponseFields)
@@ -25,7 +25,7 @@ class HttpTextBodyVerifierSpec extends Specification {
         def contractBody = 'Some text'
         def providerBody = 'Some other body'
         def contractResponseFields = new ResponseFields(body: contractBody)
-        def providerResponseFields = new ProviderResponse(201, null, [:], providerBody)
+        def providerResponseFields = new ProviderHTTPResult(responseBody: providerBody)
 
         when:
         def isVerified = new HttpTextBodyVerifier().verify(contractResponseFields,providerResponseFields)
@@ -39,7 +39,7 @@ class HttpTextBodyVerifierSpec extends Specification {
         def contractBody = 'Some text'
         def providerBody = 'Some TEXT'
         def contractResponseFields = new ResponseFields(body: contractBody)
-        def providerResponseFields = new ProviderResponse(201, null, [:], providerBody)
+        def providerResponseFields = new ProviderHTTPResult(responseBody: providerBody)
 
         when:
         def isVerified = new HttpTextBodyVerifier().verify(contractResponseFields,providerResponseFields)
@@ -53,7 +53,7 @@ class HttpTextBodyVerifierSpec extends Specification {
         def contractBody = null
         def providerBody = 'Some TEXT'
         def contractResponseFields = new ResponseFields(body: contractBody)
-        def providerResponseFields = new ProviderResponse(201, null, [:], providerBody)
+        def providerResponseFields = new ProviderHTTPResult(responseBody: providerBody)
 
         when:
         def isVerified = new HttpTextBodyVerifier().verify(contractResponseFields,providerResponseFields)
@@ -67,7 +67,7 @@ class HttpTextBodyVerifierSpec extends Specification {
         def contractBody = 'Some TEXT'
         def providerBody = null
         def contractResponseFields = new ResponseFields(body: contractBody)
-        def providerResponseFields = new ProviderResponse(201, null, [:], providerBody)
+        def providerResponseFields = new ProviderHTTPResult(responseBody: providerBody)
 
         when:
         def isVerified = new HttpTextBodyVerifier().verify(contractResponseFields,providerResponseFields)
@@ -81,7 +81,7 @@ class HttpTextBodyVerifierSpec extends Specification {
         def contractBody = null
         def providerBody = null
         def contractResponseFields = new ResponseFields(body: contractBody)
-        def providerResponseFields = new ProviderResponse(201, null, [:], providerBody)
+        def providerResponseFields = new ProviderHTTPResult(responseBody: providerBody)
 
         when:
         def isVerified = new HttpTextBodyVerifier().verify(contractResponseFields,providerResponseFields)

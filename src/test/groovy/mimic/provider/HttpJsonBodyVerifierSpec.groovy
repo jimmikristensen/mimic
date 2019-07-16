@@ -5,8 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.ArrayNode
 import com.fasterxml.jackson.databind.node.ObjectNode
 import mimic.mountebank.imposter.ResponseFields
-import mimic.mountebank.provider.ProviderResponse
 import mimic.mountebank.provider.verifier.HttpJsonBodyVerifier
+import mimic.mountebank.provider.verifier.results.ProviderHTTPResult
 import spock.lang.Specification
 
 class HttpJsonBodyVerifierSpec extends Specification {
@@ -15,7 +15,7 @@ class HttpJsonBodyVerifierSpec extends Specification {
         given:
         def body = '{"key": "value"}'
         def contractResponseFields = new ResponseFields(body: body)
-        def providerResponseFields = new ProviderResponse(201, null, [:], body)
+        def providerResponseFields = new ProviderHTTPResult(responseBody: body)
 
         when:
         def isVerified = new HttpJsonBodyVerifier().verify(contractResponseFields, providerResponseFields)
@@ -42,7 +42,7 @@ class HttpJsonBodyVerifierSpec extends Specification {
 
         and:
         def contractResponseFields = new ResponseFields(body: contractJson.writer().writeValueAsString(cRootNode))
-        def providerResponseFields = new ProviderResponse(201, null, [:], providerJson.writer().writeValueAsString(pRootNode))
+        def providerResponseFields = new ProviderHTTPResult(responseBody: providerJson.writer().writeValueAsString(pRootNode))
 
         when:
         def isVerified = new HttpJsonBodyVerifier().verify(contractResponseFields, providerResponseFields)
@@ -85,7 +85,7 @@ class HttpJsonBodyVerifierSpec extends Specification {
 
         and:
         def contractResponseFields = new ResponseFields(body: contractJson.writer().writeValueAsString(cRootNode))
-        def providerResponseFields = new ProviderResponse(201, null, [:], providerJson.writer().writeValueAsString(pRootNode))
+        def providerResponseFields = new ProviderHTTPResult(responseBody: providerJson.writer().writeValueAsString(pRootNode))
 
         when:
         def isVerified = new HttpJsonBodyVerifier().verify(contractResponseFields, providerResponseFields)
@@ -97,7 +97,7 @@ class HttpJsonBodyVerifierSpec extends Specification {
     def "comparison between contract and provider where only contract has a null body verifies to false"() {
         given:
         def contractResponseFields = new ResponseFields(body: null)
-        def providerResponseFields = new ProviderResponse(201, null, [:], '{"key": "value"}')
+        def providerResponseFields = new ProviderHTTPResult(responseBody: '{"key": "value"}')
 
         when:
         def isVerified = new HttpJsonBodyVerifier().verify(contractResponseFields, providerResponseFields)
@@ -109,7 +109,7 @@ class HttpJsonBodyVerifierSpec extends Specification {
     def "comparison between contract and provider where only provider has a null body verifies to false"() {
         given:
         def contractResponseFields = new ResponseFields(body: '{"key": "value"}')
-        def providerResponseFields = new ProviderResponse(201, null, [:], null)
+        def providerResponseFields = new ProviderHTTPResult(responseBody: null)
 
         when:
         def isVerified = new HttpJsonBodyVerifier().verify(contractResponseFields, providerResponseFields)
@@ -121,7 +121,7 @@ class HttpJsonBodyVerifierSpec extends Specification {
     def "comparison between contract and provider where both contract and provider has a null body verifies to false"() {
         given:
         def contractResponseFields = new ResponseFields(body: null)
-        def providerResponseFields = new ProviderResponse(201, null, [:], null)
+        def providerResponseFields = new ProviderHTTPResult(responseBody: null)
 
         when:
         def isVerified = new HttpJsonBodyVerifier().verify(contractResponseFields, providerResponseFields)

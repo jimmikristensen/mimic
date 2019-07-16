@@ -3,7 +3,7 @@ package mimic.mountebank.provider.verifier;
 import com.fasterxml.jackson.databind.JsonNode;
 import mimic.mountebank.imposter.ResponseFields;
 import mimic.mountebank.net.databind.JacksonObjectMapper;
-import mimic.mountebank.provider.ProviderResponse;
+import mimic.mountebank.provider.verifier.results.ProviderHTTPResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,7 +15,7 @@ public class HttpJsonBodyVerifier implements MessageBodyVerifier {
     final Logger logger = LoggerFactory.getLogger(HttpJsonBodyVerifier.class);
 
     @Override
-    public boolean verify(ResponseFields contractResponseFields, ProviderResponse providerResponseFields) {
+    public boolean verify(ResponseFields contractResponseFields, ProviderHTTPResult providerResponseFields) {
         boolean isBodyAMatch = isBodyExactMatch(contractResponseFields, providerResponseFields);
 
         // lenient https://www.baeldung.com/jsonassert
@@ -23,10 +23,10 @@ public class HttpJsonBodyVerifier implements MessageBodyVerifier {
         return isBodyAMatch;
     }
 
-    public boolean isBodyExactMatch(ResponseFields contractResponseFields, ProviderResponse providerResponseFields) {
+    public boolean isBodyExactMatch(ResponseFields contractResponseFields, ProviderHTTPResult providerResponseFields) {
         try {
             String contractBody = contractResponseFields.getBody();
-            String providerBody = providerResponseFields.getBody();
+            String providerBody = providerResponseFields.getResponseBody();
 
             if ((contractBody == null && providerBody != null) || (contractBody != null && providerBody == null)) {
                 return false;

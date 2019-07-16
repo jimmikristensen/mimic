@@ -1,7 +1,7 @@
 package mimic.mountebank.provider.verifier;
 
 import mimic.mountebank.imposter.ResponseFields;
-import mimic.mountebank.provider.ProviderResponse;
+import mimic.mountebank.provider.verifier.results.ProviderHTTPResult;
 
 import java.util.Map;
 
@@ -9,9 +9,9 @@ import java.util.Map;
 public class HttpHeaderVerifier implements MessageHeaderVerifier {
 
     @Override
-    public Boolean verify(ResponseFields contractResponseFields, ProviderResponse providerResponseFields) {
-        boolean doesStatusMatch = isStatusExactMatch(contractResponseFields.getStatus(), providerResponseFields.getStatus());
-        boolean doesHeadersMatch = isHeadersExactMatch(contractResponseFields.getHeaders(), providerResponseFields.getHeaders());
+    public Boolean verify(ResponseFields contractResponseFields, ProviderHTTPResult providerResponseFields) {
+        boolean doesStatusMatch = isStatusExactMatch(contractResponseFields.getStatus(), providerResponseFields.getResponseStatus());
+        boolean doesHeadersMatch = isHeadersExactMatch(contractResponseFields.getHeaders(), providerResponseFields.getResponseHeaders());
 
         return doesStatusMatch && doesHeadersMatch;
     }

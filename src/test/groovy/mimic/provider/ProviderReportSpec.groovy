@@ -67,7 +67,7 @@ class ProviderReportSpec extends Specification {
 
         then:
         println report.toString()
-        report.toString().contains("Request") == true
+        report.toString().contains("request") == true
         report.toString().contains("Response") == true
     }
 }

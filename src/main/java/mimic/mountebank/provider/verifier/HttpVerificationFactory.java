@@ -2,11 +2,11 @@ package mimic.mountebank.provider.verifier;
 
 import mimic.mountebank.imposter.ResponseFields;
 import mimic.mountebank.net.databind.JacksonObjectMapper;
-import mimic.mountebank.provider.ProviderResponse;
 import mimic.mountebank.provider.report.ProviderReport;
 import mimic.mountebank.provider.report.ProviderReportBuilder;
 import mimic.mountebank.provider.verifier.net.http.HTTPClient;
 import mimic.mountebank.provider.verifier.net.http.StandardHTTPClient;
+import mimic.mountebank.provider.verifier.results.ProviderHTTPResult;
 
 import java.io.IOException;
 
@@ -24,7 +24,7 @@ public class HttpVerificationFactory implements VerificationFactory {
     }
 
     @Override
-    public MessageBodyVerifier createBodyVerifier(ResponseFields contractResponse, ProviderResponse providerResponse) {
+    public MessageBodyVerifier createBodyVerifier(ResponseFields contractResponse, ProviderHTTPResult providerResponse) {
         boolean isJson = false;
 
         if (contractResponse.getBody() != null) {
