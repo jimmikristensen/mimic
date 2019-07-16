@@ -447,4 +447,34 @@ class HTTPClientSpec extends Specification {
         httpResult.getResponseStatus() == 404
         httpResult.getResponseBody() == "Content not found"
     }
+
+    def "using predicate with non-successful response status code with media type json is successful"() {
+        setup:
+        def providerServer = ConsumerImposterBuilder.Builder()
+                .givenRequest(4321)
+                    .equals()
+                    .path("/test")
+                    .method(HttpMethod.GET)
+                .expectResponse()
+                    .status(404)
+                    .body('{"message": "Content not found"}')
+                    .header("Content-Type", "application/json")
+                .printImposter()
+                .toMountebank()
+        def baseUrl = "http://localhost:${providerServer.getMappedPort(4321)}".toString()
+
+        when:
+        def httpResult = new StandardHTTPClient()
+                .sendRequest(baseUrl, ConsumerImposterBuilder.getImposter().getStub(0).getPredicate(0).getEquals())
+
+        then:
+        httpResult.getHttpMethod() == HttpMethod.GET
+        httpResult.getRequestUrl() == "http://localhost:${providerServer.getMappedPort(4321)}/test".toString()
+        httpResult.requestBody == ""
+
+        and:
+        httpResult.getResponseStatus() == 404
+        httpResult.getResponseBody() == '{"message": "Content not found"}'
+        httpResult.getResponseMediaType() == "application/json"
+    }
 }
