@@ -79,6 +79,7 @@ public class StandardHTTPClient implements HTTPClient {
         httpResult.setResponseStatus(response.code());
         httpResult.setResponseHeaders(responseHeaders);
         httpResult.setResponseBody(responseBody);
+        httpResult.setResponseMediaType(mediaType);
 
         return new ProviderResponse(
                 response.code(),

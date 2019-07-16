@@ -24,4 +24,6 @@ public interface HTTPResult {
     public void setResponseHeaders(Map<String, String> headers);
     public String getResponseBody();
     public void setResponseBody(String responseBody);
+    public void setResponseMediaType(String mediaType);
+    public String getResponseMediaType();
 }

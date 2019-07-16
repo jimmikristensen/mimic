@@ -14,6 +14,7 @@ public class StandardHTTPResult implements HTTPResult {
     private int status = 0;
     private Map<String, String> responseHeaders = new LinkedHashMap<>();
     private String responseBody = "";
+    private String responseMediaType = "";
 
     @Override
     public void setHttpMethod(HttpMethod httpMethod) {
@@ -93,5 +94,15 @@ public class StandardHTTPResult implements HTTPResult {
     @Override
     public void setResponseBody(String responseBody) {
         this.responseBody = responseBody;
+    }
+
+    @Override
+    public void setResponseMediaType(String mediaType) {
+        this.responseMediaType = mediaType;
+    }
+
+    @Override
+    public String getResponseMediaType() {
+        return responseMediaType;
     }
 }
