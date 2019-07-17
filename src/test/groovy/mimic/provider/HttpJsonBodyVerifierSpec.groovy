@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode
 import mimic.mountebank.imposter.ResponseFields
 import mimic.mountebank.provider.verifier.HttpJsonBodyVerifier
 import mimic.mountebank.provider.verifier.results.ProviderHTTPResult
+import mimic.mountebank.provider.verifier.results.ReportStatus
 import spock.lang.Specification
 
 class HttpJsonBodyVerifierSpec extends Specification {
@@ -18,10 +19,10 @@ class HttpJsonBodyVerifierSpec extends Specification {
         def providerResponseFields = new ProviderHTTPResult(responseBody: body)
 
         when:
-        def isVerified = new HttpJsonBodyVerifier().verify(contractResponseFields, providerResponseFields)
+        def verificationResult = new HttpJsonBodyVerifier().verify(contractResponseFields, providerResponseFields)
 
         then:
-        isVerified == true
+        verificationResult.getReportStatus() == ReportStatus.OK
     }
 
     def "same json keys and values, but in different order, between contract and provider is verified"() {

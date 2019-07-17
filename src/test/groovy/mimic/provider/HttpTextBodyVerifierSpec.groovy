@@ -3,6 +3,8 @@ package mimic.provider
 import mimic.mountebank.imposter.ResponseFields
 import mimic.mountebank.provider.verifier.HttpTextBodyVerifier
 import mimic.mountebank.provider.verifier.results.ProviderHTTPResult
+import mimic.mountebank.provider.verifier.results.ReportStatus
+import org.bitbucket.cowwoc.diffmatchpatch.DiffMatchPatch
 import spock.lang.Specification
 
 class HttpTextBodyVerifierSpec extends Specification {
@@ -14,10 +16,11 @@ class HttpTextBodyVerifierSpec extends Specification {
         def providerResponseFields = new ProviderHTTPResult(responseBody: body)
 
         when:
-        def isVerified = new HttpTextBodyVerifier().verify(contractResponseFields,providerResponseFields)
+        def verificationResult = new HttpTextBodyVerifier().verify(contractResponseFields,providerResponseFields)
 
         then:
-        isVerified == true
+        verificationResult.getReportStatus() == ReportStatus.OK
+        verificationResult.bodyDiff().get(0).operation == DiffMatchPatch.Operation.EQUAL
     }
 
     def "mismatch between contract body and provider body is unverified"() {
@@ -42,10 +45,11 @@ class HttpTextBodyVerifierSpec extends Specification {
         def providerResponseFields = new ProviderHTTPResult(responseBody: providerBody)
 
         when:
-        def isVerified = new HttpTextBodyVerifier().verify(contractResponseFields,providerResponseFields)
+        def verificationResult = new HttpTextBodyVerifier().verify(contractResponseFields,providerResponseFields)
 
         then:
-        isVerified == false
+        verificationResult.getReportStatus() == ReportStatus.FAILED
+        verificationResult.bodyDiff().get(1).operation == DiffMatchPatch.Operation.DELETE
     }
 
     def "contract body is null but provider body contains a string is unverified"() {
@@ -56,10 +60,11 @@ class HttpTextBodyVerifierSpec extends Specification {
         def providerResponseFields = new ProviderHTTPResult(responseBody: providerBody)
 
         when:
-        def isVerified = new HttpTextBodyVerifier().verify(contractResponseFields,providerResponseFields)
+        def verificationResult = new HttpTextBodyVerifier().verify(contractResponseFields,providerResponseFields)
 
         then:
-        isVerified == false
+        verificationResult.getReportStatus() == ReportStatus.FAILED
+        verificationResult.bodyDiff().get(0).operation == DiffMatchPatch.Operation.DELETE
     }
 
     def "contract body contains a string but provider body is null is unverified"() {
@@ -70,10 +75,11 @@ class HttpTextBodyVerifierSpec extends Specification {
         def providerResponseFields = new ProviderHTTPResult(responseBody: providerBody)
 
         when:
-        def isVerified = new HttpTextBodyVerifier().verify(contractResponseFields,providerResponseFields)
+        def verificationResult = new HttpTextBodyVerifier().verify(contractResponseFields,providerResponseFields)
 
         then:
-        isVerified == false
+        verificationResult.getReportStatus() == ReportStatus.FAILED
+        verificationResult.bodyDiff().get(0).operation == DiffMatchPatch.Operation.INSERT
     }
 
     def "both contract and provider body is null is verified"() {
@@ -84,9 +90,11 @@ class HttpTextBodyVerifierSpec extends Specification {
         def providerResponseFields = new ProviderHTTPResult(responseBody: providerBody)
 
         when:
-        def isVerified = new HttpTextBodyVerifier().verify(contractResponseFields,providerResponseFields)
+        def verificationResult = new HttpTextBodyVerifier().verify(contractResponseFields,providerResponseFields)
 
         then:
-        isVerified == true
+        println verificationResult.bodyDiff()
+        verificationResult.getReportStatus() == ReportStatus.OK
+        verificationResult.bodyDiff().size() == 0
     }
 }
