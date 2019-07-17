@@ -8,6 +8,7 @@ import mimic.mountebank.imposter.ResponseFields
 import mimic.mountebank.provider.verifier.HttpJsonBodyVerifier
 import mimic.mountebank.provider.verifier.results.ProviderHTTPResult
 import mimic.mountebank.provider.verifier.results.ReportStatus
+import org.bitbucket.cowwoc.diffmatchpatch.DiffMatchPatch
 import spock.lang.Specification
 
 class HttpJsonBodyVerifierSpec extends Specification {
@@ -23,6 +24,7 @@ class HttpJsonBodyVerifierSpec extends Specification {
 
         then:
         verificationResult.getReportStatus() == ReportStatus.OK
+        verificationResult.bodyDiff().get(0).operation == DiffMatchPatch.Operation.EQUAL
     }
 
     def "same json keys and values, but in different order, between contract and provider is verified"() {
@@ -46,10 +48,12 @@ class HttpJsonBodyVerifierSpec extends Specification {
         def providerResponseFields = new ProviderHTTPResult(responseBody: providerJson.writer().writeValueAsString(pRootNode))
 
         when:
-        def isVerified = new HttpJsonBodyVerifier().verify(contractResponseFields, providerResponseFields)
+        def verificationResult = new HttpJsonBodyVerifier().verify(contractResponseFields, providerResponseFields)
 
         then:
-        isVerified == true
+        println verificationResult.bodyDiff()
+        verificationResult.getReportStatus() == ReportStatus.OK
+        verificationResult.bodyDiff().get(0).operation == DiffMatchPatch.Operation.EQUAL
     }
 
     def "comparison between contract and provider is verified when json contains arrays"() {
@@ -89,10 +93,40 @@ class HttpJsonBodyVerifierSpec extends Specification {
         def providerResponseFields = new ProviderHTTPResult(responseBody: providerJson.writer().writeValueAsString(pRootNode))
 
         when:
-        def isVerified = new HttpJsonBodyVerifier().verify(contractResponseFields, providerResponseFields)
+        def verificationResult = new HttpJsonBodyVerifier().verify(contractResponseFields, providerResponseFields)
 
         then:
-        isVerified == true
+        println verificationResult.bodyDiff()
+        verificationResult.getReportStatus() == ReportStatus.OK
+        verificationResult.bodyDiff().get(0).operation == DiffMatchPatch.Operation.EQUAL
+    }
+
+    def "comparison between contract and provider where contract contains fields not present verifies to false"() {
+        given:
+        def contractResponseFields = new ResponseFields(body: '{"key2": "other value"}')
+        def providerResponseFields = new ProviderHTTPResult(responseBody: '{"key": "value"}')
+
+        when:
+        def verificationResult = new HttpJsonBodyVerifier().verify(contractResponseFields, providerResponseFields)
+
+        then:
+        println verificationResult.bodyDiff()
+        verificationResult.getReportStatus() == ReportStatus.FAILED
+        verificationResult.bodyDiff().get(0).operation == DiffMatchPatch.Operation.EQUAL
+    }
+
+    def "with complex json,comparison between contract and provider where contract contains fields not present verifies to false"() {
+        given:
+        def contractResponseFields = new ResponseFields(body: complexJson1())
+        def providerResponseFields = new ProviderHTTPResult(responseBody: complexJson2())
+
+        when:
+        def verificationResult = new HttpJsonBodyVerifier().verify(contractResponseFields, providerResponseFields)
+
+        then:
+        println verificationResult.bodyDiff()
+        verificationResult.getReportStatus() == ReportStatus.FAILED
+        verificationResult.bodyDiff().get(0).operation == DiffMatchPatch.Operation.EQUAL
     }
 
     def "comparison between contract and provider where only contract has a null body verifies to false"() {
@@ -129,5 +163,51 @@ class HttpJsonBodyVerifierSpec extends Specification {
 
         then:
         isVerified == true
+    }
+
+    private String complexJson1() {
+        return '{\n' +
+                '  "name": {\n' +
+                '    "first": "John",\n' +
+                '    "last": "Doe"\n' +
+                '  },\n' +
+                '  "address": null,\n' +
+                '  "birthday": "1980-01-01",\n' +
+                '  "company": "Acme",\n' +
+                '  "occupation": "Software engineer",\n' +
+                '  "phones": [\n' +
+                '    {\n' +
+                '      "number": "000000000",\n' +
+                '      "type": "home"\n' +
+                '    },\n' +
+                '    {\n' +
+                '      "number": "999999999",\n' +
+                '      "type": "mobile"\n' +
+                '    }\n' +
+                '  ]\n' +
+                '}';
+    }
+
+    private String complexJson2() {
+        return '{\n' +
+                '  "name": {\n' +
+                '    "first": "Jane",\n' +
+                '    "last": "Doe",\n' +
+                '    "nickname": "Jenny"\n' +
+                '  },\n' +
+                '  "birthday": "1990-01-01",\n' +
+                '  "occupation": null,\n' +
+                '  "phones": [\n' +
+                '    {\n' +
+                '      "number": "111111111",\n' +
+                '      "type": "mobile"\n' +
+                '    }\n' +
+                '  ],\n' +
+                '  "favorite": true,\n' +
+                '  "groups": [\n' +
+                '    "close-friends",\n' +
+                '    "gym"\n' +
+                '  ]\n' +
+                '}';
     }
 }
