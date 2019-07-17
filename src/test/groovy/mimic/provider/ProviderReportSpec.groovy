@@ -1,7 +1,7 @@
 package mimic.provider
 
 import mimic.mountebank.provider.report.ProviderReportBuilder
-import mimic.mountebank.provider.report.StandardProviderReport
+import mimic.mountebank.provider.report.ConsoleProviderReport
 import spock.lang.Specification
 
 class ProviderReportSpec extends Specification {
@@ -14,7 +14,7 @@ class ProviderReportSpec extends Specification {
         def report = reportBuilder.build()
 
         then:
-        report.class == StandardProviderReport.class
+        report.class == ConsoleProviderReport.class
     }
 
     def "creating a provider request event is reflected in the report"() {

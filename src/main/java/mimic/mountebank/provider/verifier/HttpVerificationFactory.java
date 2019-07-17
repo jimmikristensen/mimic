@@ -46,7 +46,7 @@ public class HttpVerificationFactory implements VerificationFactory {
     }
 
     @Override
-    public ProviderReport createReport() {
-        return reportBuilder.build();
+    public ProviderReportBuilder createReport() {
+        return new ProviderReportBuilder();
     }
 }

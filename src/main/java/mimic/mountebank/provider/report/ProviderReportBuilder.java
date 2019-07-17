@@ -1,35 +1,18 @@
 package mimic.mountebank.provider.report;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
+import mimic.mountebank.provider.verifier.results.ProviderHTTPResult;
+
 
 public class ProviderReportBuilder {
 
-    private final Map<String, String> providerRequestEvents = new LinkedHashMap<>();
-    private final Map<String, String> providerResponseEvents = new LinkedHashMap<>();
-    private final ProviderReport report;
+    private ProviderHTTPResult httpResult;
 
-    public ProviderReportBuilder(ProviderReport report) {
-        this.report = report;
-    }
-
-    public ProviderReportBuilder() {
-        report = new StandardProviderReport();
-    }
-
-    public ProviderReportBuilder createProviderRequestEvent(String key, String event) {
-        providerRequestEvents.put(key, event);
+    public ProviderReportBuilder useProviderHttpResult(ProviderHTTPResult httpResult) {
+        this.httpResult = httpResult;
         return this;
     }
 
-    public ProviderReportBuilder createProviderResponseEvent(String key, String event) {
-        providerResponseEvents.put(key, event);
-        return this;
-    }
-
-    public ProviderReport build() {
-        report.setProviderRequestEvents(providerRequestEvents);
-        report.setProviderResponseEvents(providerResponseEvents);
-        return report;
+    public ProviderReport createConsoleReport() {
+        return new ConsoleProviderReport(httpResult);
     }
 }
