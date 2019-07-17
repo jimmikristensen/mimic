@@ -4,6 +4,7 @@ import mimic.mountebank.imposter.HttpPredicate;
 import mimic.mountebank.imposter.Imposter;
 import mimic.mountebank.imposter.ResponseFields;
 import mimic.mountebank.provider.verifier.net.http.HTTPClient;
+import mimic.mountebank.provider.verifier.results.HttpHeaderVerificationResult;
 import mimic.mountebank.provider.verifier.results.ProviderHTTPResult;
 
 
@@ -49,7 +50,7 @@ public class ContractVerifier {
 
             ResponseFields responseFields = imposters.get(0).getStub(0).getResponse(0).getFields();
             MessageHeaderVerifier headerVerifier = verificationFactory.createHeaderVerifier();
-            boolean isHeaderVerified = headerVerifier.verify(responseFields, providerResponse);
+            HttpHeaderVerificationResult isHeaderVerified = headerVerifier.verify(responseFields, providerResponse);
 
             MessageBodyVerifier bodyVerifier = verificationFactory.createBodyVerifier(responseFields, providerResponse);
             boolean isBodyVerified = bodyVerifier.verify(responseFields, providerResponse);
@@ -68,7 +69,7 @@ public class ContractVerifier {
 
             System.out.println(isBodyVerified);
             System.out.println(isHeaderVerified);
-            return isBodyVerified && isHeaderVerified;
+
         }
 
 

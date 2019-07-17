@@ -3,6 +3,8 @@ package mimic.provider
 import mimic.mountebank.imposter.ResponseFields
 import mimic.mountebank.provider.verifier.HttpHeaderVerifier
 import mimic.mountebank.provider.verifier.results.ProviderHTTPResult
+import mimic.mountebank.provider.verifier.results.ReportStatus
+import org.bitbucket.cowwoc.diffmatchpatch.DiffMatchPatch
 import spock.lang.Specification
 
 
@@ -14,10 +16,11 @@ class HttpHeaderVerifierSpec extends Specification {
         def providerResponseFields = new ProviderHTTPResult(responseStatus: 201)
 
         when:
-        def isVerified = new HttpHeaderVerifier().verify(contractResponseFields, providerResponseFields)
+        def verificationResult = new HttpHeaderVerifier().verify(contractResponseFields, providerResponseFields)
 
         then:
-        isVerified == true
+        verificationResult.getReportStatus() == ReportStatus.OK
+        verificationResult.statusDiff().get(0).operation == DiffMatchPatch.Operation.EQUAL
     }
 
     def "difference in status between contract and provider results in unvarified"() {
@@ -26,10 +29,11 @@ class HttpHeaderVerifierSpec extends Specification {
         def providerResponseFields = new ProviderHTTPResult(responseStatus: 200)
 
         when:
-        def isVerified = new HttpHeaderVerifier().verify(contractResponseFields, providerResponseFields)
+        def verificationResult = new HttpHeaderVerifier().verify(contractResponseFields, providerResponseFields)
 
         then:
-        isVerified == false
+        verificationResult.getReportStatus() == ReportStatus.FAILED
+        verificationResult.statusDiff().get(1).operation == DiffMatchPatch.Operation.DELETE
     }
 
     def "the exact same headers between contract and provider is verified"() {
@@ -42,10 +46,12 @@ class HttpHeaderVerifierSpec extends Specification {
         def providerResponseFields = new ProviderHTTPResult(responseStatus:  201, responseHeaders: headers)
 
         when:
-        def isVerified = new HttpHeaderVerifier().verify(contractResponseFields, providerResponseFields)
+        def verificationResult = new HttpHeaderVerifier().verify(contractResponseFields, providerResponseFields)
 
         then:
-        isVerified == true
+        verificationResult.getReportStatus() == ReportStatus.OK
+        verificationResult.statusDiff().get(0).operation == DiffMatchPatch.Operation.EQUAL
+        verificationResult.headerDiff().size() == 0
     }
 
     def "the exact same headers, but in different order, between contract and provider is verified"() {
@@ -62,10 +68,12 @@ class HttpHeaderVerifierSpec extends Specification {
         def providerResponseFields = new ProviderHTTPResult(responseStatus:  201, responseHeaders: providertHeaders)
 
         when:
-        def isVerified = new HttpHeaderVerifier().verify(contractResponseFields, providerResponseFields)
+        def verificationResult = new HttpHeaderVerifier().verify(contractResponseFields, providerResponseFields)
 
         then:
-        isVerified == true
+        verificationResult.getReportStatus() == ReportStatus.OK
+        verificationResult.statusDiff().get(0).operation == DiffMatchPatch.Operation.EQUAL
+        verificationResult.headerDiff().size() == 0
     }
 
     def "difference in headers between contract and provider is unverified"() {
@@ -82,10 +90,13 @@ class HttpHeaderVerifierSpec extends Specification {
         def providerResponseFields = new ProviderHTTPResult(responseStatus:  201, responseHeaders: providertHeaders)
 
         when:
-        def isVerified = new HttpHeaderVerifier().verify(contractResponseFields, providerResponseFields)
+        def verificationResult = new HttpHeaderVerifier().verify(contractResponseFields, providerResponseFields)
 
         then:
-        isVerified == false
+        verificationResult.getReportStatus() == ReportStatus.FAILED
+        verificationResult.statusDiff().get(0).operation == DiffMatchPatch.Operation.EQUAL
+        verificationResult.headerDiff().size() == 1
+        verificationResult.headerDiff().get(0) == "X-Header"
     }
 
 }
