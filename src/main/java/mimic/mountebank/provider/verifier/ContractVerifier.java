@@ -63,7 +63,7 @@ public class ContractVerifier {
 
 
             System.out.println("#######################################");
-            verificationFactory.createReport();
+            verificationFactory.createReport().createConsoleReport().printReport();
             System.out.println("#######################################");
 
             System.out.println(isBodyVerified);
