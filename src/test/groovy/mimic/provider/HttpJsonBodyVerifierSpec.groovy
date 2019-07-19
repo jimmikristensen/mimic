@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode
 import com.fasterxml.jackson.databind.node.ObjectNode
 import mimic.mountebank.imposter.ResponseFields
 import mimic.mountebank.provider.verifier.HttpJsonBodyVerifier
+import mimic.mountebank.provider.verifier.results.diff.DiffOperation
 import mimic.mountebank.provider.verifier.results.ProviderHTTPResult
 import mimic.mountebank.provider.verifier.results.ReportStatus
 import org.bitbucket.cowwoc.diffmatchpatch.DiffMatchPatch
@@ -24,7 +25,7 @@ class HttpJsonBodyVerifierSpec extends Specification {
 
         then:
         verificationResult.getReportStatus() == ReportStatus.OK
-        verificationResult.bodyDiff().get(0).operation == DiffMatchPatch.Operation.EQUAL
+        verificationResult.getDiff().size() == 0
     }
 
     def "same json keys and values, but in different order, between contract and provider is verified"() {
@@ -51,9 +52,8 @@ class HttpJsonBodyVerifierSpec extends Specification {
         def verificationResult = new HttpJsonBodyVerifier().verify(contractResponseFields, providerResponseFields)
 
         then:
-        println verificationResult.bodyDiff()
         verificationResult.getReportStatus() == ReportStatus.OK
-        verificationResult.bodyDiff().get(0).operation == DiffMatchPatch.Operation.EQUAL
+        verificationResult.getDiff().size() == 0
     }
 
     def "comparison between contract and provider is verified when json contains arrays"() {
@@ -96,23 +96,34 @@ class HttpJsonBodyVerifierSpec extends Specification {
         def verificationResult = new HttpJsonBodyVerifier().verify(contractResponseFields, providerResponseFields)
 
         then:
-        println verificationResult.bodyDiff()
         verificationResult.getReportStatus() == ReportStatus.OK
-        verificationResult.bodyDiff().get(0).operation == DiffMatchPatch.Operation.EQUAL
+        verificationResult.getDiff().size() == 0
     }
 
     def "comparison between contract and provider where contract contains fields not present verifies to false"() {
         given:
-        def contractResponseFields = new ResponseFields(body: '{"key2": "other value"}')
-        def providerResponseFields = new ProviderHTTPResult(responseBody: '{"key": "value"}')
+        def contractResponseFields = new ResponseFields(body: '{"key": "other value","key3": "value2"}')
+        def providerResponseFields = new ProviderHTTPResult(responseBody: '{"key": "value","key2": "value2","test":"testval"}')
 
         when:
         def verificationResult = new HttpJsonBodyVerifier().verify(contractResponseFields, providerResponseFields)
 
         then:
-        println verificationResult.bodyDiff()
         verificationResult.getReportStatus() == ReportStatus.FAILED
-        verificationResult.bodyDiff().get(0).operation == DiffMatchPatch.Operation.EQUAL
+        def diff = verificationResult.getDiff()
+        diff.size() == 3
+
+        and:
+        diff.get(0).getOperation() == DiffOperation.REMOVE
+        diff.get(0).getBranch() == "/test"
+        diff.get(0).getValue() == null
+        diff.get(1).getOperation() == DiffOperation.MOVE
+        diff.get(1).getBranch() == "/key3"
+        diff.get(1).getValue() == null
+        diff.get(1).getFrom() == "/key2"
+        diff.get(2).getOperation() == DiffOperation.REPLACE
+        diff.get(2).getBranch() == "/key"
+        diff.get(2).getValue() == 'other value'
     }
 
     def "with complex json,comparison between contract and provider where contract contains fields not present verifies to false"() {
@@ -124,9 +135,8 @@ class HttpJsonBodyVerifierSpec extends Specification {
         def verificationResult = new HttpJsonBodyVerifier().verify(contractResponseFields, providerResponseFields)
 
         then:
-        println verificationResult.bodyDiff()
         verificationResult.getReportStatus() == ReportStatus.FAILED
-        verificationResult.bodyDiff().get(0).operation == DiffMatchPatch.Operation.EQUAL
+        verificationResult.getDiff().size() == 12
     }
 
     def "comparison between contract and provider where only contract has a null body verifies to false"() {
@@ -135,10 +145,16 @@ class HttpJsonBodyVerifierSpec extends Specification {
         def providerResponseFields = new ProviderHTTPResult(responseBody: '{"key": "value"}')
 
         when:
-        def isVerified = new HttpJsonBodyVerifier().verify(contractResponseFields, providerResponseFields)
+        def verificationResult = new HttpJsonBodyVerifier().verify(contractResponseFields, providerResponseFields)
 
         then:
-        isVerified == false
+        verificationResult.getReportStatus() == ReportStatus.FAILED
+        def diff = verificationResult.getDiff()
+        diff.size() == 1
+
+        and:
+        diff.get(0).getOperation() == DiffOperation.REMOVE
+        diff.get(0).getBranch() == "/key"
     }
 
     def "comparison between contract and provider where only provider has a null body verifies to false"() {
@@ -147,22 +163,78 @@ class HttpJsonBodyVerifierSpec extends Specification {
         def providerResponseFields = new ProviderHTTPResult(responseBody: null)
 
         when:
-        def isVerified = new HttpJsonBodyVerifier().verify(contractResponseFields, providerResponseFields)
+        def verificationResult = new HttpJsonBodyVerifier().verify(contractResponseFields, providerResponseFields)
 
         then:
-        isVerified == false
+        verificationResult.getReportStatus() == ReportStatus.FAILED
+        def diff = verificationResult.getDiff()
+        diff.size() == 1
+
+        and:
+        diff.get(0).getOperation() == DiffOperation.ADD
+        diff.get(0).getBranch() == "/key"
+        diff.get(0).getValue() == "value"
     }
 
-    def "comparison between contract and provider where both contract and provider has a null body verifies to false"() {
+    def "comparison between contract and provider where both contract and provider has a null body is verified OK"() {
         given:
         def contractResponseFields = new ResponseFields(body: null)
         def providerResponseFields = new ProviderHTTPResult(responseBody: null)
 
         when:
-        def isVerified = new HttpJsonBodyVerifier().verify(contractResponseFields, providerResponseFields)
+        def verificationResult = new HttpJsonBodyVerifier().verify(contractResponseFields, providerResponseFields)
 
         then:
-        isVerified == true
+        verificationResult.getReportStatus() == ReportStatus.OK
+    }
+
+    def "comparison between contract and provider where only provider has an empty body verifies to false"() {
+        given:
+        def contractResponseFields = new ResponseFields(body: '{"key": "value"}')
+        def providerResponseFields = new ProviderHTTPResult(responseBody: "")
+
+        when:
+        def verificationResult = new HttpJsonBodyVerifier().verify(contractResponseFields, providerResponseFields)
+
+        then:
+        verificationResult.getReportStatus() == ReportStatus.FAILED
+        def diff = verificationResult.getDiff()
+        diff.size() == 1
+
+        and:
+        diff.get(0).getOperation() == DiffOperation.ADD
+        diff.get(0).getBranch() == "/key"
+        diff.get(0).getValue() == "value"
+    }
+
+    def "comparison between contract and provider where only contract has an empty body verifies to false"() {
+        given:
+        def contractResponseFields = new ResponseFields(body: "")
+        def providerResponseFields = new ProviderHTTPResult(responseBody: '{"key": "value"}')
+
+        when:
+        def verificationResult = new HttpJsonBodyVerifier().verify(contractResponseFields, providerResponseFields)
+
+        then:
+        verificationResult.getReportStatus() == ReportStatus.FAILED
+        def diff = verificationResult.getDiff()
+        diff.size() == 1
+
+        and:
+        diff.get(0).getOperation() == DiffOperation.REMOVE
+        diff.get(0).getBranch() == "/key"
+    }
+
+    def "comparison between contract and provider where both contract and provider has an empty body is verified OK"() {
+        given:
+        def contractResponseFields = new ResponseFields(body: "")
+        def providerResponseFields = new ProviderHTTPResult(responseBody: "")
+
+        when:
+        def verificationResult = new HttpJsonBodyVerifier().verify(contractResponseFields, providerResponseFields)
+
+        then:
+        verificationResult.getReportStatus() == ReportStatus.OK
     }
 
     private String complexJson1() {
@@ -200,7 +272,8 @@ class HttpJsonBodyVerifierSpec extends Specification {
                 '  "phones": [\n' +
                 '    {\n' +
                 '      "number": "111111111",\n' +
-                '      "type": "mobile"\n' +
+                '      "type": "mobile",\n' +
+                '      "type2": "block"\n' +
                 '    }\n' +
                 '  ],\n' +
                 '  "favorite": true,\n' +

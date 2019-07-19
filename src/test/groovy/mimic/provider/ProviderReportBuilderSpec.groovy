@@ -1,11 +1,23 @@
 package mimic.provider
 
 import mimic.mountebank.net.http.HttpMethod
+import mimic.mountebank.provider.report.ConsoleProviderReport
 import mimic.mountebank.provider.report.ProviderReportBuilder
 import mimic.mountebank.provider.verifier.results.ProviderHTTPResult
 import spock.lang.Specification
 
 class ProviderReportBuilderSpec extends Specification {
+
+    def "creating a ProviderReportBuilder builder and calling createConsoleReport returns a ConsoleProviderReport"() {
+        given:
+        def reportBuilder = new ProviderReportBuilder()
+
+        when:
+        def report = reportBuilder.createConsoleReport()
+
+        then:
+        report.class == ConsoleProviderReport.class
+    }
 
     def "when given a provider http result and instructed to create console report, the report is printed to console"() {
         given:

@@ -11,7 +11,7 @@ class ProviderReportSpec extends Specification {
         def reportBuilder = new ProviderReportBuilder()
 
         when:
-        def report = reportBuilder.build()
+        def report = reportBuilder.createConsoleReport()
 
         then:
         report.class == ConsoleProviderReport.class

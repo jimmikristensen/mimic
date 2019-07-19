@@ -1,11 +1,10 @@
 package mimic.mountebank.provider.verifier;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import mimic.mountebank.imposter.ResponseFields;
 import mimic.mountebank.net.databind.JacksonObjectMapper;
-import mimic.mountebank.provider.verifier.results.HttpBodyVerificationResult;
-import mimic.mountebank.provider.verifier.results.ProviderHTTPResult;
-import mimic.mountebank.provider.verifier.results.ReportStatus;
+import mimic.mountebank.provider.verifier.results.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,21 +15,21 @@ public class HttpJsonBodyVerifier implements MessageBodyVerifier {
 
     final Logger logger = LoggerFactory.getLogger(HttpJsonBodyVerifier.class);
 
-    private HttpBodyVerificationResult bodyVerificationResult;
+    private BodyVerificationResult bodyVerificationResult;
 
     public HttpJsonBodyVerifier() {
-        bodyVerificationResult = new HttpBodyVerificationResult();
+        bodyVerificationResult = new HttpJsonBodyVerificationResult();
     }
 
     @Override
-    public HttpBodyVerificationResult verify(ResponseFields contractResponseFields, ProviderHTTPResult providerResponseFields) {
+    public BodyVerificationResult verify(ResponseFields contractResponseFields, ProviderHTTPResult providerResponseFields) {
         return isBodyExactMatch(contractResponseFields, providerResponseFields);
 
         // lenient https://www.baeldung.com/jsonassert
 
     }
 
-    public HttpBodyVerificationResult isBodyExactMatch(ResponseFields contractResponseFields, ProviderHTTPResult providerResponseFields) {
+    public BodyVerificationResult isBodyExactMatch(ResponseFields contractResponseFields, ProviderHTTPResult providerResponseFields) {
         try {
             String contractBody = contractResponseFields.getBody();
             String providerBody = providerResponseFields.getResponseBody();
@@ -44,8 +43,18 @@ public class HttpJsonBodyVerifier implements MessageBodyVerifier {
                 bodyVerificationResult.setReportStatus(ReportStatus.OK);
 
             } else {
-                JsonNode jsonContractBody = JacksonObjectMapper.getMapper().readTree(contractBody);
-                JsonNode jsonProviderBody = JacksonObjectMapper.getMapper().readTree(providerBody);
+                ObjectMapper mapper = JacksonObjectMapper.getMapper();
+
+                JsonNode jsonContractBody = mapper.readTree(contractBody);
+                JsonNode jsonProviderBody = mapper.readTree(providerBody);
+
+                if (jsonProviderBody == null) {
+                    jsonProviderBody = mapper.createObjectNode();
+                }
+
+                if (jsonContractBody == null) {
+                    jsonContractBody = mapper.createObjectNode();
+                }
 
                 if (jsonContractBody.equals(jsonProviderBody)) {
                     bodyVerificationResult.setReportStatus(ReportStatus.OK);
