@@ -44,6 +44,8 @@ public class HttpHeaderVerifier implements MessageHeaderVerifier {
         verificationResult.setContractHeaders(contractHeaders);
         verificationResult.setProviderHeaders(providerHeaders);
 
+
+
         return contractHeaders.equals(providerHeaders);
     }
 

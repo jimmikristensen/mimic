@@ -3,7 +3,9 @@ package mimic.provider
 import mimic.mountebank.net.http.HttpMethod
 import mimic.mountebank.provider.report.ConsoleProviderReport
 import mimic.mountebank.provider.report.ProviderReportBuilder
+import mimic.mountebank.provider.verifier.results.HttpHeaderVerificationResult
 import mimic.mountebank.provider.verifier.results.ProviderHTTPResult
+import mimic.mountebank.provider.verifier.results.ReportStatus
 import spock.lang.Specification
 
 class ProviderReportBuilderSpec extends Specification {
@@ -28,6 +30,16 @@ class ProviderReportBuilderSpec extends Specification {
 
     }
 
+    def "when given a provider OK header result and instructed to create console report, the report is printed to console"() {
+        expect:
+        new ProviderReportBuilder().useProviderHeaderResult(createOKHttpHeaderResult()).createConsoleReport().printReport()
+    }
+
+    def "when given a provider header result with different status and instructed to create console report, the report is printed to console"() {
+        expect:
+        new ProviderReportBuilder().useProviderHeaderResult(createFAILED1HttpHeaderResult()).createConsoleReport().printReport()
+    }
+
     private ProviderHTTPResult createHttpResult() {
         def httpResult = new ProviderHTTPResult()
 
@@ -42,5 +54,27 @@ class ProviderReportBuilderSpec extends Specification {
         httpResult.setResponseBody('{"content":"this is content"}')
 
         return httpResult
+    }
+
+    private HttpHeaderVerificationResult createOKHttpHeaderResult() {
+        def httpHeaderResult = new HttpHeaderVerificationResult()
+        httpHeaderResult.setReportStatus(ReportStatus.OK)
+        httpHeaderResult.setContractStatusCode(204)
+        httpHeaderResult.setContractHeaders(["Header0":"Value0", "Header1":"Value1"])
+        httpHeaderResult.setProviderStatusCode(204)
+        httpHeaderResult.setProviderHeaders(["Header0":"Value0", "Header1":"Value1"])
+
+        return httpHeaderResult
+    }
+
+    private HttpHeaderVerificationResult createFAILED1HttpHeaderResult() {
+        def httpHeaderResult = new HttpHeaderVerificationResult()
+        httpHeaderResult.setReportStatus(ReportStatus.FAILED)
+        httpHeaderResult.setContractStatusCode(204)
+        httpHeaderResult.setContractHeaders(["Header0":"Value0", "Header1":"Value1"])
+        httpHeaderResult.setProviderStatusCode(201)
+        httpHeaderResult.setProviderHeaders(["Header0":"Value0", "Header1":"Value1"])
+
+        return httpHeaderResult
     }
 }

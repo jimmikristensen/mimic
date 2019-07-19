@@ -99,4 +99,26 @@ class HttpHeaderVerifierSpec extends Specification {
         verificationResult.headerDiff().get(0) == "X-Header"
     }
 
+    def "difference in headers count between contract and provider is verified"() {
+        given:
+        def contractHeaders = [
+                "X-Header":"this is x",
+                "Y-Header":"this is y"
+        ]
+        def providertHeaders = [
+                "X-Header":"this is x",
+                "Y-Header":"this is y",
+                "Z-Header":"this is z"
+        ]
+        def contractResponseFields = new ResponseFields(status: 201, headers: contractHeaders)
+        def providerResponseFields = new ProviderHTTPResult(responseStatus:  201, responseHeaders: providertHeaders)
+
+        when:
+        def verificationResult = new HttpHeaderVerifier().verify(contractResponseFields, providerResponseFields)
+
+        then:
+        verificationResult.getReportStatus() == ReportStatus.FAILED
+        verificationResult.getDiff()
+    }
+
 }
