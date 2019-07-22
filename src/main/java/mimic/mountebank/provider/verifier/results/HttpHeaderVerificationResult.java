@@ -1,5 +1,7 @@
 package mimic.mountebank.provider.verifier.results;
 
+import com.google.common.collect.MapDifference;
+import com.google.common.collect.Maps;
 import mimic.mountebank.provider.verifier.results.diff.Diff;
 import mimic.mountebank.provider.verifier.results.diff.DiffOperation;
 import org.bitbucket.cowwoc.diffmatchpatch.DiffMatchPatch;
@@ -8,6 +10,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class HttpHeaderVerificationResult implements VerificationResult {
 
@@ -60,56 +63,91 @@ public class HttpHeaderVerificationResult implements VerificationResult {
     }
 
     public List<Diff> getDiff() {
-        getStatusDiff();
-        getHeaderDiff();
-        return null;
+        List<Diff> diffResult = Stream.of(getStatusDiff(), getHeaderDiff()).collect(LinkedList::new, List::addAll, List::addAll);
+
+        logger.info(diffResult.toString());
+
+        return diffResult;
     }
 
     private List<Diff> getHeaderDiff() {
         System.out.println(contractHeaders);
         System.out.println(providerHeaders);
 
-        Map<String, String> exactMatch = new HashMap<>();
-        Map<String, String> valueMismatch = new HashMap<>();
-        Map<String, String> missing = new HashMap<>();
 
-        for (Map.Entry<String, String> contractHeader : contractHeaders.entrySet()) {
-            String ck = contractHeader.getKey();
-            String cv = contractHeader.getValue();
+        // find missing keys in
+        Map<String, String> missingHeadersFromProvider = new HashMap<>(contractHeaders);
+        missingHeadersFromProvider.keySet().removeAll(providerHeaders.keySet());
 
-            exactMatch = providerHeaders.entrySet().stream()
-                    .filter(ph -> ph.getKey().equals(ck) && ph.getValue().equals(cv))
-                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        System.out.println();
+        System.out.println("missin headers: ");
+        System.out.println(missingHeadersFromProvider);
 
-            valueMismatch = providerHeaders.entrySet().stream()
-                    .filter(ph -> ph.getKey().equals(ck) && !ph.getValue().equals(cv))
-                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-
-            missing = providerHeaders.entrySet().stream()
-                    .filter(ph -> !ph.getKey().equals(ck))
-                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-        }
+        // key match but value mismatch
+        Map<String, Map<String, String>> differentValues = contractHeaders.entrySet().stream()
+                .filter(e -> !e.getValue().equals(providerHeaders.get(e.getKey())))
+                .collect(Collectors.toMap(e -> e.getKey(), e -> Map.of("LEFT", e.getValue(), "RIGHT", providerHeaders.get(e.getKey()))));
 
 
-//        List<String> contractRetainedKeys = new ArrayList<>(contractHeaders.keySet());
-//        contractRetainedKeys.retainAll(providerHeaders.entrySet());
-//
-//        List<String> providerRetainedKeys = new ArrayList<>(providerHeaders.keySet());
-//        providerRetainedKeys.retainAll(contractHeaders.entrySet());
 
-        System.out.println(exactMatch);
-        System.out.println(valueMismatch);
-        System.out.println(missing);
 
-        return null;
+        System.out.println("different values:");
+        System.out.println(differentValues);
+
+        System.out.println();
+
+        System.out.println("Guava---");
+        MapDifference<String, String> diff = Maps.difference(contractHeaders, providerHeaders);
+        Map<String, MapDifference.ValueDifference<String>> entriesDiff = diff.entriesDiffering();
+
+        System.out.println("missing headers: ");
+        System.out.println(diff.entriesOnlyOnLeft());
+
+        System.out.println("different values:");
+        System.out.println(entriesDiff);
+//        System.out.println(entriesDiff.get("Y-Header").leftValue());
+//        System.out.println(entriesDiff.get("Y-Header").rightValue());
+
+
+        List<Diff> diffResult = new LinkedList<>();
+
+        missingHeadersFromProvider.forEach((k, v) -> {
+            diffResult.add(new Diff(
+                    DiffOperation.ADD,
+                    "header",
+                    v,
+                    null
+            ));
+        });
+
+        differentValues.forEach((k, v) -> {
+            diffResult.add(new Diff(
+                    DiffOperation.REPLACE,
+                    "header",
+                    v.get("LEFT"),
+                    v.get("RIGHT")
+            ));
+        });
+
+        System.out.println();
+        System.out.println("DIFF");
+        System.out.println(diffResult);
+
+        diffResult.forEach(e -> {
+            System.out.println(e.getOperation());
+            System.out.println(e.getBranch());
+            System.out.println(e.getValue());
+            System.out.println(e.getFrom());
+            System.out.println();
+        });
+
+        return diffResult;
     }
 
     private List<Diff> getStatusDiff() {
         DiffMatchPatch dmp = new DiffMatchPatch();
         LinkedList<DiffMatchPatch.Diff> diff = dmp.diffMain(providerStatusCode+"", contractStatusCode+"");
         dmp.diffCleanupSemantic(diff);
-
-        logger.info(diff.toString());
 
         List<Diff> diffResult = new LinkedList<>();
 

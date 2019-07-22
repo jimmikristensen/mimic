@@ -4,6 +4,7 @@ import mimic.mountebank.imposter.ResponseFields
 import mimic.mountebank.provider.verifier.HttpHeaderVerifier
 import mimic.mountebank.provider.verifier.results.ProviderHTTPResult
 import mimic.mountebank.provider.verifier.results.ReportStatus
+import mimic.mountebank.provider.verifier.results.diff.DiffOperation
 import org.bitbucket.cowwoc.diffmatchpatch.DiffMatchPatch
 import spock.lang.Specification
 
@@ -94,16 +95,18 @@ class HttpHeaderVerifierSpec extends Specification {
 
         then:
         verificationResult.getReportStatus() == ReportStatus.FAILED
-        verificationResult.statusDiff().get(0).operation == DiffMatchPatch.Operation.EQUAL
-        verificationResult.headerDiff().size() == 1
-        verificationResult.headerDiff().get(0) == "X-Header"
+        verificationResult.getDiff()
+//        verificationResult.statusDiff().get(0).operation == DiffMatchPatch.Operation.EQUAL
+//        verificationResult.headerDiff().size() == 1
+//        verificationResult.headerDiff().get(0) == "X-Header"
     }
 
     def "difference in headers count between contract and provider is verified"() {
         given:
         def contractHeaders = [
                 "X-Header":"this is x",
-                "Y-Header":"this is y"
+                "Y-Header":"this is y",
+                "F-Header":"this is f"
         ]
         def providertHeaders = [
                 "X-Header":"this is x",
@@ -121,4 +124,26 @@ class HttpHeaderVerifierSpec extends Specification {
         verificationResult.getDiff()
     }
 
+    def "difference in headers value between contract and provider is verified"() {
+        given:
+        def contractHeaders = [
+                "X-Header":"this is x",
+                "Y-Header":"this is not y"
+        ]
+        def providertHeaders = [
+                "X-Header":"this is x",
+                "Y-Header":"this is y"
+        ]
+        def contractResponseFields = new ResponseFields(status: 201, headers: contractHeaders)
+        def providerResponseFields = new ProviderHTTPResult(responseStatus:  201, responseHeaders: providertHeaders)
+
+        when:
+        def verificationResult = new HttpHeaderVerifier().verify(contractResponseFields, providerResponseFields)
+
+        then:
+        verificationResult.getReportStatus() == ReportStatus.FAILED
+        def diff = verificationResult.getDiff()
+    }
+
+    // test case sensitive
 }

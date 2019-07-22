@@ -12,10 +12,8 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
-import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 public class HttpJsonBodyVerificationResult extends BodyVerificationResult {
 
@@ -42,8 +40,6 @@ public class HttpJsonBodyVerificationResult extends BodyVerificationResult {
 
             JsonNode patch = JsonDiff.asJson(providerNode, contractNode);
 
-            logger.info(patch.toString());
-
             List<Diff> diff = new LinkedList<>();
 
             patch.forEach(n -> {
@@ -69,6 +65,8 @@ public class HttpJsonBodyVerificationResult extends BodyVerificationResult {
                 ));
 
             });
+
+            logger.info(diff.toString());
 
             return diff;
 

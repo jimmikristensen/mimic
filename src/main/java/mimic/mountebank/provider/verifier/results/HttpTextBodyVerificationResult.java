@@ -21,8 +21,6 @@ public class HttpTextBodyVerificationResult extends BodyVerificationResult {
         LinkedList<DiffMatchPatch.Diff> diff = dmp.diffMain(providerBodyStr, contractBodyStr);
         dmp.diffCleanupSemantic(diff);
 
-        logger.info(diff.toString());
-
         List<Diff> diffResult = new LinkedList<>();
 
         diff.forEach((n) -> {
@@ -33,6 +31,8 @@ public class HttpTextBodyVerificationResult extends BodyVerificationResult {
                     null
             ));
         });
+
+        logger.info(diffResult.toString());
 
         return diffResult;
     }

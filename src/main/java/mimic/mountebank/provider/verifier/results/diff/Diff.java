@@ -36,4 +36,14 @@ public class Diff {
     public String getFrom() {
         return diffFrom;
     }
+
+    @Override
+    public String toString() {
+        return "Diff{" +
+                "op=" + op +
+                ", branch='" + diffBranch + '\'' +
+                ", value='" + diffValue + '\'' +
+                ", from='" + diffFrom + '\'' +
+                '}';
+    }
 }
