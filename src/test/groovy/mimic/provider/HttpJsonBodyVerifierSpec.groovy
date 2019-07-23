@@ -9,7 +9,6 @@ import mimic.mountebank.provider.verifier.HttpJsonBodyVerifier
 import mimic.mountebank.provider.verifier.results.diff.DiffOperation
 import mimic.mountebank.provider.verifier.results.ProviderHTTPResult
 import mimic.mountebank.provider.verifier.results.ReportStatus
-import org.bitbucket.cowwoc.diffmatchpatch.DiffMatchPatch
 import spock.lang.Specification
 
 class HttpJsonBodyVerifierSpec extends Specification {
@@ -115,14 +114,14 @@ class HttpJsonBodyVerifierSpec extends Specification {
 
         and:
         diff.get(0).getOperation() == DiffOperation.REMOVE
-        diff.get(0).getBranch() == "/test"
+        diff.get(0).getPath() == "/test"
         diff.get(0).getValue() == null
         diff.get(1).getOperation() == DiffOperation.MOVE
-        diff.get(1).getBranch() == "/key3"
+        diff.get(1).getPath() == "/key3"
         diff.get(1).getValue() == null
         diff.get(1).getFrom() == "/key2"
         diff.get(2).getOperation() == DiffOperation.REPLACE
-        diff.get(2).getBranch() == "/key"
+        diff.get(2).getPath() == "/key"
         diff.get(2).getValue() == 'other value'
     }
 
@@ -154,7 +153,7 @@ class HttpJsonBodyVerifierSpec extends Specification {
 
         and:
         diff.get(0).getOperation() == DiffOperation.REMOVE
-        diff.get(0).getBranch() == "/key"
+        diff.get(0).getPath() == "/key"
     }
 
     def "comparison between contract and provider where only provider has a null body verifies to false"() {
@@ -172,7 +171,7 @@ class HttpJsonBodyVerifierSpec extends Specification {
 
         and:
         diff.get(0).getOperation() == DiffOperation.ADD
-        diff.get(0).getBranch() == "/key"
+        diff.get(0).getPath() == "/key"
         diff.get(0).getValue() == "value"
     }
 
@@ -203,7 +202,7 @@ class HttpJsonBodyVerifierSpec extends Specification {
 
         and:
         diff.get(0).getOperation() == DiffOperation.ADD
-        diff.get(0).getBranch() == "/key"
+        diff.get(0).getPath() == "/key"
         diff.get(0).getValue() == "value"
     }
 
@@ -222,7 +221,7 @@ class HttpJsonBodyVerifierSpec extends Specification {
 
         and:
         diff.get(0).getOperation() == DiffOperation.REMOVE
-        diff.get(0).getBranch() == "/key"
+        diff.get(0).getPath() == "/key"
     }
 
     def "comparison between contract and provider where both contract and provider has an empty body is verified OK"() {

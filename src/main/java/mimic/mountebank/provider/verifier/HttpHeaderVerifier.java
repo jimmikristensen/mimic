@@ -43,9 +43,7 @@ public class HttpHeaderVerifier implements MessageHeaderVerifier {
     private boolean isHeadersExactMatch(Map<String, String> contractHeaders, Map<String, String> providerHeaders) {
         verificationResult.setContractHeaders(contractHeaders);
         verificationResult.setProviderHeaders(providerHeaders);
-
-
-
+        
         return contractHeaders.equals(providerHeaders);
     }
 

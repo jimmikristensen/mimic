@@ -64,8 +64,10 @@ public class HttpHeaderVerificationResult implements VerificationResult {
     }
 
     public List<Diff> getDiff() {
-        logger.info(DiffSet.get(DiffSet.Type.HEADER).toString());
-        return DiffSet.get(DiffSet.Type.HEADER);
+        getStatusDiff();
+        getHeaderDiff();
+        logger.info(DiffSet.toDiffString());
+        return Stream.of(DiffSet.get(DiffSet.Type.STATUS_CODE), DiffSet.get(DiffSet.Type.HEADER)).collect(LinkedList::new, List::addAll, List::addAll);
     }
 
     private void getHeaderDiff() {
@@ -95,7 +97,7 @@ public class HttpHeaderVerificationResult implements VerificationResult {
             DiffSet.add(DiffSet.Type.HEADER, new Diff(
                     Diff.Type.TEXT,
                     DiffOperation.REPLACE,
-                    "header",
+                    null,
                     v.get("LEFT"),
                     v.get("RIGHT")
             ));
@@ -108,10 +110,10 @@ public class HttpHeaderVerificationResult implements VerificationResult {
         dmp.diffCleanupSemantic(diff);
 
         diff.forEach((n) -> {
-            DiffSet.add(DiffSet.Type.HEADER, new Diff(
+            DiffSet.add(DiffSet.Type.STATUS_CODE, new Diff(
                     Diff.Type.TEXT,
                     DiffOperation.getEnum(n.operation.toString().toUpperCase()),
-                    "statusCode",
+                    null,
                     n.text,
                     null
             ));

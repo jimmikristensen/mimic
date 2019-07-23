@@ -124,7 +124,7 @@ class HttpHeaderVerifierSpec extends Specification {
         verificationResult.getDiff()
     }
 
-    def "difference in headers value between contract and provider is verified"() {
+    def "difference in headers value between contract and provider is unverified"() {
         given:
         def contractHeaders = [
                 "X-Header":"this is x",
@@ -143,7 +143,16 @@ class HttpHeaderVerifierSpec extends Specification {
         then:
         verificationResult.getReportStatus() == ReportStatus.FAILED
         def diff = verificationResult.getDiff()
+        diff.get(0).getOperation() == DiffOperation.EQUAL
+        diff.get(0).getValue() == '201'
+
+        and:
+        diff.get(1).getOperation() == DiffOperation.REPLACE
+        diff.get(1).getValue() == 'this is not y'
+        diff.get(1).getFrom() == 'this is y'
     }
 
     // test case sensitive
+    // test no diff
+    // test only diff in statuscode
 }

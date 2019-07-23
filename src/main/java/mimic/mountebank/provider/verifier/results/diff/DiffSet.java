@@ -31,6 +31,10 @@ public class DiffSet {
         return diffSets.get(type);
     }
 
+    public static Map<DiffSet.Type, List<Diff>> get() {
+        return diffSets;
+    }
+
     public static Set<Type> getTypes() {
         return diffSets.keySet();
     }
