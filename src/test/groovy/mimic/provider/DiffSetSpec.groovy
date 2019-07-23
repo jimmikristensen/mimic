@@ -9,8 +9,8 @@ class DiffSetSpec extends Specification {
 
     def "adding a single diff to the set will store the diff"() {
         given:
-        def diffSet = new DiffSet()
-        diffSet.add(DiffSet.Type.BODY, new Diff(
+        DiffSet.clear()
+        DiffSet.add(DiffSet.Type.BODY, new Diff(
                 Diff.Type.JSON,
                 DiffOperation.REMOVE,
                 "/key",
@@ -19,7 +19,7 @@ class DiffSetSpec extends Specification {
         ))
 
         expect:
-        def diffList = diffSet.get(DiffSet.Type.BODY)
+        def diffList = DiffSet.get(DiffSet.Type.BODY)
         diffList.size() == 1
 
         and:
@@ -31,15 +31,15 @@ class DiffSetSpec extends Specification {
 
     def "adding a two diff to the set will store the diff"() {
         given:
-        def diffSet = new DiffSet()
-        diffSet.add(DiffSet.Type.BODY, new Diff(
+        DiffSet.clear()
+        DiffSet.add(DiffSet.Type.BODY, new Diff(
                 Diff.Type.JSON,
                 DiffOperation.REMOVE,
                 "/key",
                 null,
                 null
         ))
-        diffSet.add(DiffSet.Type.BODY, new Diff(
+        DiffSet.add(DiffSet.Type.BODY, new Diff(
                 Diff.Type.JSON,
                 DiffOperation.REPLACE,
                 null,
@@ -48,7 +48,7 @@ class DiffSetSpec extends Specification {
         ))
 
         expect:
-        def diffList = diffSet.get(DiffSet.Type.BODY)
+        def diffList = DiffSet.get(DiffSet.Type.BODY)
         diffList.size() == 2
 
         and:
@@ -66,15 +66,15 @@ class DiffSetSpec extends Specification {
 
     def "retrieving the diffset types is successful when exists"() {
         given:
-        def diffSet = new DiffSet()
-        diffSet.add(DiffSet.Type.BODY, new Diff(
+        DiffSet.clear()
+        DiffSet.add(DiffSet.Type.BODY, new Diff(
                 Diff.Type.JSON,
                 DiffOperation.REMOVE,
                 "/key",
                 null,
                 null
         ))
-        diffSet.add(DiffSet.Type.HEADER, new Diff(
+        DiffSet.add(DiffSet.Type.HEADER, new Diff(
                 Diff.Type.TEXT,
                 DiffOperation.EQUAL,
                 null,
@@ -83,7 +83,7 @@ class DiffSetSpec extends Specification {
         ))
 
         expect:
-        Set typeSet = diffSet.getTypes()
+        Set typeSet = DiffSet.getTypes()
         Set resultSet = [DiffSet.Type.BODY, DiffSet.Type.HEADER]
         typeSet == resultSet
     }

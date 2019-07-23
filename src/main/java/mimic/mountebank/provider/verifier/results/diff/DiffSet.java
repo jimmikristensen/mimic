@@ -10,9 +10,9 @@ public class DiffSet {
         HEADER
     }
 
-    public Map<DiffSet.Type, List<Diff>> diffSets = new HashMap<>();
+    public static Map<DiffSet.Type, List<Diff>> diffSets = new HashMap<>();
 
-    public void add(DiffSet.Type type, Diff diff) {
+    public static void add(DiffSet.Type type, Diff diff) {
         List<Diff> diffList = diffSets.get(type);
 
         if (diffList == null) {
@@ -23,15 +23,19 @@ public class DiffSet {
         diffList.add(diff);
     }
 
-    public void add(DiffSet.Type type, Diff.Type diffType, DiffOperation op, String path, String value, String from) {
+    public static void add(DiffSet.Type type, Diff.Type diffType, DiffOperation op, String path, String value, String from) {
         add(type, new Diff(diffType, op, path, value, from));
     }
 
-    public List<Diff> get(DiffSet.Type type) {
+    public static List<Diff> get(DiffSet.Type type) {
         return diffSets.get(type);
     }
 
-    public Set<Type> getTypes() {
+    public static Set<Type> getTypes() {
         return diffSets.keySet();
+    }
+
+    public static void clear() {
+        diffSets.clear();
     }
 }
