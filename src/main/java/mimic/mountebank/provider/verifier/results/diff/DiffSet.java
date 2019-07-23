@@ -38,4 +38,8 @@ public class DiffSet {
     public static void clear() {
         diffSets.clear();
     }
+
+    public static String toDiffString() {
+        return "DiffSet{"+diffSets+"}";
+    }
 }

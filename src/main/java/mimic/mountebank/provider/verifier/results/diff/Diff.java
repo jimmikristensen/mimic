@@ -13,18 +13,18 @@ public class Diff {
         TEXT
     }
 
-    public Diff(Diff.Type diffType, DiffOperation op, String diffBranch, String diffValue, String diffFrom) {
+    public Diff(Diff.Type diffType, DiffOperation op, String path, String value, String from) {
         this.diffType = diffType;
         this.op = op;
-        this.diffPath = diffBranch;
-        this.diffValue = diffValue;
-        this.diffFrom = diffFrom;
+        this.diffPath = path;
+        this.diffValue = value;
+        this.diffFrom = from;
     }
 
-    public Diff(Diff.Type diffType, DiffOperation op, String diffBranch) {
+    public Diff(Diff.Type diffType, DiffOperation op, String path) {
         this.diffType = diffType;
         this.op = op;
-        this.diffPath = diffBranch;
+        this.diffPath = path;
         diffValue = null;
         diffFrom = null;
     }
@@ -53,7 +53,7 @@ public class Diff {
     public String toString() {
         return "Diff{" +
                 "op=" + op +
-                ", branch='" + diffPath + '\'' +
+                ", path='" + diffPath + '\'' +
                 ", value='" + diffValue + '\'' +
                 ", from='" + diffFrom + '\'' +
                 '}';
