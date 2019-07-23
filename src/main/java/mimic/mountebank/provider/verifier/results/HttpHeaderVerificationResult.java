@@ -4,6 +4,7 @@ import com.google.common.collect.MapDifference;
 import com.google.common.collect.Maps;
 import mimic.mountebank.provider.verifier.results.diff.Diff;
 import mimic.mountebank.provider.verifier.results.diff.DiffOperation;
+import mimic.mountebank.provider.verifier.results.diff.DiffSet;
 import org.bitbucket.cowwoc.diffmatchpatch.DiffMatchPatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,56 +64,26 @@ public class HttpHeaderVerificationResult implements VerificationResult {
     }
 
     public List<Diff> getDiff() {
-        List<Diff> diffResult = Stream.of(getStatusDiff(), getHeaderDiff()).collect(LinkedList::new, List::addAll, List::addAll);
-
-        logger.info(diffResult.toString());
-
-        return diffResult;
+        logger.info(DiffSet.get(DiffSet.Type.HEADER).toString());
+        return DiffSet.get(DiffSet.Type.HEADER);
     }
 
-    private List<Diff> getHeaderDiff() {
-        System.out.println(contractHeaders);
-        System.out.println(providerHeaders);
+    private void getHeaderDiff() {
 
-
-        // find missing keys in
+        // find missing keys
         Map<String, String> missingHeadersFromProvider = new HashMap<>(contractHeaders);
         missingHeadersFromProvider.keySet().removeAll(providerHeaders.keySet());
-
-        System.out.println();
-        System.out.println("missin headers: ");
-        System.out.println(missingHeadersFromProvider);
 
         // key match but value mismatch
         Map<String, Map<String, String>> differentValues = contractHeaders.entrySet().stream()
                 .filter(e -> !e.getValue().equals(providerHeaders.get(e.getKey())))
                 .collect(Collectors.toMap(e -> e.getKey(), e -> Map.of("LEFT", e.getValue(), "RIGHT", providerHeaders.get(e.getKey()))));
 
-
-
-
-        System.out.println("different values:");
-        System.out.println(differentValues);
-
-        System.out.println();
-
-        System.out.println("Guava---");
-        MapDifference<String, String> diff = Maps.difference(contractHeaders, providerHeaders);
-        Map<String, MapDifference.ValueDifference<String>> entriesDiff = diff.entriesDiffering();
-
-        System.out.println("missing headers: ");
-        System.out.println(diff.entriesOnlyOnLeft());
-
-        System.out.println("different values:");
-        System.out.println(entriesDiff);
-//        System.out.println(entriesDiff.get("Y-Header").leftValue());
-//        System.out.println(entriesDiff.get("Y-Header").rightValue());
-
-
         List<Diff> diffResult = new LinkedList<>();
 
         missingHeadersFromProvider.forEach((k, v) -> {
-            diffResult.add(new Diff(
+            DiffSet.add(DiffSet.Type.HEADER, new Diff(
+                    Diff.Type.TEXT,
                     DiffOperation.ADD,
                     "header",
                     v,
@@ -121,45 +92,29 @@ public class HttpHeaderVerificationResult implements VerificationResult {
         });
 
         differentValues.forEach((k, v) -> {
-            diffResult.add(new Diff(
+            DiffSet.add(DiffSet.Type.HEADER, new Diff(
+                    Diff.Type.TEXT,
                     DiffOperation.REPLACE,
                     "header",
                     v.get("LEFT"),
                     v.get("RIGHT")
             ));
         });
-
-        System.out.println();
-        System.out.println("DIFF");
-        System.out.println(diffResult);
-
-        diffResult.forEach(e -> {
-            System.out.println(e.getOperation());
-            System.out.println(e.getBranch());
-            System.out.println(e.getValue());
-            System.out.println(e.getFrom());
-            System.out.println();
-        });
-
-        return diffResult;
     }
 
-    private List<Diff> getStatusDiff() {
+    private void getStatusDiff() {
         DiffMatchPatch dmp = new DiffMatchPatch();
         LinkedList<DiffMatchPatch.Diff> diff = dmp.diffMain(providerStatusCode+"", contractStatusCode+"");
         dmp.diffCleanupSemantic(diff);
 
-        List<Diff> diffResult = new LinkedList<>();
-
         diff.forEach((n) -> {
-            diffResult.add(new Diff(
+            DiffSet.add(DiffSet.Type.HEADER, new Diff(
+                    Diff.Type.TEXT,
                     DiffOperation.getEnum(n.operation.toString().toUpperCase()),
                     "statusCode",
                     n.text,
                     null
             ));
         });
-
-        return diffResult;
     }
 }

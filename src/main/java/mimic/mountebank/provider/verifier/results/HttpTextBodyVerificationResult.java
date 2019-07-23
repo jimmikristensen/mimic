@@ -25,6 +25,7 @@ public class HttpTextBodyVerificationResult extends BodyVerificationResult {
 
         diff.forEach((n) -> {
            diffResult.add(new Diff(
+                   Diff.Type.TEXT,
                     DiffOperation.getEnum(n.operation.toString().toUpperCase()),
                     null,
                    n.text,

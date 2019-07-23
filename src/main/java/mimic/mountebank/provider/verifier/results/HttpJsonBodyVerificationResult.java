@@ -7,6 +7,7 @@ import com.github.fge.jsonpatch.diff.JsonDiff;
 import mimic.mountebank.net.databind.JacksonObjectMapper;
 import mimic.mountebank.provider.verifier.results.diff.Diff;
 import mimic.mountebank.provider.verifier.results.diff.DiffOperation;
+import mimic.mountebank.provider.verifier.results.diff.DiffSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,8 +41,6 @@ public class HttpJsonBodyVerificationResult extends BodyVerificationResult {
 
             JsonNode patch = JsonDiff.asJson(providerNode, contractNode);
 
-            List<Diff> diff = new LinkedList<>();
-
             patch.forEach(n -> {
                 String diffOperationName = n.get("op").asText().toUpperCase().trim();
                 DiffOperation op = DiffOperation.getEnum(diffOperationName);
@@ -57,7 +56,8 @@ public class HttpJsonBodyVerificationResult extends BodyVerificationResult {
                     diffValue = n.get("value").asText();
                 }
 
-                diff.add(new Diff(
+                DiffSet.add(DiffSet.Type.BODY, new Diff(
+                        Diff.Type.JSON,
                         op,
                         diffBranch,
                         diffValue,
@@ -66,9 +66,9 @@ public class HttpJsonBodyVerificationResult extends BodyVerificationResult {
 
             });
 
-            logger.info(diff.toString());
+            logger.info(DiffSet.get(DiffSet.Type.BODY).toString());
 
-            return diff;
+            return DiffSet.get(DiffSet.Type.BODY);
 
         } catch (IOException e) {
             logger.error("Unable to serialize json string", e);
