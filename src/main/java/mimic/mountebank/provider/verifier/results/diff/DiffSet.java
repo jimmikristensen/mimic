@@ -28,7 +28,7 @@ public class DiffSet {
     }
 
     public static List<Diff> get(DiffSet.Type type) {
-        return diffSets.get(type);
+        return diffSets.get(type) != null ? diffSets.get(type) : new LinkedList<>();
     }
 
     public static Map<DiffSet.Type, List<Diff>> get() {
