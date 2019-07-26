@@ -71,6 +71,10 @@ public class HttpHeaderVerificationResult implements VerificationResult {
     }
 
     private void getHeaderDiff() {
+        // if no contract headers, no reason to check validation
+        if (contractHeaders == null) return;
+
+        providerHeaders = providerHeaders != null ? providerHeaders : new LinkedHashMap<>();
 
         // find missing keys
         Map<String, String> missingHeadersFromProvider = new HashMap<>(contractHeaders);
@@ -78,16 +82,17 @@ public class HttpHeaderVerificationResult implements VerificationResult {
 
         // key match but value mismatch
         Map<String, Map<String, String>> differentValues = contractHeaders.entrySet().stream()
-                .filter(e -> !e.getValue().equals(providerHeaders.get(e.getKey())))
-                .collect(Collectors.toMap(e -> e.getKey(), e -> Map.of("LEFT", e.getValue(), "RIGHT", providerHeaders.get(e.getKey()))));
-
-        List<Diff> diffResult = new LinkedList<>();
+                .filter(e -> providerHeaders.get(e.getKey()) != null && !e.getValue().equals(providerHeaders.get(e.getKey())))
+                .collect(Collectors.toMap(
+                        e -> e.getKey(),
+                        e -> Map.of("LEFT", e.getValue(), "RIGHT", providerHeaders.get(e.getKey()))
+                ));
 
         missingHeadersFromProvider.forEach((k, v) -> {
             DiffSet.add(DiffSet.Type.HEADER, new Diff(
                     Diff.Type.TEXT,
                     DiffOperation.ADD,
-                    "header",
+                    k,
                     v,
                     null
             ));
@@ -97,7 +102,7 @@ public class HttpHeaderVerificationResult implements VerificationResult {
             DiffSet.add(DiffSet.Type.HEADER, new Diff(
                     Diff.Type.TEXT,
                     DiffOperation.REPLACE,
-                    null,
+                    k,
                     v.get("LEFT"),
                     v.get("RIGHT")
             ));
