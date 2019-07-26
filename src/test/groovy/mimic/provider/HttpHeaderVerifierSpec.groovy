@@ -4,8 +4,9 @@ import mimic.mountebank.imposter.ResponseFields
 import mimic.mountebank.provider.verifier.HttpHeaderVerifier
 import mimic.mountebank.provider.verifier.results.ProviderHTTPResult
 import mimic.mountebank.provider.verifier.results.ReportStatus
+import mimic.mountebank.provider.verifier.results.diff.Diff
 import mimic.mountebank.provider.verifier.results.diff.DiffOperation
-import org.bitbucket.cowwoc.diffmatchpatch.DiffMatchPatch
+import mimic.mountebank.provider.verifier.results.diff.DiffSet
 import spock.lang.Specification
 
 
@@ -13,6 +14,7 @@ class HttpHeaderVerifierSpec extends Specification {
 
     def "HTTP status code is successfully verified agains imposter response fields"() {
         given:
+        DiffSet.clear()
         def contractResponseFields = new ResponseFields(statusCode: 201)
         def providerResponseFields = new ProviderHTTPResult(responseStatus: 201)
 
@@ -21,11 +23,13 @@ class HttpHeaderVerifierSpec extends Specification {
 
         then:
         verificationResult.getReportStatus() == ReportStatus.OK
-        verificationResult.statusDiff().get(0).operation == DiffMatchPatch.Operation.EQUAL
+        verificationResult.getDiff().size() == 1
+        verificationResult.getDiff().get(0).getOperation() == DiffOperation.EQUAL
     }
 
     def "difference in status between contract and provider results in unvarified"() {
         given:
+        DiffSet.clear()
         def contractResponseFields = new ResponseFields(statusCode: 201)
         def providerResponseFields = new ProviderHTTPResult(responseStatus: 200)
 
@@ -34,11 +38,26 @@ class HttpHeaderVerifierSpec extends Specification {
 
         then:
         verificationResult.getReportStatus() == ReportStatus.FAILED
-        verificationResult.statusDiff().get(1).operation == DiffMatchPatch.Operation.DELETE
+        def diff = verificationResult.getDiff()
+        diff.size() == 3
+
+        and:
+        diff.get(0).getOperation() == DiffOperation.EQUAL
+        diff.get(0).getType() == Diff.Type.TEXT
+        diff.get(0).getValue() == "20"
+
+        and:
+        diff.get(1).getOperation() == DiffOperation.REMOVE
+        diff.get(1).getValue() == "0"
+
+        and:
+        diff.get(2).getOperation() == DiffOperation.ADD
+        diff.get(2).getValue() == "1"
     }
 
     def "the exact same headers between contract and provider is verified"() {
         given:
+        DiffSet.clear()
         def headers = [
                 "X-Header":"this is x",
                 "Y-Header":"this is y"
@@ -51,12 +70,17 @@ class HttpHeaderVerifierSpec extends Specification {
 
         then:
         verificationResult.getReportStatus() == ReportStatus.OK
-        verificationResult.statusDiff().get(0).operation == DiffMatchPatch.Operation.EQUAL
-        verificationResult.headerDiff().size() == 0
+        def diff = verificationResult.getDiff()
+        diff.size() == 1
+
+        and:
+        diff.get(0).getOperation() == DiffOperation.EQUAL
+        diff.get(0).getValue() == "201"
     }
 
     def "the exact same headers, but in different order, between contract and provider is verified"() {
         given:
+        DiffSet.clear()
         def contractHeaders = [
                 "X-Header":"this is x",
                 "Y-Header":"this is y"
@@ -73,12 +97,17 @@ class HttpHeaderVerifierSpec extends Specification {
 
         then:
         verificationResult.getReportStatus() == ReportStatus.OK
-        verificationResult.statusDiff().get(0).operation == DiffMatchPatch.Operation.EQUAL
-        verificationResult.headerDiff().size() == 0
+        def diff = verificationResult.getDiff()
+        diff.size() == 1
+
+        and:
+        diff.get(0).getOperation() == DiffOperation.EQUAL
+        diff.get(0).getValue() == "201"
     }
 
     def "difference in headers between contract and provider is unverified"() {
         given:
+        DiffSet.clear()
         def contractHeaders = [
                 "X-Header":"this is x",
                 "Y-Header":"this is y"
@@ -95,14 +124,18 @@ class HttpHeaderVerifierSpec extends Specification {
 
         then:
         verificationResult.getReportStatus() == ReportStatus.FAILED
-        verificationResult.getDiff()
-//        verificationResult.statusDiff().get(0).operation == DiffMatchPatch.Operation.EQUAL
-//        verificationResult.headerDiff().size() == 1
-//        verificationResult.headerDiff().get(0) == "X-Header"
+        def diff = verificationResult.getDiff()
+        diff.size() == 2
+
+        and:
+        diff.get(1).getOperation() == DiffOperation.ADD
+        diff.get(1).getPath() == "X-Header"
+        diff.get(1).getValue() == "this is x"
     }
 
-    def "difference in headers count between contract and provider is verified"() {
+    def "difference in header keys but same amount between contract and provider is unverified"() {
         given:
+        DiffSet.clear()
         def contractHeaders = [
                 "X-Header":"this is x",
                 "Y-Header":"this is y",
@@ -121,11 +154,40 @@ class HttpHeaderVerifierSpec extends Specification {
 
         then:
         verificationResult.getReportStatus() == ReportStatus.FAILED
+        def diff = verificationResult.getDiff()
+
+        and:
+        diff.get(1).getOperation() == DiffOperation.ADD
+        diff.get(1).getPath() == "F-Header"
+        diff.get(1).getValue() == "this is f"
+    }
+
+    def "difference in headers count between contract and provider is verified"() {
+        given:
+        DiffSet.clear()
+        def contractHeaders = [
+                "X-Header":"this is x",
+                "Y-Header":"this is y"
+        ]
+        def providertHeaders = [
+                "X-Header":"this is x",
+                "Y-Header":"this is y",
+                "Z-Header":"this is z"
+        ]
+        def contractResponseFields = new ResponseFields(status: 201, headers: contractHeaders)
+        def providerResponseFields = new ProviderHTTPResult(responseStatus:  201, responseHeaders: providertHeaders)
+
+        when:
+        def verificationResult = new HttpHeaderVerifier().verify(contractResponseFields, providerResponseFields)
+
+        then:
         verificationResult.getDiff()
+        verificationResult.getReportStatus() == ReportStatus.OK
     }
 
     def "difference in headers value between contract and provider is unverified"() {
         given:
+        DiffSet.clear()
         def contractHeaders = [
                 "X-Header":"this is x",
                 "Y-Header":"this is not y"
@@ -152,6 +214,7 @@ class HttpHeaderVerifierSpec extends Specification {
         diff.get(1).getFrom() == 'this is y'
     }
 
+    // test where code and header is diff
     // test case sensitive
     // test no diff
     // test only diff in statuscode
