@@ -214,8 +214,90 @@ class HttpHeaderVerifierSpec extends Specification {
         diff.get(1).getFrom() == 'this is y'
     }
 
-    // test where code and header is diff
-    // test case sensitive
-    // test no diff
-    // test only diff in statuscode
+    def "difference in header and status code between contract and provider"() {
+        given:
+        DiffSet.clear()
+        def contractHeaders = [
+                "X-Header":"this is x",
+                "Y-Header":"this is not y"
+        ]
+        def providertHeaders = [
+                "X-Header":"this is x",
+                "Y-Header":"this is y"
+        ]
+        def contractStatusCode = 201
+        def providerStatusCode = 203
+        def contractResponseFields = new ResponseFields(status: contractStatusCode, headers: contractHeaders)
+        def providerResponseFields = new ProviderHTTPResult(responseStatus:  providerStatusCode, responseHeaders: providertHeaders)
+
+        when:
+        def verificationResult = new HttpHeaderVerifier().verify(contractResponseFields, providerResponseFields)
+
+        then:
+        verificationResult.getReportStatus() == ReportStatus.FAILED
+        def diff = verificationResult.getDiff()
+        diff.get(0).getOperation() == DiffOperation.EQUAL
+        diff.get(0).getValue() == "20"
+        diff.get(1).getOperation() == DiffOperation.REMOVE
+        diff.get(1).getValue() == "3"
+        diff.get(2).getOperation() == DiffOperation.ADD
+        diff.get(2).getValue() == "1"
+
+        and:
+        diff.get(3).getOperation() == DiffOperation.REPLACE
+        diff.get(3).path == "Y-Header"
+        diff.get(3).getValue() == "this is not y"
+        diff.get(3).getFrom() == "this is y"
+    }
+
+    def "difference in header value case between contract and provider will fail"() {
+        given:
+        DiffSet.clear()
+        def contractHeaders = [
+                "X-Header":"this is x"
+        ]
+        def providertHeaders = [
+                "X-Header":"THIS IS X"
+        ]
+        def contractResponseFields = new ResponseFields(status: 201, headers: contractHeaders)
+        def providerResponseFields = new ProviderHTTPResult(responseStatus:  201, responseHeaders: providertHeaders)
+
+        when:
+        def verificationResult = new HttpHeaderVerifier().verify(contractResponseFields, providerResponseFields)
+
+        then:
+        verificationResult.getReportStatus() == ReportStatus.FAILED
+
+        and:
+        def diff = verificationResult.getDiff()
+        diff.get(1).getOperation() == DiffOperation.REPLACE
+        diff.get(1).getPath() == "X-Header"
+        diff.get(1).getValue() == "this is x"
+        diff.get(1).getFrom() == "THIS IS X"
+    }
+
+    def "difference in header key case between contract and provider will fail"() {
+        given:
+        DiffSet.clear()
+        def contractHeaders = [
+                "X-Header":"this is x"
+        ]
+        def providertHeaders = [
+                "X-HEADER":"this is x"
+        ]
+        def contractResponseFields = new ResponseFields(status: 201, headers: contractHeaders)
+        def providerResponseFields = new ProviderHTTPResult(responseStatus:  201, responseHeaders: providertHeaders)
+
+        when:
+        def verificationResult = new HttpHeaderVerifier().verify(contractResponseFields, providerResponseFields)
+
+        then:
+        verificationResult.getReportStatus() == ReportStatus.FAILED
+
+        and:
+        def diff = verificationResult.getDiff()
+        diff.get(1).getOperation() == DiffOperation.ADD
+        diff.get(1).getPath() == "X-Header"
+        diff.get(1).getValue() == "this is x"
+    }
 }
