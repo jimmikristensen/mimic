@@ -12,9 +12,12 @@ import spock.lang.Specification
 
 class HttpHeaderVerifierSpec extends Specification {
 
+    def setup() {
+        DiffSet.clear()
+    }
+
     def "HTTP status code is successfully verified agains imposter response fields"() {
         given:
-        DiffSet.clear()
         def contractResponseFields = new ResponseFields(statusCode: 201)
         def providerResponseFields = new ProviderHTTPResult(responseStatus: 201)
 
@@ -29,7 +32,6 @@ class HttpHeaderVerifierSpec extends Specification {
 
     def "difference in status between contract and provider results in unvarified"() {
         given:
-        DiffSet.clear()
         def contractResponseFields = new ResponseFields(statusCode: 201)
         def providerResponseFields = new ProviderHTTPResult(responseStatus: 200)
 
@@ -57,7 +59,6 @@ class HttpHeaderVerifierSpec extends Specification {
 
     def "the exact same headers between contract and provider is verified"() {
         given:
-        DiffSet.clear()
         def headers = [
                 "X-Header":"this is x",
                 "Y-Header":"this is y"
@@ -80,7 +81,6 @@ class HttpHeaderVerifierSpec extends Specification {
 
     def "the exact same headers, but in different order, between contract and provider is verified"() {
         given:
-        DiffSet.clear()
         def contractHeaders = [
                 "X-Header":"this is x",
                 "Y-Header":"this is y"
@@ -107,7 +107,6 @@ class HttpHeaderVerifierSpec extends Specification {
 
     def "difference in headers between contract and provider is unverified"() {
         given:
-        DiffSet.clear()
         def contractHeaders = [
                 "X-Header":"this is x",
                 "Y-Header":"this is y"
@@ -135,7 +134,6 @@ class HttpHeaderVerifierSpec extends Specification {
 
     def "difference in header keys but same amount between contract and provider is unverified"() {
         given:
-        DiffSet.clear()
         def contractHeaders = [
                 "X-Header":"this is x",
                 "Y-Header":"this is y",
@@ -164,7 +162,6 @@ class HttpHeaderVerifierSpec extends Specification {
 
     def "difference in headers count between contract and provider is verified"() {
         given:
-        DiffSet.clear()
         def contractHeaders = [
                 "X-Header":"this is x",
                 "Y-Header":"this is y"
@@ -187,7 +184,6 @@ class HttpHeaderVerifierSpec extends Specification {
 
     def "difference in headers value between contract and provider is unverified"() {
         given:
-        DiffSet.clear()
         def contractHeaders = [
                 "X-Header":"this is x",
                 "Y-Header":"this is not y"
@@ -216,7 +212,6 @@ class HttpHeaderVerifierSpec extends Specification {
 
     def "difference in header and status code between contract and provider"() {
         given:
-        DiffSet.clear()
         def contractHeaders = [
                 "X-Header":"this is x",
                 "Y-Header":"this is not y"
@@ -252,7 +247,6 @@ class HttpHeaderVerifierSpec extends Specification {
 
     def "difference in header value case between contract and provider will fail"() {
         given:
-        DiffSet.clear()
         def contractHeaders = [
                 "X-Header":"this is x"
         ]
@@ -278,7 +272,6 @@ class HttpHeaderVerifierSpec extends Specification {
 
     def "difference in header key case between contract and provider will fail"() {
         given:
-        DiffSet.clear()
         def contractHeaders = [
                 "X-Header":"this is x"
         ]

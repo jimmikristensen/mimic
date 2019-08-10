@@ -9,9 +9,14 @@ import mimic.mountebank.provider.verifier.HttpJsonBodyVerifier
 import mimic.mountebank.provider.verifier.results.diff.DiffOperation
 import mimic.mountebank.provider.verifier.results.ProviderHTTPResult
 import mimic.mountebank.provider.verifier.results.ReportStatus
+import mimic.mountebank.provider.verifier.results.diff.DiffSet
 import spock.lang.Specification
 
 class HttpJsonBodyVerifierSpec extends Specification {
+
+    def setup() {
+        DiffSet.clear()
+    }
 
     def "exact match between contract and provider is verified"() {
         given:
