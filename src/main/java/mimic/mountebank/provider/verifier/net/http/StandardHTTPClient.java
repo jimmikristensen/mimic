@@ -38,6 +38,8 @@ public class StandardHTTPClient implements HTTPClient {
                 .build();
 
         HttpUrl httUrl = createUrl(baseUrl, httpPredicate);
+        System.out.println("-----------");
+        System.out.println(httUrl.toString());
         Headers headers = createHeaders(httpPredicate);
         RequestBody body = createBody(httpPredicate);
 

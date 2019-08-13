@@ -69,8 +69,15 @@ public class ContractVerifier {
             verificationFactory.createReport().createConsoleReport().printReport();
             System.out.println("#######################################");
 
-            System.out.println(isBodyVerified);
-            System.out.println(isHeaderVerified);
+            System.out.println(isBodyVerified.getDiff());
+            System.out.println(isHeaderVerified.getDiff());
+            System.out.println(providerResponse.getResponseStatus());
+
+            try {
+                Thread.sleep(120000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
 
         }
 

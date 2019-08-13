@@ -23,6 +23,13 @@ class ProviderImposterVerifierSpec extends Specification {
     def "verifying local imposter is successful"() {
         when:
         def isVerified = ProviderImposterVerifier.Verify()
+
+//        ProviderImposterVerifier.Builder()
+//        .withContractFromClasspath()
+//        .withContractFromFile()
+//        .withContractFromMountebank()
+//        .verify()
+
         // should this be a builder?
 
         then:
