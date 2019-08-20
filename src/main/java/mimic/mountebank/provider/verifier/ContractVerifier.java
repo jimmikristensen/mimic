@@ -52,10 +52,10 @@ public class ContractVerifier {
 
             ResponseFields responseFields = imposters.get(0).getStub(0).getResponse(0).getFields();
             MessageHeaderVerifier headerVerifier = verificationFactory.createHeaderVerifier();
-            HttpHeaderVerificationResult isHeaderVerified = headerVerifier.verify(responseFields, providerResponse);
+            HttpHeaderVerificationResult headerVerificationResult = headerVerifier.verify(responseFields, providerResponse);
 
             MessageBodyVerifier bodyVerifier = verificationFactory.createBodyVerifier(responseFields, providerResponse);
-            BodyVerificationResult isBodyVerified = bodyVerifier.verify(responseFields, providerResponse);
+            BodyVerificationResult bodyVerificationResult = bodyVerifier.verify(responseFields, providerResponse);
 
             System.out.println(imposters.get(0).getProtocol());
             System.out.println(imposters.get(0).getStub(0).getPredicate(0).getEquals().getBody());
@@ -66,18 +66,16 @@ public class ContractVerifier {
 
 
             System.out.println("#######################################");
-            verificationFactory.createReport().createConsoleReport().printReport();
+            verificationFactory.createReport()
+                    .useProviderHeaderResult(headerVerificationResult)
+                    .useProviderHttpResult(providerResponse)
+                    .createConsoleReport().printReport();
             System.out.println("#######################################");
 
-            System.out.println(isBodyVerified.getDiff());
-            System.out.println(isHeaderVerified.getDiff());
+            System.out.println(bodyVerificationResult.getReportStatus());
+            System.out.println(headerVerificationResult.getReportStatus());
             System.out.println(providerResponse.getResponseStatus());
 
-            try {
-                Thread.sleep(120000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
 
         }
 
