@@ -23,12 +23,19 @@ class ProviderImposterVerifierSpec extends Specification {
     def "verifying local imposter is successful"() {
         when:
         def isVerified = ProviderImposterVerifier.Verify()
+        def baseUrl = "http://localhost:"+container.getMappedPort(4321)
+
+        ProviderImposterVerifier.Builder(baseUrl)
+        .useContractsFromClasspath()
+        .verify()
 
 //        ProviderImposterVerifier.Builder()
 //        .withContractFromClasspath()
 //        .withContractFromFile()
 //        .withContractFromMountebank()
 //        .verify()
+//        .report()
+//        .print()
 
         // should this be a builder?
 
