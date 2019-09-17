@@ -352,7 +352,7 @@ class HTTPClientSpec extends Specification {
 
         then:
         IllegalArgumentException ex = thrown()
-        ex.message == "Request URL must contain at leas a base URL"
+        ex.message == "Request URL must contain at least a base URL"
     }
 
     def "using a predicate with null base URL and no request path results in IllegalArgumentException"() {
@@ -373,7 +373,7 @@ class HTTPClientSpec extends Specification {
 
         then:
         IllegalArgumentException ex = thrown()
-        ex.message == "Request URL must contain at leas a base URL"
+        ex.message == "Request URL must contain at least a base URL"
     }
 
     def "using a predicate with null base URL but a request path results in IllegalArgumentException"() {
@@ -395,7 +395,7 @@ class HTTPClientSpec extends Specification {
 
         then:
         IllegalArgumentException ex = thrown()
-        ex.message == "Request URL must contain at leas a base URL"
+        ex.message == "Request URL must contain at least a base URL"
     }
 
     def "using a predicate with no method results in IllegalArgumentException"() {

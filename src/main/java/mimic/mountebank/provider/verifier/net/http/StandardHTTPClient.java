@@ -164,7 +164,7 @@ public class StandardHTTPClient implements HTTPClient {
             return httpBuider.build();
 
         } catch (NullPointerException e) {
-            throw new IllegalArgumentException("Request URL must contain at leas a base URL", e);
+            throw new IllegalArgumentException("Request URL must contain at least a base URL", e);
         }
     }
 
