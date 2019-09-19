@@ -105,6 +105,22 @@ class HttpTextBodyVerifierSpec extends Specification {
         diff.get(0).getValue() == "Some TEXT"
     }
 
+    def "contract body is null but provider body is empty string is verified"() {
+        given:
+        def contractBody = null
+        def providerBody = ''
+        def contractResponseFields = new ResponseFields(body: contractBody)
+        def providerResponseFields = new ProviderHTTPResult(responseBody: providerBody)
+
+        when:
+        def verificationResult = new HttpTextBodyVerifier().verify(contractResponseFields,providerResponseFields)
+
+        then:
+        verificationResult.getReportStatus() == ReportStatus.OK
+        def diff = verificationResult.getDiff()
+        diff.size() == 0
+    }
+
     def "both contract and provider body is null is verified"() {
         given:
         def contractBody = null

@@ -5,7 +5,7 @@ import java.util.HashMap;
 public class ResponseFields {
 
     private int statusCode;
-    private String body;
+    private String body = "";
     private HashMap<String, String> headers = new HashMap<>();
 
     public int getStatus() {
@@ -21,7 +21,7 @@ public class ResponseFields {
     }
 
     public void setBody(String body) {
-        this.body = body;
+        this.body = body == null ? "" : body;
     }
 
     public HashMap<String, String> getHeaders() {
